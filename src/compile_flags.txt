@@ -1,0 +1,4 @@
+-I 
+include
+-I
+/usr/local/Homebrew/lib/calypsi-68000-5.7.1/contrib/Foenix-SDK/include
