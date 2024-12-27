@@ -59,9 +59,11 @@ dkms.conf
 *.pgz
 *.s28
 *.lst
+*.hex
 
 # directories
 .deps/
 module/
 module/Calypsi-m68k-Foenix
 module/Calypsi-65816-Foenix
+obj/
