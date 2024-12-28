@@ -599,7 +599,7 @@ bool Sys_AutoDetectMachine(System* the_system)
 	DEBUG_OUT(("%s %d: the_system->model_number_=%u", __func__, __LINE__, the_system->model_number_));
 	
 	// temp until Calypsi fix for switch on 65816
-	if (the_system->model_number_ == MACHINE_A2560U || the_system->model_number_ == MACHINE_A2560U_PLUS)
+	if (the_system->model_number_ == MACHINE_A2560M || the_system->model_number_ == MACHINE_A2560U_PLUS)
 	{
 			DEBUG_OUT(("%s %d: I think this is a A2560U or A2560U+...", __func__, __LINE__));
 			the_system->num_screens_ = 1;
@@ -629,8 +629,8 @@ bool Sys_AutoConfigure(System* the_system)
 	int16_t				i;
 
 	// TEMP until bug fix for calypsi on switch below
-	if (the_system->model_number_ == MACHINE_C256_GENX || 
-		the_system->model_number_ == MACHINE_C256_FMX)
+	if (the_system->model_number_ == MACHINE_GENX || 
+		the_system->model_number_ == MACHINE_C256FMX)
 	{
 		DEBUG_OUT(("%s %d: Configuring screen for single-screen Foenix", __func__, __LINE__));
 		the_system->screen_[ID_CHANNEL_A]->vicky_ = P32(VICKY_C256);
@@ -647,7 +647,7 @@ bool Sys_AutoConfigure(System* the_system)
 		the_system->screen_[ID_CHANNEL_B]->text_color_fore_ram_ = (char*)TEXT_FORE_LUT_C256;
 		the_system->screen_[ID_CHANNEL_B]->text_color_back_ram_ = (char*)TEXT_BACK_LUT_C256;
 	}
-	else if (the_system->model_number_ == MACHINE_A2560U_PLUS || the_system->model_number_ == MACHINE_A2560U)
+	else if (the_system->model_number_ == MACHINE_A2560U_PLUS || the_system->model_number_ == MACHINE_A2560M)
 	{
 		the_system->screen_[ID_CHANNEL_A]->vicky_ = P32(VICKY_A2560U);
 		the_system->screen_[ID_CHANNEL_A]->text_ram_ = TEXT_RAM_A2560U;
@@ -663,7 +663,10 @@ bool Sys_AutoConfigure(System* the_system)
 		the_system->screen_[ID_CHANNEL_B]->text_color_fore_ram_ = (char*)TEXT_FORE_LUT_A2560U;
 		the_system->screen_[ID_CHANNEL_B]->text_color_back_ram_ = (char*)TEXT_BACK_LUT_A2560U;
 	}
-	else if (the_system->model_number_ == MACHINE_A2560X || the_system->model_number_ == MACHINE_A2560K)
+	else if (the_system->model_number_ == MACHINE_A2560X || 
+			the_system->model_number_ == MACHINE_A2560K ||
+			the_system->model_number_ == MACHINE_A2560K40 ||
+			the_system->model_number_ == MACHINE_A2560K60 )
 	{
 		the_system->screen_[ID_CHANNEL_A]->vicky_ = P32(VICKY_A2560K_A);
 		the_system->screen_[ID_CHANNEL_A]->text_ram_ = TEXTA_RAM_A2560K;

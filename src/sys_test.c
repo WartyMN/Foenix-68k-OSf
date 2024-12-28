@@ -97,72 +97,76 @@ System*			global_system;
 
 
 
-// void text_test_setup(void)	// this is called EVERY test
-// {
-// // 	foo = 7;
-// // 	bar = 4;
-// // 	
-// }
-// 
-// 
-// void text_test_teardown(void)	// this is called EVERY test
-// {
-// 
-// }
-// 
-// 
-// 
-// // **** speed tests
-// 
-// MU_TEST(text_test_hline_speed)
-// {
-// 	long start1;
-// 	long end1;
-// 	long start2;
-// 	long end2;
+void test_setup(void)	// this is called EVERY test
+{
+// 	foo = 7;
+// 	bar = 4;
 // 	
-// 	// test speed of first variant
-// 	start1 = mu_timer_real();
-// 	
-// 
-// 
-// 	// speed test 1 goes here
-// 	
-// 	
-// 	end1 = mu_timer_real();
-// 	
-// 	// test speed of 2nd variant
-// 	start2 = mu_timer_real();
-// 	
-// 
-// 
-// 	// speed test 2 goes here
-// 	
-// 	
-// 	end2 = mu_timer_real();
-// 	
-// 	printf("\nSpeed results: first routine completed in %li ticks; second in %li ticks\n", end1 - start1, end2 - start2);
-// }
-// 
-// 
-// 
-// 	// speed tests
-// MU_TEST_SUITE(text_test_suite_speed)
-// {	
-// 	MU_SUITE_CONFIGURE(&text_test_setup, &text_test_teardown);
-// 	
-// // 	MU_RUN_TEST(text_test_hline_speed);
-// }
-// 
-// 
-// // unit tests
-// MU_TEST_SUITE(text_test_suite_units)
-// {	
-// 	MU_SUITE_CONFIGURE(&text_test_setup, &text_test_teardown);
-// 	
-// // 	MU_RUN_TEST(font_replace_test);
-// }
-// 
+}
+
+
+void test_teardown(void)	// this is called EVERY test
+{
+
+}
+
+
+
+// **** speed tests
+
+MU_TEST(test_speed_1)
+{
+	long start1;
+	long end1;
+	long start2;
+	long end2;
+	
+	// test speed of first variant
+	start1 = mu_timer_real();
+	
+
+
+	// speed test 1 goes here
+	
+	
+	end1 = mu_timer_real();
+	
+	// test speed of 2nd variant
+	start2 = mu_timer_real();
+	
+
+
+	// speed test 2 goes here
+	
+	
+	end2 = mu_timer_real();
+	
+	printf("\nSpeed results: first routine completed in %li ticks; second in %li ticks\n", end1 - start1, end2 - start2);
+}
+
+
+
+// speed tests
+MU_TEST_SUITE(test_suite_speed)
+{	
+	MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
+	
+	MU_RUN_TEST(test_speed_1);
+}
+
+
+// unit tests
+MU_TEST_SUITE(test_suite_units)
+{	
+	MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
+	
+// 	MU_RUN_TEST(string_manipulation_test);
+// 	MU_RUN_TEST(misc_test);
+// 	MU_RUN_TEST(number_string_test);
+// 	MU_RUN_TEST(rect_test);
+// 	MU_RUN_TEST(filepath_manipulation_test);
+}
+
 
 
 
@@ -183,8 +187,9 @@ int main(int argc, char* argv[])
 		printf("Couldn't instantiate system object \n");
 		exit(0);
 	}
-// 
-// 	DEBUG_OUT(("%s %d: System object created ok. Initiating list of windows...", __func__, __LINE__));
+
+// printf("System object created ok. Initiating system components... \n");
+// 	DEBUG_OUT(("%s %d: System object created ok. Initiating system components...", __func__, __LINE__));
 // 	
 // 	if (Sys_InitSystem(global_system) == false)
 // 	{
@@ -193,18 +198,22 @@ int main(int argc, char* argv[])
 // 	}
 // 
 // 	DEBUG_OUT(("%s %d: Setting graphics mode...", __func__, __LINE__));
-// 
-// 	printf("Hiya from sys world.");
+
+// printf("Setting overlay text mode... \n ");
+// 	Sys_SetModeText(global_system, true);
+// printf("text overlay mode on. \n ");
+
+// 	printf("Setting graphics mode... \n ");
 // 	
 // 	Sys_SetModeGraphics(global_system);		
 // 	
-// 	printf("now in graphics mode");
-// 
-// 	MU_RUN_SUITE(text_test_suite_units);
-// // 	MU_RUN_SUITE(text_test_suite_speed);
-// 	MU_REPORT();
-// 
-// 	Sys_SetModeText(global_system, false);
+// 	printf("now in graphics mode \n ");
+
+	MU_RUN_SUITE(test_suite_units);
+// 	MU_RUN_SUITE(test_suite_speed);
+	MU_REPORT();
+
+	Sys_SetModeText(global_system, false);
 
 	printf("sys test complete \n");
 

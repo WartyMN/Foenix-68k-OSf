@@ -75,7 +75,7 @@
 
 
 
-void general_test_setup(void)	// this is called EVERY test
+void test_setup(void)	// this is called EVERY test
 {
 // 	foo = 7;
 // 	bar = 4;
@@ -83,7 +83,7 @@ void general_test_setup(void)	// this is called EVERY test
 }
 
 
-void general_test_teardown(void)	// this is called EVERY test
+void test_teardown(void)	// this is called EVERY test
 {
 
 }
@@ -321,7 +321,7 @@ MU_TEST(string_manipulation_test)
 
 // **** speed tests
 
-MU_TEST(general_test_hline_speed)
+MU_TEST(test_speed_1)
 {
 	long start1;
 	long end1;
@@ -353,19 +353,19 @@ MU_TEST(general_test_hline_speed)
 
 
 
-	// speed tests
-MU_TEST_SUITE(general_test_suite_speed)
+// speed tests
+MU_TEST_SUITE(test_suite_speed)
 {	
-	MU_SUITE_CONFIGURE(&general_test_setup, &general_test_teardown);
+	MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 	
-// 	MU_RUN_TEST(general_test_hline_speed);
+	MU_RUN_TEST(test_speed_1);
 }
 
 
 // unit tests
-MU_TEST_SUITE(general_test_suite_units)
+MU_TEST_SUITE(test_suite_units)
 {	
-	MU_SUITE_CONFIGURE(&general_test_setup, &general_test_teardown);
+	MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 	
 	MU_RUN_TEST(string_manipulation_test);
 	MU_RUN_TEST(misc_test);
@@ -388,8 +388,8 @@ int main(int argc, char* argv[])
 {
 	printf("**** general.c Test Suite **** \n");
 	
-	MU_RUN_SUITE(general_test_suite_units);
-// 	MU_RUN_SUITE(general_test_suite_speed);
+	MU_RUN_SUITE(test_suite_units);
+// 	MU_RUN_SUITE(test_suite_speed);
 	MU_REPORT();
 
 	printf("general test complete \n");

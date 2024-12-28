@@ -18,6 +18,7 @@
 #include "minunit.h"
 
 // project includes
+#include "debug.h"
 #include "general.h"
 #include "sys.h"
 
@@ -26,7 +27,6 @@
 
 // C includes
 #include <stdbool.h>
-
 
 // A2560 includes
 #include "a2560k.h"
@@ -49,7 +49,7 @@
 /*                             Global Variables                              */
 /*****************************************************************************/
 
-extern System*			global_system;
+System*			global_system;
 
 
 /*****************************************************************************/
@@ -183,7 +183,7 @@ bool keyboard_test(void)
 
 
 
-void text_test_setup(void)	// this is called EVERY test
+void test_setup(void)	// this is called EVERY test
 {
 // 	foo = 7;
 // 	bar = 4;
@@ -191,14 +191,14 @@ void text_test_setup(void)	// this is called EVERY test
 }
 
 
-void text_test_teardown(void)	// this is called EVERY test
+void test_teardown(void)	// this is called EVERY test
 {
 
 }
 
 
 
-MU_TEST(text_test_block_copy)
+MU_TEST(test_block_copy)
 {
 	char*	buffer1;
 	char*	buffer2;
@@ -266,7 +266,7 @@ MU_TEST(text_test_block_copy)
 }
 
 
-MU_TEST(text_test_block_copy_box)
+MU_TEST(test_block_copy_box)
 {
 	int16_t			x;
 	int16_t			y;
@@ -313,7 +313,7 @@ MU_TEST(text_test_block_copy_box)
 }
 
 
-MU_TEST(text_test_fill_text)
+MU_TEST(test_fill_text)
 {
 	mu_assert( Text_FillCharMem(global_system->screen_[ID_CHANNEL_A], 'Z'), "Could not fill character memory in channel A" );
 	mu_assert( Text_FillCharMem(global_system->screen_[ID_CHANNEL_B], 4), "Could not fill character memory in channel B" );
@@ -324,7 +324,7 @@ MU_TEST(text_test_fill_text)
 }
 
 
-MU_TEST(text_test_fill_attr)
+MU_TEST(test_fill_attr)
 {
 	mu_assert( Text_FillAttrMem(global_system->screen_[ID_CHANNEL_A], 127), "Could not fill attribute memory in channel A" );
 	mu_assert( Text_FillAttrMem(global_system->screen_[ID_CHANNEL_B], 148), "Could not fill attribute memory in channel B" );
@@ -363,7 +363,7 @@ MU_TEST(text_test_fill_attr)
 }
 
 
-MU_TEST(text_test_fill_box)
+MU_TEST(test_fill_box)
 {
 	// good values
 	mu_assert( Text_FillBoxSlow(global_system->screen_[ID_CHANNEL_A], 0, 6, 15, 8, CH_PATTERN_B0, COLOR_BLACK, BG_COLOR_BRIGHT_WHITE, CHAR_AND_ATTR) == true, "Text_FillBoxSlow failed" );
@@ -380,7 +380,7 @@ MU_TEST(text_test_fill_box)
 }
 
 
-MU_TEST(text_test_invert_box)
+MU_TEST(test_invert_box)
 {
 	int32_t	i;
 	
@@ -399,7 +399,7 @@ MU_TEST(text_test_invert_box)
 }
 
 
-MU_TEST(text_test_font_overwrite)
+MU_TEST(test_font_overwrite)
 {
 	mu_assert( Text_UpdateFontData(global_system->screen_[ID_CHANNEL_A], (char*)0x000000), "Could not replace font data for channel A" );
 	mu_assert( Text_UpdateFontData(global_system->screen_[ID_CHANNEL_B], (char*)0x000000), "Could not replace font data for channel B" );
@@ -409,7 +409,7 @@ MU_TEST(text_test_font_overwrite)
 }
 
 
-MU_TEST(text_test_show_font)
+MU_TEST(test_show_font)
 {
 	mu_assert( Text_ShowFontChars(global_system->screen_[ID_CHANNEL_A], 10), "Could not show font chars for channel A" );
 	mu_assert( Text_ShowFontChars(global_system->screen_[ID_CHANNEL_B], 10), "Could not show font chars for channel B" );
@@ -420,7 +420,7 @@ MU_TEST(text_test_show_font)
 
 
 //test char placement
-MU_TEST(text_test_char_placement)
+MU_TEST(test_char_placement)
 {
 	int16_t		x;
 	int16_t		y;
@@ -445,7 +445,7 @@ MU_TEST(text_test_char_placement)
 
 
 // char and color writing
-MU_TEST(text_test_char_and_attr_writing)
+MU_TEST(test_char_and_attr_writing)
 {
 // same story here: 4 or so works ok, add more, and it's likely to crash. 
  	mu_assert( Text_SetCharAndColorAtXY(global_system->screen_[ID_CHANNEL_B], 0, 4, 33, FG_COLOR_BLACK, BG_COLOR_GRAY) == true, "Text_SetCharAndColorAtXY failed" );
@@ -497,7 +497,7 @@ MU_TEST(text_test_char_and_attr_writing)
 
 
 // test char and color reading
-MU_TEST(text_test_char_and_attr_reading)
+MU_TEST(test_char_and_attr_reading)
 {
 	unsigned char	the_color;
 	unsigned char	the_char;
@@ -536,7 +536,7 @@ MU_TEST(text_test_char_and_attr_reading)
 }
 
 
-MU_TEST(text_test_line_drawing)
+MU_TEST(test_line_drawing)
 {
 	int16_t			x;
 	int16_t			y;
@@ -570,7 +570,7 @@ MU_TEST(text_test_line_drawing)
 }
 
 
-MU_TEST(text_test_basic_box_coords)
+MU_TEST(test_basic_box_coords)
 {
 	int16_t			x;
 	int16_t			y;
@@ -593,7 +593,7 @@ MU_TEST(text_test_basic_box_coords)
 }
 
 
-MU_TEST(text_test_basic_box_hw)
+MU_TEST(test_basic_box_hw)
 {
 	int16_t			x;
 	int16_t			y;
@@ -620,7 +620,7 @@ MU_TEST(text_test_basic_box_hw)
 }
 
 
-MU_TEST(text_test_fancy_box)
+MU_TEST(test_fancy_box)
 {
 	int16_t			x1;
 	int16_t			y1;
@@ -688,7 +688,7 @@ MU_TEST(text_test_fancy_box)
 }
 
 
-MU_TEST(text_test_draw_string)
+MU_TEST(test_draw_string)
 {
 	char*	the_message;
 	
@@ -702,7 +702,7 @@ MU_TEST(text_test_draw_string)
  	mu_assert(Text_DrawStringAtXY(global_system->screen_[ID_CHANNEL_B], -1, 0, the_message, FG_COLOR_BLUE, BG_COLOR_BRIGHT_YELLOW) == false, "Text_DrawBoxCoordsFancy accepted illegal x coord" );
 }
 
-MU_TEST(text_test_draw_string_in_box)
+MU_TEST(test_draw_string_in_box)
 {
 	char*	the_message;
 	
@@ -871,7 +871,7 @@ MU_TEST(font_replace_test)
 
 // **** speed tests
 
-MU_TEST(text_test_hline_speed)
+MU_TEST(test_speed_1_hline)
 {
 	long start1;
 	long end1;
@@ -960,46 +960,46 @@ MU_TEST(text_test_hline_speed)
 
 
 	// speed tests
-MU_TEST_SUITE(text_test_suite_speed)
+MU_TEST_SUITE(test_suite_speed)
 {	
-	MU_SUITE_CONFIGURE(&text_test_setup, &text_test_teardown);
+	MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 	
-	MU_RUN_TEST(text_test_hline_speed);
+	MU_RUN_TEST(test_speed_1_hline);
 }
 
 
 // unit tests
-MU_TEST_SUITE(text_test_suite_units)
+MU_TEST_SUITE(test_suite_units)
 {	
-	MU_SUITE_CONFIGURE(&text_test_setup, &text_test_teardown);
+	MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
-	MU_RUN_TEST(text_test_fill_text);
-	MU_RUN_TEST(text_test_fill_attr);
-	MU_RUN_TEST(text_test_fill_box);
+	MU_RUN_TEST(test_fill_text);
+	MU_RUN_TEST(test_fill_attr);
+	MU_RUN_TEST(test_fill_box);
 	
-	MU_RUN_TEST(text_test_show_font);
+	MU_RUN_TEST(test_show_font);
 
-	MU_RUN_TEST(text_test_char_placement);
+	MU_RUN_TEST(test_char_placement);
 
-	MU_RUN_TEST(text_test_block_copy_box);
+	MU_RUN_TEST(test_block_copy_box);
 
-//	MU_RUN_TEST(text_test_font_overwrite);
-// 	MU_RUN_TEST(text_test_update_font);
+//	MU_RUN_TEST(test_font_overwrite);
+// 	MU_RUN_TEST(test_update_font);
 	
-	MU_RUN_TEST(text_test_char_and_attr_writing);
-	MU_RUN_TEST(text_test_char_and_attr_reading);
+	MU_RUN_TEST(test_char_and_attr_writing);
+	MU_RUN_TEST(test_char_and_attr_reading);
 	
-	MU_RUN_TEST(text_test_line_drawing);
-	MU_RUN_TEST(text_test_basic_box_coords);
-	MU_RUN_TEST(text_test_basic_box_hw);
-	MU_RUN_TEST(text_test_fancy_box);
+	MU_RUN_TEST(test_line_drawing);
+	MU_RUN_TEST(test_basic_box_coords);
+	MU_RUN_TEST(test_basic_box_hw);
+	MU_RUN_TEST(test_fancy_box);
 	
-	MU_RUN_TEST(text_test_draw_string);
-	MU_RUN_TEST(text_test_draw_string_in_box);
+	MU_RUN_TEST(test_draw_string);
+	MU_RUN_TEST(test_draw_string_in_box);
 
-	MU_RUN_TEST(text_test_invert_box);
+	MU_RUN_TEST(test_invert_box);
 	
-	MU_RUN_TEST(text_test_block_copy);
+	MU_RUN_TEST(test_block_copy);
 	
 	MU_RUN_TEST(font_replace_test);
 }
@@ -1014,14 +1014,28 @@ MU_TEST_SUITE(text_test_suite_units)
 
 int main(int argc, char* argv[])
 {
-	if (Sys_InitSystem() == false)
+	printf("**** text.c Test Suite **** \n");
+
+	// initialize the system object
+	if ((global_system = Sys_New()) == NULL)
+	{
+		//LOG_ERR(("%s %d: Couldn't instantiate system object", __func__, __LINE__));
+		printf("Couldn't instantiate system object \n");
+		exit(0);
+	}
+printf("System object created ok. Initiating system components... \n");
+	DEBUG_OUT(("%s %d: System object created ok. Initiating system components...", __func__, __LINE__));
+	
+	if (Sys_InitSystem(global_system) == false)
 	{
 		DEBUG_OUT(("%s %d: Couldn't initialize the system", __func__, __LINE__));
 		exit(0);
 	}
+printf("System initiation complete, starting tests... \n");
+	DEBUG_OUT(("%s %d: System initiation complete, starting tests...", __func__, __LINE__));
 
- 	MU_RUN_SUITE(text_test_suite_units);
-// 	MU_RUN_SUITE(text_test_suite_speed);
+ 	MU_RUN_SUITE(test_suite_units);
+// 	MU_RUN_SUITE(test_suite_speed);
  	MU_REPORT();
 	
 	return MU_EXIT_CODE;

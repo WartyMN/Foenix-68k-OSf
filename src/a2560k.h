@@ -354,15 +354,30 @@
 //C256F_MODEL_MAJOR - $AF:070B
 //C256F_MODEL_MINOR - $AF:070C
 
-// machine model numbers - for decoding s_sys_info.model
-#define MACHINE_C256_FMX		0	///< for s_sys_info.model
-#define MACHINE_C256_U			1	///< for s_sys_info.model
-#define MACHINE_C256_GENX		4	///< for s_sys_info.model
-#define MACHINE_C256_UPLUS		5	///< for s_sys_info.model
-#define MACHINE_A2560U_PLUS		6	///< for s_sys_info.model
-#define MACHINE_A2560X			7	///< for s_sys_info.model
-#define MACHINE_A2560U			9	///< for s_sys_info.model
-#define MACHINE_A2560K			13	///< for s_sys_info.model
+// machine model numbers - for decoding s_sys_info.model - value read from MACHINE_ID_REGISTER (see above)
+#define MACHINE_C256FMX			0x00	///< for s_sys_info.model
+#define MACHINE_C256U			0x01	///< for s_sys_info.model
+#define MACHINE_F256JR			0x02	///< for s_sys_info.model
+#define MACHINE_F256JRE			0x03	///< for s_sys_info.model
+#define MACHINE_GENX			0x04	///< for s_sys_info.model
+#define MACHINE_C256_UPLUS		0x05	///< for s_sys_info.model
+#define MACHINE_UNDEFINED_1		0x06	///< for s_sys_info.model
+#define MACHINE_UNDEFINED_2		0x07	///< for s_sys_info.model
+#define MACHINE_A2560X			0x08	///< for s_sys_info.model. (GenX 32Bits Side)
+#define MACHINE_A2560U_PLUS		0x09	///< for s_sys_info.model. there is no A2560U only in the field
+#define MACHINE_A2560M			0x0a	///< for s_sys_info.model. 
+#define MACHINE_A2560K			0x0b	///< for s_sys_info.model. "classic" A2560K
+#define MACHINE_A2560K40		0x0c	///< for s_sys_info.model
+#define MACHINE_A2560K60		0x0d	///< for s_sys_info.model
+#define MACHINE_UNDEFINED_3		0x0e	///< for s_sys_info.model
+#define MACHINE_UNDEFINED_4		0x0f	///< for s_sys_info.model
+#define MACHINE_F256P			0x10	///< for s_sys_info.model
+#define MACHINE_F256K2			0x11	///< for s_sys_info.model
+#define MACHINE_F256K			0x12	///< for s_sys_info.model
+#define MACHINE_F256KE			0x13	///< for s_sys_info.model
+#define MACHINE_F256K2E			0x14	///< for s_sys_info.model
+
+#define MACHINE_MODEL_MASK		0x1F		
 
 // GABE_SYS_STAT       = $AFE887 ;
 // GABE_SYS_STAT_MID0  = $01     ; Machine ID -- LSB
@@ -380,7 +395,7 @@
 // 1001: A2560U
 // 1101: A2560K
 // ergo, $0F is the mask for the bits we care about (the lower 4). 
-#define MACHINE_MODEL_MASK	0x0F
+//#define MACHINE_MODEL_MASK	0x0F
 		
 
 

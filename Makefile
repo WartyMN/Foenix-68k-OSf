@@ -23,10 +23,10 @@ DEBUG_VIA_SERIAL=USE_DISK_LOGGING
 # source files
 ASM_SRCS =
 #C_SRCS = main.c bitmap.c control.c control_template.c debug.c event.c font.c general.c list.c menu.c mouse.c  sys.c text.c theme.c window.c
-C_SRCS = sys_test.c general_test.c main.c
+C_SRCS = sys_test.c general_test.c font_test.c window_test.c bitmap_test.c text_test.c main.c
 LIB_SRCS = bitmap.c control_template.c control.c debug.c event.c font.c general.c list.c menu.c mouse.c sys.c text.c theme.c window.c 
 # Test source files (also requires core)
-TEST_SRCS = sys_test.c general_test.c
+TEST_SRCS = sys_test.c general_test.c font_test.c window_test.c bitmap_test.c text_test.c
 #bitmap_test.c font_test.c text_test.c window_test.c general_test.c 
 # Demo source files (also requires core)
 TEXT_DEMO_SRCS = sys.c theme.c control_template.c font.c window.c control.c general.c bitmap.c text.c list.c event.c mouse.c menu.c text_demo.c
@@ -34,8 +34,8 @@ SYS_DEMO_SRCS = sys.c theme.c control_template.c font.c window.c control.c gener
 BITMAP_DEMO_SRCS = bitmap_demo.c
 
 
-MODEL = --code-model=large --data-model=small
-LIB_MODEL = lc-sd
+MODEL = --code-model=large --data-model=large
+LIB_MODEL = lc-ld
 
 # Object files
 OBJS = $(ASM_SRCS:%.s=obj/%.o) $(C_SRCS:%.c=obj/%.o)
@@ -50,11 +50,11 @@ SYS_DEMO_OBJS = $(SYS_DEMO_SRCS:%.c=obj/%.o)
 BITMAP_DEMO_OBJS = $(BITMAP_DEMO_SRCS:%.c=obj/%.o)
 
 obj/%.o: %.s
-	as68k --core=68040 $(MODEL) --target=Foenix --debug --list-file=$(@:%.o=%.lst) -o $@ $<
+	as68k --core=68040 $(MODEL) --target=Foenix --list-file=$(@:%.o=%.lst) -o $@ $<
 
 obj/%.o: %.c $(DEPDIR)/%.d | $(DEPDIR)
-	@cc68k -D_A2560K_ -D$(DEBUG_DEF_1) -D$(DEBUG_DEF_2) -D$(DEBUG_DEF_3) -D$(DEBUG_DEF_4) -D$(DEBUG_DEF_5) -D$(DEBUG_VIA_SERIAL) --core=68040 $(MODEL) --target=Foenix --debug -I$(CALYPSI_INSTALL)/contrib/Foenix-SDK/include --dependencies -MQ$@ >$(DEPDIR)/$*.d $<
-	cc68k -D_A2560K_ -D$(DEBUG_DEF_1) -D$(DEBUG_DEF_2) -D$(DEBUG_DEF_3) -D$(DEBUG_DEF_4) -D$(DEBUG_DEF_5) -D$(DEBUG_VIA_SERIAL) --core=68040 $(MODEL) --target=Foenix --debug -I$(CALYPSI_INSTALL)/contrib/Foenix-SDK/include --list-file=$(@:%.o=%.lst) -o $@ $<
+	@cc68k -D_A2560K_ -D$(DEBUG_DEF_1) -D$(DEBUG_DEF_2) -D$(DEBUG_DEF_3) -D$(DEBUG_DEF_4) -D$(DEBUG_DEF_5) -D$(DEBUG_VIA_SERIAL) --core=68040 $(MODEL) --target=Foenix -I$(CALYPSI_INSTALL)/contrib/Foenix-SDK/include --dependencies -MQ$@ >$(DEPDIR)/$*.d $<
+	cc68k -D_A2560K_ -D$(DEBUG_DEF_1) -D$(DEBUG_DEF_2) -D$(DEBUG_DEF_3) -D$(DEBUG_DEF_4) -D$(DEBUG_DEF_5) -D$(DEBUG_VIA_SERIAL) --core=68040 $(MODEL) --target=Foenix -I$(CALYPSI_INSTALL)/contrib/Foenix-SDK/include --list-file=$(@:%.o=%.lst) -o $@ $<
 
 obj/%-debug.o: %.s
 	as68k --core=68040 $(MODEL) --debug --list-file=$(@:%.o=%.lst) -o $@ $<
@@ -72,17 +72,21 @@ lib:	$(LIB_OBJS)
 
 tests:	$(TEST_OBJS)
 	@echo "Building tests..."
-	ln68k -o general_test.pgz obj/general_test.o a2560k.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --output-format=pgz --list-file=osf-general-test.lst --cross-reference --rtattr cstartup=Foenix_user 
-	ln68k -o sys_test.pgz obj/sys_test.o a2560k.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --output-format=pgz --list-file=osf-sys-test.lst --cross-reference --rtattr cstartup=Foenix_user 
+	ln68k -o test_general.pgz obj/general_test.o a2560k.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=test_general.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=30000 
+	ln68k -o test_sys.pgz obj/sys_test.o a2560k.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=test_sys.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=50000 
+	ln68k -o test_font.pgz obj/font_test.o a2560k.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=test_font.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=50000 
+	ln68k -o test_window.pgz obj/window_test.o a2560k.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=test_window.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=50000 
+	ln68k -o test_bitmap.pgz obj/bitmap_test.o a2560k.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=test_bitmap.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=50000 
+	ln68k -o test_text.pgz obj/text_test.o a2560k.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=test_text.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=50000 
 
-#--no-tree-shaking
+
 
 osf_debug.elf: $(OBJS_DEBUG)
-	ln68k --debug -o $@ $^ a2560k.scm  --list-file=osf-debug.lst --cross-reference  --semi-hosted --target=Foenix --rtattr cstartup=Foenix_user --rtattr stubs=foenix --stack-size=2000 --sstack-size=800
+	ln68k -o $@ $^ a2560k.scm  --list-file=osf-debug.lst --cross-reference  --semi-hosted --target=Foenix --rtattr cstartup=Foenix_user --rtattr stubs=foenix --stack-size=2000 --sstack-size=800
 
 osf.pgz:  $(OBJS)
 #	ln68k -o $@ $^ a2560k.scm --output-format=pgz --list-file=osf-pgz.lst --cross-reference --rtattr cstartup=Foenix_user
-	ln68k -o osf.pgz obj/main.o a2560k.scm a2560-68020-lc-sd.a $(TARGET_LIB)/a2560_sys.a --output-format=pgz --list-file=osf-pgz.lst --cross-reference --rtattr cstartup=Foenix_user 
+	ln68k -o osf.pgz obj/main.o a2560k.scm a2560-68020-lc-ld.a $(TARGET_LIB)/a2560_sys.a --output-format=pgz --list-file=osf-pgz.lst --cross-reference --rtattr cstartup=Foenix_user 
 	
 osf.hex:  $(OBJS)
 	ln68k -o $@ $^ a2560k.scm --output-format=intel-hex --list-file=osf-hex.lst --cross-reference --rtattr cstartup=Foenix_morfe --stack-size=2000

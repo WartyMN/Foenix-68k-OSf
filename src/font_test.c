@@ -18,6 +18,8 @@
 #include "minunit.h"
 
 // project includes
+#include "debug.h"
+#include "sys.h"
 
 // class being tested
 #include "font.h"
@@ -27,11 +29,7 @@
 
 
 // A2560 includes
-#include <mb/a2560_platform.h>
-#include <mb/general.h>
-#include <mb/bitmap.h>
-#include <mb/text.h>
-#include <mb/lib_sys.h>
+#include "a2560k.h"
 
 
 
@@ -51,7 +49,7 @@
 /*                             Global Variables                              */
 /*****************************************************************************/
 
-extern System*			global_system;
+System*			global_system;
 
 
 
@@ -76,7 +74,7 @@ extern System*			global_system;
 
 
 
-void text_test_setup(void)	// this is called EVERY test
+void test_setup(void)	// this is called EVERY test
 {
 // 	foo = 7;
 // 	bar = 4;
@@ -84,7 +82,7 @@ void text_test_setup(void)	// this is called EVERY test
 }
 
 
-void text_test_teardown(void)	// this is called EVERY test
+void test_teardown(void)	// this is called EVERY test
 {
 
 }
@@ -93,7 +91,7 @@ void text_test_teardown(void)	// this is called EVERY test
 
 // **** speed tests
 
-MU_TEST(text_test_hline_speed)
+MU_TEST(test_speed_1)
 {
 	long start1;
 	long end1;
@@ -126,18 +124,18 @@ MU_TEST(text_test_hline_speed)
 
 
 	// speed tests
-MU_TEST_SUITE(text_test_suite_speed)
+MU_TEST_SUITE(test_suite_speed)
 {	
-	MU_SUITE_CONFIGURE(&text_test_setup, &text_test_teardown);
+	MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 	
-// 	MU_RUN_TEST(text_test_hline_speed);
+// 	MU_RUN_TEST(test_speed_1);
 }
 
 
 // unit tests
-MU_TEST_SUITE(text_test_suite_units)
+MU_TEST_SUITE(test_suite_units)
 {	
-	MU_SUITE_CONFIGURE(&text_test_setup, &text_test_teardown);
+	MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 	
 // 	MU_RUN_TEST(font_replace_test);
 }
@@ -153,20 +151,33 @@ MU_TEST_SUITE(text_test_suite_units)
 
 int main(int argc, char* argv[])
 {
-	if (Sys_InitSystem() == false)
+	printf("**** font.c Test Suite **** \n");
+
+	// initialize the system object
+	if ((global_system = Sys_New()) == NULL)
+	{
+		//LOG_ERR(("%s %d: Couldn't instantiate system object", __func__, __LINE__));
+		printf("Couldn't instantiate system object \n");
+		exit(0);
+	}
+
+	DEBUG_OUT(("%s %d: System object created ok. Initiating system components...", __func__, __LINE__));
+	
+	if (Sys_InitSystem(global_system) == false)
 	{
 		DEBUG_OUT(("%s %d: Couldn't initialize the system", __func__, __LINE__));
 		exit(0);
 	}
 
-	printf("Hiya from font world.");
+	DEBUG_OUT(("%s %d: Setting graphics mode...", __func__, __LINE__));
+
 	
 	Sys_SetModeGraphics(global_system);
 	printf("now in graphics mode");
 
 
-	MU_RUN_SUITE(text_test_suite_units);
-// 	MU_RUN_SUITE(text_test_suite_speed);
+	MU_RUN_SUITE(test_suite_units);
+// 	MU_RUN_SUITE(test_suite_speed);
 	MU_REPORT();
 
 	Sys_SetModeText(global_system, false);
