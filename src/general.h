@@ -242,13 +242,18 @@ bool General_CalculateRectIntersection(Rectangle* r1, Rectangle* r2, Rectangle* 
 // populates the passed string by safely combining the passed file path and name, accounting for cases where path is a disk root
 void General_CreateFilePathFromFolderAndFile(char* the_combined_path, char* the_folder_path, char* the_file_name);
 
-// return the first char of the last part of a file path
-// if no path part detected, returns the original string
-// not guaranteed that this is a FILENAME, as if you passed a path to a dir, it would return the DIR name
-// amigaDOS compatibility function (see FilePart)
+//! return the first char of the last part of a file path
+//! if no path part detected, returns the original string
+//! not guaranteed that this is a FILENAME, as if you passed a path to a dir, it would return the DIR name
+//!  ex: General_NamePart("/hd/yyy/zzz/myfile.txt") would return a pointer to 'myfile.txt'.
+//!  ex: General_NamePart("myfile.txt") would return a pointer to 'myfile.txt'.
+//! amigaDOS compatibility function (see FilePart)
 char* General_NamePart(const char* the_file_path);
 
-// return everything to the left of the filename in a path. 
+//! Returns a pointer to the end of the next-to-last component of a path.
+//!  ex: General_PathPart("/hd/yyy/zzz/myfile.txt") would return a pointer to '/myfile.txt'.
+//!  ex: General_PathPart("myfile.txt") would return a pointer to 'myfile.txt'.
+//! amigaDOS compatibility function (see PathPart)
 char* General_PathPart(const char* the_file_path);
 
 //! Extract file extension into the passed char pointer, as new lowercased string pointer, if any found.
@@ -281,8 +286,8 @@ void General_DelaySeconds(uint16_t seconds);
 
 // **** USER INPUT UTILITIES *****
 
-// // Wait for one character from the keyboard and return it
-// char General_GetChar(void);
+// Wait for one character from the keyboard and return it
+char General_GetChar(void);
 
 
 
@@ -290,6 +295,10 @@ void General_DelaySeconds(uint16_t seconds);
 
 // **** MISC UTILITIES *****
 
+
+//! Swap bytes big endian <> little endian, for a long
+//! NOTE: for a word, see BSWAP() macro
+uint32_t General_ByteSwapLong(uint32_t long_needing_swap);
 
 // get random number between 1 and the_range + 1
 // must have seeded the number generator first

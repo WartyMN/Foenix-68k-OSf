@@ -72,8 +72,8 @@ lib:	$(LIB_OBJS)
 
 tests:	$(TEST_OBJS)
 	@echo "Building tests..."
-	ln68k -o sys_test.pgz obj/sys_test.o a2560k.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --output-format=pgz --list-file=osf-sys-test.lst --cross-reference --rtattr cstartup=Foenix_user 
 	ln68k -o general_test.pgz obj/general_test.o a2560k.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --output-format=pgz --list-file=osf-general-test.lst --cross-reference --rtattr cstartup=Foenix_user 
+	ln68k -o sys_test.pgz obj/sys_test.o a2560k.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --output-format=pgz --list-file=osf-sys-test.lst --cross-reference --rtattr cstartup=Foenix_user 
 
 #--no-tree-shaking
 

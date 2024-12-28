@@ -128,13 +128,15 @@ static void (*minunit_teardown)(void) = NULL;
 #define MU_REPORT() MU__SAFE_BLOCK(\
 	long minunit_end_real_timer;\
 	long minunit_end_proc_timer;\
+	long elapsed_real_time;\
 	printf("\n\n%d tests, %d assertions, %d failures\n", minunit_run, minunit_assert, minunit_fail);\
 	DEBUG_OUT(("\n\n%d tests, %d assertions, %d failures", minunit_run, minunit_assert, minunit_fail));\
 	minunit_end_real_timer = mu_timer_real();\
 	minunit_end_proc_timer = mu_timer_cpu();\
+	elapsed_real_time = minunit_end_real_timer - minunit_real_timer;\
 	printf("\nFinished in %li ticks (real) %.8f seconds (real)\n\n",\
-		minunit_end_real_timer - minunit_real_timer,\
-		(double)(minunit_end_real_timer - minunit_real_timer)/SYS_TICKS_PER_SEC);\
+		elapsed_real_time,\
+		(double)(elapsed_real_time/SYS_TICKS_PER_SEC));\
 	DEBUG_OUT(("Finished in %li ticks (real) %.8f seconds (real)",\
 		minunit_end_real_timer - minunit_real_timer,\
 		(double)(minunit_end_real_timer - minunit_real_timer)/SYS_TICKS_PER_SEC));\

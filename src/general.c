@@ -35,7 +35,7 @@
 #include <fcntl.h>
 
 // A2560 includes
-//#include <mcp/syscalls.h>
+#include <mcp/syscalls.h>
 #include "a2560k.h"
 
 
@@ -849,10 +849,12 @@ void General_CreateFilePathFromFolderAndFile(char* the_combined_path, char* the_
 }
 
 
-// return the first char of the last part of a file path
-// if no path part detected, returns the original string
-// not guaranteed that this is a FILENAME, as if you passed a path to a dir, it would return the DIR name
-// amigaDOS compatibility function (see FilePart)
+//! return the first char of the last part of a file path
+//! if no path part detected, returns the original string
+//! not guaranteed that this is a FILENAME, as if you passed a path to a dir, it would return the DIR name
+//!  ex: General_NamePart("/hd/yyy/zzz/myfile.txt") would return a pointer to 'myfile.txt'.
+//!  ex: General_NamePart("myfile.txt") would return a pointer to 'myfile.txt'.
+//! amigaDOS compatibility function (see FilePart)
 char* General_NamePart(const char* the_file_path)
 {
 	char*	last_slash;
@@ -868,8 +870,10 @@ char* General_NamePart(const char* the_file_path)
 }
 
 
-// return everything to the left of the filename in a path. 
-// amigaDOS compatibility function
+//! Returns a pointer to the end of the next-to-last component of a path.
+//!  ex: General_PathPart("/hd/yyy/zzz/myfile.txt") would return a pointer to '/myfile.txt'.
+//!  ex: General_PathPart("myfile.txt") would return a pointer to 'myfile.txt'.
+//! amigaDOS compatibility function (see PathPart)
 char* General_PathPart(const char* the_file_path)
 {
 	char*	the_directory_path;
@@ -1000,7 +1004,8 @@ char General_GetChar(void)
 	uint8_t		the_char;
 	
 	the_char = getchar();
-
+	//the_char = sys_chan_read_b(0);
+	
 	return the_char;
 }
 

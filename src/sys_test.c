@@ -64,30 +64,30 @@ System*			global_system;
 
 
 
-int _Stub_close(int fd)
-{
-	return 0;
-}
-
-int _Stub_open(const char *path, int oflag, ...)
-{
-	return 0;
-}
-
-size_t _Stub_write(int fd, const void *buf, size_t count)
-{
-	return 0;
-}
-
-size_t _Stub_read(int fd, void *buf, size_t count)
-{
-	return 0;
-}
-
-long _Stub_lseek(int fd, long offset, int whence)
-{
-	return 0;
-}
+// int _Stub_close(int fd)
+// {
+// 	return 0;
+// }
+// 
+// int _Stub_open(const char *path, int oflag, ...)
+// {
+// 	return 0;
+// }
+// 
+// size_t _Stub_write(int fd, const void *buf, size_t count)
+// {
+// 	return 0;
+// }
+// 
+// size_t _Stub_read(int fd, void *buf, size_t count)
+// {
+// 	return 0;
+// }
+// 
+// long _Stub_lseek(int fd, long offset, int whence)
+// {
+// 	return 0;
+// }
 
 
 
@@ -174,14 +174,15 @@ long _Stub_lseek(int fd, long offset, int whence)
 
 int main(int argc, char* argv[])
 {
-	printf("Hiya from sys world before tests.");
+	printf("**** sys.c Test Suite **** \n");
 
-// 	// initialize the system object
-// 	if ((global_system = Sys_New()) == NULL)
-// 	{
-// 		LOG_ERR(("%s %d: Couldn't instantiate system object", __func__, __LINE__));
-// 		exit(0);
-// 	}
+	// initialize the system object
+	if ((global_system = Sys_New()) == NULL)
+	{
+		//LOG_ERR(("%s %d: Couldn't instantiate system object", __func__, __LINE__));
+		printf("Couldn't instantiate system object \n");
+		exit(0);
+	}
 // 
 // 	DEBUG_OUT(("%s %d: System object created ok. Initiating list of windows...", __func__, __LINE__));
 // 	
@@ -205,7 +206,7 @@ int main(int argc, char* argv[])
 // 
 // 	Sys_SetModeText(global_system, false);
 
-	printf("now in normal text mode");
+	printf("sys test complete \n");
 
 	return MU_EXIT_CODE;
 }
