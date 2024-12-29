@@ -46,25 +46,31 @@
 #define EA_MCP						(char*)0x010000	// start of MCP kernel
 #define EA_USER						(char*)0x020000	// start of user space. ie, put your program here.
 
-// adapted from vinz67
-#define R32(x)						*((volatile unsigned long* const)(x))	// make sure we read a 32 bit long; for VICKY registers, etc.
-#define P32(x)						(volatile unsigned long* const)(x)		// make sure we read a 32 bit long; for VICKY registers, etc.
-#define R16(x)						*((volatile unsigned short* const)(x))	// make sure we read an 16 bit short; for VICKY registers, etc.
-#define P16(x)						(volatile unsigned short* const)(x)		// make sure we read an 16 bit short; for VICKY registers, etc.
-#define R8(x)						*((volatile uint8_t* const)(x))			// make sure we read an 8 bit byte; for VICKY registers, etc.
-#define P8(x)						(volatile uint8_t* const)(x)			// make sure we read an 8 bit byte; for VICKY registers, etc.
 
-// ** believe to be common to all A2560 platforms... 
-#define TEXTA_NUM_COLS_BORDER		4	// need to measure.... 
-#define TEXTB_NUM_COLS_BORDER		4	// going on what f68 shows
+// adapted from vinz67
+#define R8(x)						*((volatile __far uint8_t* const)(x))			// make sure we read an 8 bit byte; for VICKY registers, etc.
+#define P8(x)						(volatile __far uint8_t* const)(x)			// make sure we read an 8 bit byte; for VICKY registers, etc.
+#define R16(x)						*((volatile __far uint16_t* const)(x))		// make sure we read an 16 bit byte; for RNG etc.
+#define P16(x)						(volatile unsigned short* const)(x)		// make sure we read an 16 bit short; for VICKY registers, etc.
+#define R32(x)						*((volatile __far uint32_t* const)(x))		// make sure we read an 32 bit byte;
+#define P32(x)						(volatile unsigned long* const)(x)		// make sure we read a 32 bit long; for VICKY registers, etc.
+// and near variants. keeping far variants as regular "R8", etc, for backwards compatibility with other 6502 code of mine
+#define NR8(x)						*((volatile uint8_t* const)(x))			// make sure we read an 8 bit byte; for VICKY registers, etc.
+#define NP8(x)						(volatile uint8_t* const)(x)			// make sure we read an 8 bit byte; for VICKY registers, etc.
+#define NR16(x)						*((volatile uint16_t* const)(x))		// make sure we read an 16 bit byte; for RNG etc.
 
 #define TEXT_COL_COUNT_FOR_PLOTTING_A2560K		100	// regardless of visible cols (between borders), VRAM seems to be fixed at 80 cols across.
 #define TEXT_ROW_COUNT_FOR_PLOTTING_A2560K		75	// regardless of visible rows (between borders), VRAM seems to be fixed at 60 rows up/down.
-#define TEXT_COL_COUNT_FOR_PLOTTING		TEXT_COL_COUNT_FOR_PLOTTING_A2560K	// regardless of visible cols (between borders), VRAM seems to be fixed at 80 cols across.
-#define TEXT_ROW_COUNT_FOR_PLOTTING		TEXT_ROW_COUNT_FOR_PLOTTING_A2560K	// regardless of visible rows (between borders), VRAM seems to be fixed at 60 rows up/down.
+#define TEXT_COL_COUNT_FOR_PLOTTING				TEXT_COL_COUNT_FOR_PLOTTING_A2560K	// regardless of visible cols (between borders), VRAM seems to be fixed at 80 cols across.
+#define TEXT_ROW_COUNT_FOR_PLOTTING				TEXT_ROW_COUNT_FOR_PLOTTING_A2560K	// regardless of visible rows (between borders), VRAM seems to be fixed at 60 rows up/down.
 
-#define TEXT_FONT_WIDTH_A2560	8	// for text mode, the width of the fixed-sized font chars
-#define TEXT_FONT_HEIGHT_A2560	8	// for text mode, the height of the fixed-sized font chars. I believe this is supposed to be 16, but its 8 in morfe at the moment.
+#define TEXT_ROW_COUNT_60HZ			60
+#define TEXT_ROW_COUNT_70HZ			50
+#define TEXT_ROW_COUNT_DEBUG_SCREEN	75	// for A2560K only, the "debug" screen that runs text-only at 800x600
+
+#define TEXT_FONT_WIDTH				8	// for text mode, the width of the fixed-sized font chars
+#define TEXT_FONT_HEIGHT			8	// for text mode, the height of the fixed-sized font chars.
+#define TEXT_FONT_BYTE_SIZE			(8*256)
 
 // general
 #define MAX_STRING_COMP_LEN		256		//!< 255 + terminator is max string size for compares
@@ -85,7 +91,6 @@
 // Channel A bit 8 and 9 are ignored
 // It is bit 11 that gives you the choice between 800x600 or 1024x768.
 #define VIDEO_MODE_BIT2				0x02	//!> the bits in the 2nd byte of the system control register that define video mode (resolution). if set on Chan B, you get 640x400. (also requires bit1 to be set?)
-#define GAMMA_MODE_DIPSWITCH_BIT	0x20	//!>the bits in the 2nd byte of the system control register reflect dip switch setting for control gamma correction on/off
 #define GAMMA_MODE_MASK				0xFF00FFFF	//!> the mask for the system control register that controls gamma (in some way not clear to me)
 #define GAMMA_MODE_ONOFF_BITS		0x03	//!>the bits in the 3rd byte of the system control register control gamma correction on/off
 
@@ -146,13 +151,13 @@
 	#define TEXT_BACK_LUT_C256		(char*)0xaf1f80			// BG_CHAR_LUT_PTR	Text Background Look-Up Table
 	#define FONT_MEMORY_BANK_C256	(char*)0xaf8000			// FONT_MEMORY_BANK0	FONT Character Graphic Mem
 	#define VICKY_II_CLUT0				0xaf2000				// each addition LUT is 400 offset from here
-	#define VICKY_II_CLUT1				VICKY_II_CLUT0 + 0x400	// each addition LUT is 400 offset from here
-	#define VICKY_II_CLUT2				VICKY_II_CLUT1 + 0x400	// each addition LUT is 400 offset from here
-	#define VICKY_II_CLUT3				VICKY_II_CLUT2 + 0x400	// each addition LUT is 400 offset from here
-	#define VICKY_II_CLUT4				VICKY_II_CLUT3 + 0x400	// each addition LUT is 400 offset from here
-	#define VICKY_II_CLUT5				VICKY_II_CLUT4 + 0x400	// each addition LUT is 400 offset from here
-	#define VICKY_II_CLUT6				VICKY_II_CLUT5 + 0x400	// each addition LUT is 400 offset from here
-	#define VICKY_II_CLUT7				VICKY_II_CLUT6 + 0x400	// each addition LUT is 400 offset from here
+	#define VICKY_II_CLUT1				(VICKY_II_CLUT0 + 0x400)	// each addition LUT is 400 offset from here
+	#define VICKY_II_CLUT2				(VICKY_II_CLUT1 + 0x400)	// each addition LUT is 400 offset from here
+	#define VICKY_II_CLUT3				(VICKY_II_CLUT2 + 0x400)	// each addition LUT is 400 offset from here
+	#define VICKY_II_CLUT4				(VICKY_II_CLUT3 + 0x400)	// each addition LUT is 400 offset from here
+	#define VICKY_II_CLUT5				(VICKY_II_CLUT4 + 0x400)	// each addition LUT is 400 offset from here
+	#define VICKY_II_CLUT6				(VICKY_II_CLUT5 + 0x400)	// each addition LUT is 400 offset from here
+	#define VICKY_II_CLUT7				(VICKY_II_CLUT6 + 0x400)	// each addition LUT is 400 offset from here
 
 
 	#define GABE_SYS_STAT				0x00AFE887	//!> The gabe register holding the machine ID. Machine ID is stored in 4 least significant bits
@@ -192,15 +197,6 @@
 	#define CLUT7_OFFSET_B				0x3C00		//!> the (byte) offset from the VICKY control register to the 8th CLUT RAM space
 	#define FONT_MEMORY_BANK0_OFFSET_B	0x8000		//!> the (byte) offset from the VICKY control register to the font memory for bank0
 
-#define GRAPHICS_MODE_MASK		0xFFFFFF00	//!> the mask for the system control register that holds the graphics/bitmap/text/sprite mode bits
-#define GRAPHICS_MODE_TEXT		0x01	// 0b00000001	Enable the Text Mode
-#define GRAPHICS_MODE_TEXT_OVER	0x02	// 0b00000010	Enable the Overlay of the text mode on top of Graphic Mode (the Background Color is ignored)
-#define GRAPHICS_MODE_GRAPHICS	0x04	// 0b00000100	Enable the Graphic Mode
-#define GRAPHICS_MODE_EN_BITMAP	0x08	// 0b00001000	Enable the Bitmap Module In Vicky
-#define GRAPHICS_MODE_EN_TILE	0x10	// 0b00010000	Enable the Tile Module in Vicky
-#define GRAPHICS_MODE_EN_SPRITE	0x20	// 0b00100000	Enable the Sprite Module in Vicky
-#define GRAPHICS_MODE_EN_GAMMA	0x40	// 0b01000000	Enable the GAMMA correction - The Analog and DVI have different color values, the GAMMA is great to correct the difference
-#define GRAPHICS_MODE_DIS_VIDEO	0x80	// 0b10000000	This will disable the Scanning of the Video information in the 4Meg of VideoRAM hence giving 100% bandwidth to the CPU
 
 
 // VICKY RESOLUTION FLAGS Per A2560K_UM_Rev0.0.1.pdf and A2560U_UM_Rev0.0.2.pdf
@@ -232,24 +228,319 @@
 
 // ** A2560K GAVIN
 
-#define RANDOM_NUM_GEN_ENABLE		0xfec00004	// LFSR Control Register
-												// bit 0: enable/disable. bit 1: seed mode on/off.
+#define GAVIN_CONTROL_REG			0xfec00000	// GAVIN Control Register - 4b - RW
+	// flags for byte 0 (000000FF)
+	#define FLAG_SYS0_REG_POWER_LED			0b00000001		// power LED on (1) or off (0)
+	#define FLAG_SYS0_REG_SD_LED			0b00000010		// disk (SD) LED on (1) or off (0)
+	#define FLAG_SYS0_REG_RES_2				0b00000100		// reserved
+	#define FLAG_SYS0_REG_RES_3				0b00001000		// reserved
+	#define FLAG_SYS0_REG_R_BUZZER			0b00010000		// allows programmer to generate buzzer sounds by toggling on/off.
+	#define FLAG_SYS0_REG_RES_5				0b00100000		// reserved
+	#define FLAG_SYS0_REG_RES_6				0b01000000		// reserved
+	#define FLAG_SYS0_REG_RES_7				0b10000000		// reserved
+	// flags for byte 1 (0000FF00)
+	#define FLAG_SYS1_REG_RES_0				0b00000001		// reserved
+	#define FLAG_SYS1_REG_RES_1				0b00000010		// reserved
+	#define FLAG_SYS1_REG_RES_2				0b00000100		// reserved
+	#define FLAG_SYS1_REG_RES_3				0b00001000		// reserved
+	#define FLAG_SYS1_REG_RES_4				0b00010000		// reserved
+	#define FLAG_SYS1_REG_RES_5				0b00100000		// reserved
+	#define FLAG_SYS1_REG_RES_6				0b01000000		// reserved
+	#define FLAG_SYS1_REG_W_RESET			0b10000000		// set, then unset to trigger. See also bytes 2 and 3 for more requirements.
+	// bytes 2 and 3 enable system reset and protect against accidental reset. to reset, fill them with 0xDEAD, then set and unset FLAG_SYS1_REG_W_RESET
 
-#define RANDOM_NUM_GEN				0xfec00008	// LFSR Output Value [15:0]. Every time you read this register
-												// after the LFSR has been enabled and the Seed setup, 
-												// you will get a new random value.
+// note: A linear feedback shift register (LFSR) is a device that generates a variety of bit patterns, including pseudo-random sequences, by connecting some of its outputs back to its input. To enable the random number generator, set bit 1 of the first byte to enable the LFSR, write a Value to setup the LFSR Seed (bytes 2-3), then set bit#1 of LFSR Control Register. Then, clear the bit. This will latch the value of the Seed in the LFSR.
+#define GAVIN_LFSR_CONTROL			0xfec00004	// LFSR Control Register - 4b - RW
+	// flags for byte 0 (000000FF)
+	#define FLAG_LFSR0_LFSR_ENABLE			0b00000001		// enables/disables LFSR
+	#define FLAG_LFSR0_SEED_WRITE			0b00000010		// after putting in a seed value in bytes 2-3, set this and unset this bit to set the seed.
+	#define FLAG_LFSR0_REG_RES_2			0b00000100		// reserved
+	#define FLAG_LFSR0_REG_RES_3			0b00001000		// reserved
+	#define FLAG_LFSR0_REG_RES_4			0b00010000		// reserved
+	#define FLAG_LFSR0_REG_RES_5			0b00100000		// reserved
+	#define FLAG_LFSR0_REG_RES_6			0b01000000		// reserved
+	#define FLAG_LFSR0_REG_RES_7			0b10000000		// reserved
+	// flags for byte 1 (0000FF00)
+	#define FLAG_LFSR1_REG_RES_0			0b00000001		// reserved
+	#define FLAG_LFSR1_REG_RES_1			0b00000010		// reserved
+	#define FLAG_LFSR1_REG_RES_2			0b00000100		// reserved
+	#define FLAG_LFSR1_REG_RES_3			0b00001000		// reserved
+	#define FLAG_LFSR1_REG_RES_4			0b00010000		// reserved
+	#define FLAG_LFSR1_REG_RES_5			0b00100000		// reserved
+	#define FLAG_LFSR1_REG_RES_6			0b01000000		// reserved
+	#define FLAG_LFSR1_REG_RES_7			0b10000000		// reserved
+	// bytes 2 and 3 are the seed value for the random number generator. set this once, then set and unset FLAG_LFSR0_SEED_WRITE
 
-// ** A2560K VICKY
+#define RANDOM_NUM_GEN_ENABLE		(GAVIN_LFSR_CONTROL)	// for compatibility with other Foenix code
+#define GAVIN_LFSR_OUTPUT			0xfec00008	// LFSR Output Value - 4b - RO
+	// bytes 0 and 1 are the generated random number - regenerated every time you read the register
+	// flags for byte 2 (00FF0000)
+	#define FLAG_LFSR_STATUS_CTRL0			0b00000001		// status bit
+	#define FLAG_LFSR_STATUS_CTRL1			0b00000010		// status bit
+	#define FLAG_LFSR_STATUS_CTRL2			0b00000100		// status bit
+	#define FLAG_LFSR_STATUS_CTRL3			0b00001000		// status bit
+	#define FLAG_LFSR_STATUS_CTRL4			0b00010000		// status bit
+	#define FLAG_LFSR_STATUS_CTRL5			0b00100000		// status bit
+	#define FLAG_LFSR_STATUS_CTRL6			0b01000000		// status bit
+	// byte 3 will always read 0
+	
+#define RANDOM_NUM_GEN				(GAVIN_LFSR_OUTPUT)		// for compatibility with other Foenix code
 
-#define VICKY_A2560K_A				0xfec40000				// vicky III channel A control register
-#define VICKYA_CURSOR_CTRL_A2560K	VICKY_A2560K_A + 0x10	// vicky III channel A cursor control register
-#define VICKYA_CURSOR_POS_A2560K	VICKY_A2560K_A + 0x14	// vicky III channel A cursor position register (x pos is lower word, y pos is upper word)
-#define VICKY_A2560K_B				0xfec80000				// vicky III channel B control register
-#define VICKYB_BORDER_CTRL_A2560K	VICKY_A2560K_B + 0x04	// vicky III channel B border control register
+#define GAVIN_POWER_LED_RGB			0xfec00008	// RGB Power LED - 4b - WO
+	// byte 0 is the blue
+	// byte 1 is the green
+	// byte 2 is the red
+	// byte 3 is ignored
+
+#define GAVIN_MACHINE_ID			0xfec0000c	// Machine ID - 4b - RO	
+	// MB: not clear from 0.0.2 manual vs subsequent changes to other machines, if this will stay same in future. 
+	// byte 0 appears to be a speed ID
+	// byte 1 appears to be for CPU ID
+#define MACHINE_ID_REGISTER			(GAVIN_MACHINE_ID)
+
+#define GAVIN_KEYBOARD_LED_RGB		0xfec0000c	// Keyboard Status LEDs - 4b - WO
+	// The Value of the status led are simply on or off, so only 7 basic colors can be programmed.
+	// bits 0-2 are RGB for the top right LED
+	// bits 3-5 are RGB for the middle right LED
+	// bits 6-8 are RGB for the bottom right LED
+	// bits 9-11 are RGB for the middle left LED
+
+#define GAVIN_CHIP_VERSION			0xfec00010	// Chip version and number - 4b - RO	
+	// bytes 0-1 are the chip version in hex
+	// bytes 2-3 are the chip number in hex
+
+#define GAVIN_FIRMWARE_DATE			0xfec00014	// Firmware date - 4b - RO	
+	// byte 0 is the year in decimal
+	// byte 1 is the month in decimal
+	// byte 2 is the day in decimal
+	// byte 3 is reserved
+
+#define GAVIN_HARDWARE_DATE_A		0xfec00018	// Hardware date - 4b - RO	
+	// byte 0 EOS
+	// byte 1 Rev digit 2 in ASCII
+	// byte 2 Rev digit 1 in ASCII
+	// byte 3 Rev digit 0 in ASCII
+
+#define GAVIN_HARDWARE_DATE_B		0xfec0001C	// Firmware date - 4b - RO	
+	// byte 0 is the year in decimal
+	// byte 1 is the month in decimal
+	// byte 2 is the day in decimal
+	// byte 3 is reserved
+
+
+
+// ** A2560K Keyboard Register
+// TODO
+
+#define GAVIN_KEYBOARD_INPUT_REG	0xfec00040	// Keyboard input register - 4b - RO	
+
+
+// ** A2560K Real Time Clock
+
+#define GAVIN_RTC					0xfec00080	// start of RTC registers -- all are 1 byte RW	
+#define RTC_SECONDS						(GAVIN_RTC)				//  654: second digit, 3210: 1st digit
+#define RTC_SECONDS_ALARM				(RTC_SECONDS + 1)		//  654: second digit, 3210: 1st digit
+#define RTC_MINUTES						(RTC_SECONDS_ALARM + 1)	//  654: second digit, 3210: 1st digit
+#define RTC_MINUTES_ALARM				(RTC_MINUTES + 1)		//  654: second digit, 3210: 1st digit
+#define RTC_HOURS						(RTC_MINUTES_ALARM + 1)	//   54: second digit, 3210: 1st digit
+#define RTC_HOURS_ALARM					(RTC_HOURS + 1)			//   54: second digit, 3210: 1st digit
+#define RTC_DAY							(RTC_HOURS_ALARM + 1)	//   54: second digit, 3210: 1st digit
+#define RTC_DAY_ALARM					(RTC_DAY + 1)			//   54: second digit, 3210: 1st digit
+#define RTC_DAY_OF_WEEK					(RTC_DAY_ALARM + 1)		//  210: day of week digit
+#define RTC_MONTH						(RTC_DAY_OF_WEEK + 1)	//    4: second digit, 3210: 1st digit
+#define RTC_YEAR						(RTC_MONTH + 1)			// 7654: second digit, 3210: 1st digit
+#define RTC_RATES						(RTC_YEAR + 1)			//  654: WD (watchdog, not really relevant to F256); 3210: RS
+	#define FLAG_RTC_RATE_NONE			0b00000000		// applies to bits 3210 of RTC_RATES
+	#define FLAG_RTC_RATE_31NS			0b00000001		// applies to bits 3210 of RTC_RATES. See manual for values between 0001 and 1101
+	#define FLAG_RTC_RATE_125MS			0b00001101		// applies to bits 3210 of RTC_RATES
+	#define FLAG_RTC_RATE_63MS			0b00001100		// applies to bits 3210 of RTC_RATES - 62.5ms
+	#define FLAG_RTC_RATE_250MS			0b00001110		// applies to bits 3210 of RTC_RATES
+	#define FLAG_RTC_RATE_500MS			0b00001111		// applies to bits 3210 of RTC_RATES 
+#define RTC_ENABLES						(RTC_RATES + 1)			// Controls various interrupt enables, only some of which apply to an F256
+	#define FLAG_RTC_PERIODIC_INT_EN	0b00000100		// set PIE (bit 2) to raise interrupt based on RTC_RATES
+	#define FLAG_RTC_ALARM_INT_EN		0b00001000		// Set AEI (bit 3) to raise interrupt based on RTC_SECONDS_ALARM, etc. 
+#define RTC_FLAGS						(RTC_ENABLES + 1)		// check to see why an RTC interrupt was raised
+	#define FLAG_RTC_PERIODIC_INT		0b00000100		// will be set if interrupt was raised based on RTC_RATES
+	#define FLAG_RTC_ALARM_INT			0b00001000		// will be set if interrupt was raised based on alarm clock
+#define RTC_CONTROL						(RTC_FLAGS + 1)			// set UTI (bit 3) to disable update of reg, to read secs. 
+	#define MASK_RTC_CTRL_DSE			0b00000001		// if set (1), daylight savings is in effect.
+	#define MASK_RTC_CTRL_12_24			0b00000010		// sets whether the RTC is using 12 or 24 hour accounting (1 = 24 Hr, 0 = 12 Hr)
+	#define MASK_RTC_CTRL_STOP			0b00000100		// If it is clear (0) before the system is powered down, it will avoid draining the battery and may stop tracking the time. If it is set (1), it will keep using the battery as long as possible.
+	#define MASK_RTC_CTRL_UTI			0b00001000		// if set (1), the update of the externally facing registers by the internal timers is inhibited. In order to read or write those registers, the program must first set UTI and then clear it when done.
+	#define MASK_RTC_CTRL_UNUSED		0b11110000		// the upper 4 bits are not used.
+#define RTC_CENTURY						(RTC_CONTROL + 1)		// 7654: century 10s digit, 3210: centurys 1s digit
+
+
+// ** A2560K Interrupt control registers
+// TODO
+
+#define GAVIN_INTERRUPT_CONTROL		0xfec00100	// start of interrupt control registers -- all are 2 byte RW	
+
+
+// ** A2560K Timer control registers
+// TODO
+
+#define GAVIN_TIMER_CONTROL			0xfec00200	// start of interrupt control registers -- all are 4 byte RW	
+
+
+// ** A2560K SD card control registers
+// TODO
+
+#define GAVIN_SD_CONTROL			0xfec00300	// start of SD card control registers -- all are 1 byte, mix of RW and RO	
+
+
+// ** A2560K IDE control registers
+// TODO
+
+#define GAVIN_IDE_CONTROL			0xfec00400	// start of IDE drive control registers -- mix of 1-2 bytes, all are RW	
+
+
+// ** A2560K Joystick control registers
+// TODO
+
+#define GAVIN_JOY_CONTROL			0xfec00500	// start of joystick control registers -- all are 2 byte, mix of RW and RO
+
+
+// ** A2560K Ethernet control registers
+// TODO
+
+#define GAVIN_ETHERNET_CONTROL		0xfec00500	// start of Ethernet control registers -- all are 4 byte, mix of RW and RO
+
+
+// ** A2560K Serial control registers
+
+// common to both serial ports
+#define UART_BAUD_DIV_300		5244	// divisor for 300 baud
+#define UART_BAUD_DIV_600		2622	// divisor for 600 baud
+#define UART_BAUD_DIV_1200		1311	// divisor for 1200 baud
+#define UART_BAUD_DIV_1800		874		// divisor for 1800 baud
+#define UART_BAUD_DIV_2000		786		// divisor for 2000 baud
+#define UART_BAUD_DIV_2400		655		// divisor for 2400 baud
+#define UART_BAUD_DIV_3600		437		// divisor for 3600 baud
+#define UART_BAUD_DIV_4800		327		// divisor for 4800 baud
+#define UART_BAUD_DIV_9600		163		// divisor for 9600 baud
+#define UART_BAUD_DIV_19200		81		// divisor for 19200 baud
+#define UART_BAUD_DIV_38400		40		// divisor for 38400 baud
+#define UART_BAUD_DIV_57600		27		// divisor for 57600 baud
+#define UART_BAUD_DIV_115200	13		// divisor for 115200 baud
+
+#define UART_DATA_BITS			0b00000011	// 8 bits
+#define UART_STOP_BITS			0			// 1 stop bit
+#define UART_PARITY				0			// no parity
+#define UART_BRK_SIG			0b01000000
+#define UART_NO_BRK_SIG			0b00000000
+#define UART_DLAB_MASK			0b10000000
+#define UART_THR_IS_EMPTY		0b00100000
+#define UART_THR_EMPTY_IDLE		0b01000000
+#define UART_DATA_AVAILABLE		0b00000001
+#define UART_ERROR_MASK			0b10011110
+
+// serial port 2
+#define GAVIN_SERIAL_2_BASE			0xfec02278	// start of Serial Port 2 registers -- all are 1 byte, RW except as noted
+#define UART2_BASE					(GAVIN_SERIAL_2_BASE)
+#define UART2_RBR					(UART2_BASE + 0)	// F256 naming compatibility
+#define UART2_RHR					(UART2_BASE + 0)	// When DLAB=0 (RHR) Receiver Holding Register (R)
+#define UART2_THR					(UART2_BASE + 0)	// When DLAB=0 (THR) Transmitter Holding Register (W)
+#define UART2_DLL					(UART2_BASE + 0)	// When DLAB=1 (DLL) Baud rate Divisor’s Constant LSB
+#define UART2_IER					(UART2_BASE + 1)	// When DLAB=0 (IER) Interrupt Enable Register
+#define UART2_DLM					(UART2_BASE + 1)	// When DLAB=1 (DLM) Baud rate Divisor’s Constant MSB
+#define UART2_IIR					(UART2_BASE + 2)	// F256 naming compatibility
+#define UART2_ISR					(UART2_BASE + 2)	// When DLAB=0 (ISR) Interrupt Status Register (R)
+#define UART2_FCR					(UART2_BASE + 2)	// When DLAB=1 (FCR) FIFO Control Register (FIFO is 16 Bytes Deep) (W)
+#define UART2_LCR					(UART2_BASE + 3)	// (LCR) Line Control Register
+#define UART2_MCR					(UART2_BASE + 4)	// (MCR) Modem Control Register
+#define UART2_LSR					(UART2_BASE + 5)	// (LSR) Line Status Register
+#define UART2_MSR					(UART2_BASE + 6)	// (MSR) Modem Status Register
+#define UART2_SCR					(UART2_BASE + 7)	// F256 naming compatibility
+#define UART2_SCR					(UART2_BASE + 7)	// (SPR) Scratch Pad Register
+
+// serial port 1
+#define GAVIN_SERIAL_1_BASE			0xfec023f8	// start of Serial Port 1 registers -- all are 1 byte, RW except as noted
+#define UART_BASE					(GAVIN_SERIAL_1_BASE)
+#define UART_RBR					(UART_BASE + 0)		// F256 naming compatibility
+#define UART_RHR					(UART_BASE + 0)		// When DLAB=0 (RHR) Receiver Holding Register (R)
+#define UART_THR					(UART_BASE + 0)		// When DLAB=0 (THR) Transmitter Holding Register (W)
+#define UART_DLL					(UART_BASE + 0)		// When DLAB=1 (DLL) Baud rate Divisor’s Constant LSB
+#define UART_IER					(UART_BASE + 1)		// When DLAB=0 (IER) Interrupt Enable Register
+#define UART_DLM					(UART_BASE + 1)		// When DLAB=1 (DLM) Baud rate Divisor’s Constant MSB
+#define UART_IIR					(UART_BASE + 2)		// F256 naming compatibility
+#define UART_ISR					(UART_BASE + 2)		// When DLAB=0 (ISR) Interrupt Status Register (R)
+#define UART_FCR					(UART_BASE + 2)		// When DLAB=1 (FCR) FIFO Control Register (FIFO is 16 Bytes Deep) (W)
+#define UART_LCR					(UART_BASE + 3)		// (LCR) Line Control Register
+#define UART_MCR					(UART_BASE + 4)		// (MCR) Modem Control Register
+#define UART_LSR					(UART_BASE + 5)		// (LSR) Line Status Register
+#define UART_MSR					(UART_BASE + 6)		// (MSR) Modem Status Register
+#define UART_SCR					(UART_BASE + 7)		// F256 naming compatibility
+#define UART_SCR					(UART_BASE + 7)		// (SPR) Scratch Pad Register
+
+
+// ** A2560K VICKY - COMMON
+// NOTE: A2560K has 2 VICKY controls, and 2 outputs. Channel A is text only and higher res. 
+
+#define GRAPHICS_MODE_MASK		0xFFFFFF00	//!> the mask for the system control register that holds the graphics/bitmap/text/sprite mode bits
+
+#define GRAPHICS_MODE_TEXT		0x01	// 0b00000001	Enable the Text Mode
+#define GRAPHICS_MODE_TEXT_OVER	0x02	// 0b00000010	Enable the Overlay of the text mode on top of Graphic Mode (the Background Color is ignored)
+#define GRAPHICS_MODE_GRAPHICS	0x04	// 0b00000100	Enable the Graphic Mode
+#define GRAPHICS_MODE_EN_BITMAP	0x08	// 0b00001000	Enable the Bitmap Module In Vicky
+#define GRAPHICS_MODE_EN_TILE	0x10	// 0b00010000	Enable the Tile Module in Vicky
+#define GRAPHICS_MODE_EN_SPRITE	0x20	// 0b00100000	Enable the Sprite Module in Vicky
+#define GRAPHICS_MODE_RESERVED	0x40	// 0b01000000	Reserved on A2560K
+#define GRAPHICS_MODE_DIS_VIDEO	0x80	// 0b10000000	This will disable the Scanning of the Video information in the 4Meg of VideoRAM hence giving 100% bandwidth to the CPU
+
+// Cursor control flags
+#define CURSOR_ONOFF_BITS				0b00000001		//!> bit 0 controls whether cursor is displayed or not
+#define CURSOR_FLASH_RATE_BITS			0b00000110		//!> bits 1-2 control rate of cursor flashing (if visible)
+#define CURSOR_FLASH_RATE_12S			0b00000010		//!> bits 1 on = 1 blink per 1/2 second
+#define CURSOR_FLASH_RATE_14S			0b00000100		//!> bits 2 on = 1 blink per 1/4 second
+#define CURSOR_FLASH_RATE_15S			0b00000110		//!> bits 1&2 on = 1 blink per 1/5 second
+
+
+// VICKY RESOLUTION FLAGS
+#define VICKY_RES_320X240_FLAGS		0x00	// 0b00000000
+#define VICKY_PIX_DOUBLER_FLAGS		0x02	// 0b00000001
+#define VICKY_RES_320X200_FLAGS		0x03	// 0b00000011
+
+// 0xD001 VICKY resolution control bits
+#define VICKY_RES_CLK_70_FLAG		0x01	// 0b00000001 -- frequency control. if set, 70Hz = 640x480 = text mode 80x60. 60hz if off = 60Hz = 640x400 = text mode 80x50
+#define VICKY_RES_X_DOUBLER_FLAG	0x02	// 0b00000010 -- 640 -> 320 pix if set
+#define VICKY_RES_Y_DOUBLER_FLAG	0x04	// 0b00000100 -- 480 or 400 -> 240 or 200 pix if set
+#define VICKY_RES_MON_SLP			0x08	// 0b00001000 -- if set, the monitor SYNC signal will be turned off, putting the monitor to sleep
+#define VICKY_RES_FON_OVLY			0x10	// 0b00010000 -- fclear(0),onlythetextforegroundcolorwillbedisplayedwhentextoverlaysgraphics(allbackground colors will be completely transparent). If set (1), both foreground and background colors will be displayed, except that background color 0 will be transparent.
+#define VICKY_RES_FON_SET			0x20	// 0b00100000 -- if set (1), the text font displayed will be font set 1. If clear (0), the text font displayed will be font set 0.
+#define VICKY_RES_UNUSED7			0x40	// 0b01000000
+#define VICKY_RES_UNUSED8			0x80	// 0b10000000
+
+#define VICKY_BITMAP_MAX_H_RES		320		// VICKY in F256K and Jr supports a max resolution of 320x240, even if text engine displays at 640x480
+#define VICKY_BITMAP_MAX_V_RES		240		// VICKY in F256K and Jr supports a max resolution of 320x240, even if text engine displays at 640x480
+
+
+// ** A2560K VICKY - CHANNEL A
+// NOTE: channel A is text only, no graphic modes
+
+
+#define VICKY_A_BASE_ADDRESS			0xfec40000		// start of VICKY channel A registers -- all are 4 byte, RW (some bits RO)
+#define VICKY_A_MASTER_CONTROL			(VICKY_A_BASE_ADDRESS)	// VICKY Channel A master control register
+	// byte 0 bits (reserved except as noted below)
+	#define FLAG_TEXT_MODE_ENABLE	0x01	// 0b00000001	Enable the Text Mode
+	#define FLAG_DISABLE_VID_OUTPUT	0x80	// 0b10000000	This will disable the Scanning of the Video information in the 4Meg of Video RAM hence giving 100% bandwidth to the CPU
+	// byte 1 bits (reserved except as noted below)
+	#define FLAG_TEXT_RESOLUTION	0x08	// 0b00001000	0: 800x600. 1: 1024x768
+	// byte 2 bits (reserved except as noted below)
+	#define FLAG_GAMMA_CHOICE_SRC	0x01	// 0b00000001	0: respect dip switch. 1: respect bit 1 of this byte
+	#define FLAG_GAMMA_OVERRIDE		0x02	// 0b00000010	0: gamma off. 1: gamma on.
+	#define FLAG_SYNC_DISABLE		0x04	// 0b00000100	0: normal. 1: sync off (put display to sleep)
+
+#define VICKY_A_BORDER_CONTROL			(VICKY_A_MASTER_CONTROL + 4)	// VICKY Channel A border control register
+
+#define VICKYA_CURSOR_CTRL_A2560K	(VICKY_A_BASE_ADDRESS + 0x10)	// vicky III channel A cursor control register
+#define VICKYA_CURSOR_POS_A2560K	(VICKY_A_BASE_ADDRESS + 0x14)	// vicky III channel A cursor position register (x pos is lower word, y pos is upper word)
+#define VICKY_B_BASE_ADDRESS		0xfec80000				// vicky III channel B control register
+#define VICKYB_BORDER_CTRL_A2560K	(VICKY_B_BASE_ADDRESS + 0x04)	// vicky III channel B border control register
 #define VICKYB_BORDER_COLOR_A2560K	0xfec80008				// vicky III channel B border color register
 #define VICKYB_BACK_COLOR_A2560K	0xfec8000C				// vicky III channel B background color register
-#define VICKYB_CURSOR_CTRL_A2560K	VICKY_A2560K_B + 0x10	// vicky III channel B cursor control register
-#define VICKYB_CURSOR_POS_A2560K	VICKY_A2560K_B + 0x14	// vicky III channel B cursor position register
+#define VICKYB_CURSOR_CTRL_A2560K	(VICKY_B_BASE_ADDRESS + 0x10)	// vicky III channel B cursor control register
+#define VICKYB_CURSOR_POS_A2560K	(VICKY_B_BASE_ADDRESS + 0x14)	// vicky III channel B cursor position register
 #define VICKYB_BITMAP_L0_CTRL		0xfec80100				// vicky III channel B bitmap layer 0 control register (1=enable, +2=LUT0, +4=LUT1, +8=LUT2
 #define VICKYB_MOUSE_GRAPHIC_A2560K	0xfec80400				// vicky III channel B mouse pointer graphic stored here (16x16)
 #define VICKYB_MOUSE_CTRL_A2560K	0xfec80c00				// vicky III channel B mouse pointer control register. set to 1 to enable mouse. +2 to do whatever "pointer choice" does.
@@ -265,15 +556,15 @@
 #define FONT_MEMORY_BANKA_A2560K	(char*)0xfec48000		// chan A
 #define FONT_MEMORY_BANKB_A2560K	(char*)0xfec88000		// chan B
 #define VICKY_IIIB_CLUT0			0xfec82000				// each addition LUT is 400 offset from here
-#define VICKY_IIIB_CLUT1			VICKY_IIIB_CLUT0 + 0x400	// each addition LUT is 400 offset from here
-#define VICKY_IIIB_CLUT2			VICKY_IIIB_CLUT1 + 0x400	// each addition LUT is 400 offset from here
-#define VICKY_IIIB_CLUT3			VICKY_IIIB_CLUT2 + 0x400	// each addition LUT is 400 offset from here
-#define VICKY_IIIB_CLUT4			VICKY_IIIB_CLUT3 + 0x400	// each addition LUT is 400 offset from here
-#define VICKY_IIIB_CLUT5			VICKY_IIIB_CLUT4 + 0x400	// each addition LUT is 400 offset from here
-#define VICKY_IIIB_CLUT6			VICKY_IIIB_CLUT5 + 0x400	// each addition LUT is 400 offset from here
-#define VICKY_IIIB_CLUT7			VICKY_IIIB_CLUT6 + 0x400	// each addition LUT is 400 offset from here
+#define VICKY_IIIB_CLUT1			(VICKY_IIIB_CLUT0 + 0x400)	// each addition LUT is 400 offset from here
+#define VICKY_IIIB_CLUT2			(VICKY_IIIB_CLUT1 + 0x400)	// each addition LUT is 400 offset from here
+#define VICKY_IIIB_CLUT3			(VICKY_IIIB_CLUT2 + 0x400)	// each addition LUT is 400 offset from here
+#define VICKY_IIIB_CLUT4			(VICKY_IIIB_CLUT3 + 0x400)	// each addition LUT is 400 offset from here
+#define VICKY_IIIB_CLUT5			(VICKY_IIIB_CLUT4 + 0x400)	// each addition LUT is 400 offset from here
+#define VICKY_IIIB_CLUT6			(VICKY_IIIB_CLUT5 + 0x400)	// each addition LUT is 400 offset from here
+#define VICKY_IIIB_CLUT7			(VICKY_IIIB_CLUT6 + 0x400)	// each addition LUT is 400 offset from here
 
-#define default_start_a2560k_vram	0x00011000	// offset against vicky I think though. add to VICKY_A2560K_B? based on doing peek32 in f68. 
+#define default_start_a2560k_vram	0x00011000	// offset against vicky I think though. add to VICKY_B_BASE_ADDRESS? based on doing peek32 in f68. 
 #define BITMAP_CTRL_REG_A2560_0		0xfec80100	//! Bitmap Layer0 Control Register (Foreground Layer)
 #define BITMAP_VRAM_ADDR_A2560_0	0xfec80104	//! Bitmap Layer0 VRAM Address Pointer. Offset within the VRAM memory from VICKY’s perspective. VRAM Address begins @ $00:0000 and ends @ $1FFFFF
 #define BITMAP_CTRL_REG_A2560_1		0xfec80108	//! Bitmap Layer1 Control Register (Background Layer)
@@ -282,8 +573,8 @@
 
 // ** A2560U and A2560U+
 #define VICKY_A2560U				0xb40000				// Vicky II offset/first register
-#define VICKY_CURSOR_CTRL_A2560U	VICKY_A2560U + 0x10		// vicky II channel A cursor control register
-#define VICKY_CURSOR_POS_A2560U		VICKY_A2560U + 0x14		// vicky II channel A cursor position register (x pos is lower word, y pos is upper word)
+#define VICKY_CURSOR_CTRL_A2560U	(VICKY_A2560U + 0x10)		// vicky II channel A cursor control register
+#define VICKY_CURSOR_POS_A2560U		(VICKY_A2560U + 0x14)		// vicky II channel A cursor position register (x pos is lower word, y pos is upper word)
 #define TEXT_RAM_A2560U				(char*)0xb60000			// text (A2560U only has one video channel)
 #define TEXT_ATTR_A2560U			(char*)0xb68000			// attr (A2560U only has one video channel)
 #define TEXT_FORE_LUT_A2560U		(char*)0xb6c400			// FG_CHAR_LUT_PTR	Text Foreground Look-Up Table
@@ -432,36 +723,36 @@
 // System Default Colors - correspond to the CLUT loaded by sys lib
 
 #define SYS_COLOR_WHITE		244						// = 0xF4
-#define SYS_COLOR_GRAY1		SYS_COLOR_WHITE + 1
-#define SYS_COLOR_GRAY2		SYS_COLOR_WHITE + 2
-#define SYS_COLOR_GRAY3		SYS_COLOR_WHITE + 3
-#define SYS_COLOR_GRAY4		SYS_COLOR_WHITE + 4
-#define SYS_COLOR_GRAY5		SYS_COLOR_WHITE + 5
-#define SYS_COLOR_GRAY6		SYS_COLOR_WHITE + 6
-#define SYS_COLOR_GRAY7		SYS_COLOR_WHITE + 7
-#define SYS_COLOR_GRAY8		SYS_COLOR_WHITE + 8
-#define SYS_COLOR_GRAY9		SYS_COLOR_WHITE + 9
-#define SYS_COLOR_GRAY10	SYS_COLOR_WHITE + 10
+#define SYS_COLOR_GRAY1		(SYS_COLOR_WHITE + 1)
+#define SYS_COLOR_GRAY2		(SYS_COLOR_WHITE + 2)
+#define SYS_COLOR_GRAY3		(SYS_COLOR_WHITE + 3)
+#define SYS_COLOR_GRAY4		(SYS_COLOR_WHITE + 4)
+#define SYS_COLOR_GRAY5		(SYS_COLOR_WHITE + 5)
+#define SYS_COLOR_GRAY6		(SYS_COLOR_WHITE + 6)
+#define SYS_COLOR_GRAY7		(SYS_COLOR_WHITE + 7)
+#define SYS_COLOR_GRAY8		(SYS_COLOR_WHITE + 8)
+#define SYS_COLOR_GRAY9		(SYS_COLOR_WHITE + 9)
+#define SYS_COLOR_GRAY10	(SYS_COLOR_WHITE + 10)
 #define SYS_COLOR_BLACK		255
 
 #define SYS_COLOR_RED1		35 // = 0x23
-#define SYS_COLOR_RED2		SYS_COLOR_RED1 + 36*5+1	// 3rd lightest red
-#define SYS_COLOR_RED3		SYS_COLOR_RED2 + 3
+#define SYS_COLOR_RED2		(SYS_COLOR_RED1 + 36*5+1)	// 3rd lightest red
+#define SYS_COLOR_RED3		(SYS_COLOR_RED2 + 3)
 
 #define SYS_COLOR_GREEN1	23*8+1
-#define SYS_COLOR_GREEN2	SYS_COLOR_GREEN1 + 2
-#define SYS_COLOR_GREEN3	SYS_COLOR_GREEN2 + 2
+#define SYS_COLOR_GREEN2	(SYS_COLOR_GREEN1 + 2)
+#define SYS_COLOR_GREEN3	(SYS_COLOR_GREEN2 + 2)
 
 #define SYS_COLOR_BLUE1		26*8+3	// = 211 = 0xd3
-#define SYS_COLOR_BLUE2		SYS_COLOR_BLUE1 + 2
-#define SYS_COLOR_BLUE3		SYS_COLOR_BLUE2 + 2
+#define SYS_COLOR_BLUE2		(SYS_COLOR_BLUE1 + 2)
+#define SYS_COLOR_BLUE3		(SYS_COLOR_BLUE2 + 2)
 
-#define SYS_COLOR_PURPLEBLUE		15*8+7	// purplish blue = 127 = 0x7F
+#define SYS_COLOR_PURPLEBLUE		(15*8+7)	// purplish blue = 127 = 0x7F
 #define SYS_COLOR_PURPLEBLUEINACT	SYS_COLOR_GRAY3	// light gray inactive accent color for purplish blue = 85 = 0x55
-#define SYS_COLOR_PURPLEBLUEHL		6*7+1	// light active accent color for purplish blue = 37 = 0x2B
-#define SYS_COLOR_TETRA_1			14 * 4 + 0 // wine color (CC6699) that is tetradic for SYS_COLOR_PURPLEBLUE = 56 = 0x38
-#define SYS_COLOR_TETRA_2			11 * 4 + 1 // yellowish (CCCC66) color that is tetradic for SYS_COLOR_PURPLEBLUE = 44 = 0x2C
-#define SYS_COLOR_TETRA_3			29 * 4 + 0 // teal/greenish color (66CC99) that is tetradic for SYS_COLOR_PURPLEBLUE = 116 = 0x74
+#define SYS_COLOR_PURPLEBLUEHL		(6*7+1)	// light active accent color for purplish blue = 37 = 0x2B
+#define SYS_COLOR_TETRA_1			(14 * 4 + 0) // wine color (CC6699) that is tetradic for SYS_COLOR_PURPLEBLUE = 56 = 0x38
+#define SYS_COLOR_TETRA_2			(11 * 4 + 1) // yellowish (CCCC66) color that is tetradic for SYS_COLOR_PURPLEBLUE = 44 = 0x2C
+#define SYS_COLOR_TETRA_3			(29 * 4 + 0) // teal/greenish color (66CC99) that is tetradic for SYS_COLOR_PURPLEBLUE = 116 = 0x74
 
 #define SYS_DEF_COLOR_WINFRAME			SYS_COLOR_BLACK
 #define SYS_DEF_COLOR_WINTITLE_BACK		SYS_COLOR_PURPLEBLUE
@@ -538,7 +829,7 @@ typedef struct Rectangle
 typedef struct Screen
 {
 	int16_t			id_;				// 0 for channel A, 1 for channel B. not all foenix's have 2 channels.
-	volatile unsigned long*	vicky_;		// VICKY primary register RAM loc. See VICKY_A2560K_A, VICKY_A2560K_B, VICKY_A2560U, etc.
+	volatile unsigned long*	vicky_;		// VICKY primary register RAM loc. See VICKY_A_BASE_ADDRESS, VICKY_B_BASE_ADDRESS, VICKY_A2560U, etc.
 	Rectangle		rect_;				// the x1, y1, > x2, y2 coordinates of the screen, taking into account any borders. 
 	int16_t			width_;				// for the current resolution, the max horizontal pixel count 
 	int16_t			height_;			// for the current resolution, the max vertical pixel count 
@@ -553,8 +844,8 @@ typedef struct Screen
 	char*			text_color_back_ram_;	// 64b of memory holding background color LUTs for text mode, in BGRA order
 	int16_t			text_font_height_;	// in text mode, the height in pixels for the fixed width font. Should be either 8 or 16, depending on which Foenix. used for calculating text fit.
 	int16_t			text_font_width_;	// in text mode, the width in pixels for the fixed width font. Unlikely to be other than '8' with Foenix machines. used for calculating text fit.
-	char			text_temp_buffer_1_[TEXT_COL_COUNT_FOR_PLOTTING_A2560K * TEXT_ROW_COUNT_FOR_PLOTTING_A2560K + 1];	// todo: replace with pointer, and allocate space on resolution switch. general use temp buffer - do NOT use for real storage - any utility function clobber it
-	char			text_temp_buffer_2_[TEXT_COL_COUNT_FOR_PLOTTING_A2560K * TEXT_ROW_COUNT_FOR_PLOTTING_A2560K + 1];	// todo: replace with pointer, and allocate space on resolution switch. general use temp buffer - do NOT use for real storage - any utility function clobber it
+// 	char			text_temp_buffer_1_[TEXT_COL_COUNT_FOR_PLOTTING_A2560K * TEXT_ROW_COUNT_FOR_PLOTTING_A2560K + 1];	// todo: replace with pointer, and allocate space on resolution switch. general use temp buffer - do NOT use for real storage - any utility function clobber it
+// 	char			text_temp_buffer_2_[TEXT_COL_COUNT_FOR_PLOTTING_A2560K * TEXT_ROW_COUNT_FOR_PLOTTING_A2560K + 1];	// todo: replace with pointer, and allocate space on resolution switch. general use temp buffer - do NOT use for real storage - any utility function clobber it
 	Bitmap*			bitmap_[2];			//! The foreground (layer0=0) and background (layer1=1) bitmaps associated with this screen, if any. (Text only screens do not have bitmaps available)
 } Screen;
 
