@@ -16,10 +16,9 @@
 
 // project includes
 #include "debug.h"
-#include "general.c"
+#include "general.h"
 #include "menu.h"
 #include "sys.h"
-
 
 // C includes
 #include <stdbool.h>
@@ -28,10 +27,9 @@
 #include <string.h>
 #include <time.h>	// just for initiating rand()
 
-
 // A2560 includes
+#include "a2560k.h"
 #include <mcp/syscalls.h>
-#include <mb/a2560k.h>
 
 
 /*****************************************************************************/
@@ -46,7 +44,7 @@
 /*                             Global Variables                              */
 /*****************************************************************************/
 
-extern System*			global_system;
+System*			global_system;
 
 // for menus
 MenuGroup		MyAppMenu;
@@ -393,7 +391,8 @@ void WaitForUser(void)
 {
 	Text_DrawStringAtXY(global_system->screen_[ID_CHANNEL_B], 1, DESCRIPTION_START_Y_LINE + DESCRIPTION_NUM_LINES, (char*)"Press any key to continue", FG_COLOR_BRIGHT_YELLOW, BG_COLOR_BLUE);
 	
-	General_GetChar();
+	//General_GetChar();
+	General_DelaySeconds(3);
 	
 	Text_FillCharMem(global_system->screen_[ID_CHANNEL_B], ' ');
 	Text_FillAttrMem(global_system->screen_[ID_CHANNEL_B], 0);
@@ -412,7 +411,7 @@ void ShowDescription(char* the_message)
 	Text_FillBox(global_system->screen_[ID_CHANNEL_B], x1+1, y1+1, x2-1, y2-1, ' ', FG_COLOR_BRIGHT_WHITE, BG_COLOR_BLUE);
 	
 	// wrap text into the message box, leaving one row at the bottom for "press any key"
-	Text_DrawStringInBox(global_system->screen_[ID_CHANNEL_B], x1+1, y1+1, x2-1, y2-1, the_message, FG_COLOR_BRIGHT_WHITE, BG_COLOR_BLUE, NULL);
+	Text_DrawStringInBox(global_system->screen_[ID_CHANNEL_B], x1+1, y1+1, x2-1, y2-1, the_message, &global_system->text_temp_buffer_, FG_COLOR_BRIGHT_WHITE, BG_COLOR_BLUE, NULL);
 }
 
 
@@ -1469,7 +1468,19 @@ int main(int argc, char* argv[])
 {
 	Screen*		the_screen;
 
-	if (Sys_InitSystem() == false)
+	printf("**** sys.c Demo Suite **** \n");
+
+	// initialize the system object
+	if ((global_system = Sys_New()) == NULL)
+	{
+		//LOG_ERR(("%s %d: Couldn't instantiate system object", __func__, __LINE__));
+		printf("Couldn't instantiate system object \n");
+		exit(0);
+	}
+
+	DEBUG_OUT(("%s %d: System object created ok. Initiating system components...", __func__, __LINE__));
+	
+	if (Sys_InitSystem(global_system) == false)
 	{
 		DEBUG_OUT(("%s %d: Couldn't initialize the system", __func__, __LINE__));
 		exit(0);

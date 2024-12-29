@@ -15,7 +15,11 @@
 
 
 // project includes
-
+#include "debug.h"
+#include "font.h"
+#include "general.h"
+#include "text.h"
+#include "sys.h"
 
 // C includes
 #include <stdbool.h>
@@ -26,12 +30,8 @@
 
 
 // A2560 includes
+#include "a2560k.h"
 #include <mcp/syscalls.h>
-#include <mb/a2560_platform.h>
-#include <mb/general.h>
-#include <mb/text.h>
-#include <mb/bitmap.h>
-#include <mb/lib_sys.h>
 
 
 /*****************************************************************************/
@@ -44,7 +44,7 @@
 /*                             Global Variables                              */
 /*****************************************************************************/
 
-extern System*			global_system;
+System*			global_system;
 
 
 /*****************************************************************************/
@@ -113,7 +113,7 @@ void ShowDescription(char* the_message)
 	Text_FillBox(global_system->screen_[ID_CHANNEL_B], x1+1, y1+1, x2-1, y2-1, ' ', FG_COLOR_BRIGHT_WHITE, BG_COLOR_BLUE);
 	
 	// wrap text into the message box, leaving one row at the bottom for "press any key"
-	Text_DrawStringInBox(global_system->screen_[ID_CHANNEL_B], x1+1, y1+1, x2-1, y2-1, the_message, FG_COLOR_BRIGHT_WHITE, BG_COLOR_BLUE, NULL);
+	Text_DrawStringInBox(global_system->screen_[ID_CHANNEL_B], x1+1, y1+1, x2-1, y2-1, the_message, &global_system->text_temp_buffer_, FG_COLOR_BRIGHT_WHITE, BG_COLOR_BLUE, NULL);
 }
 
 
@@ -599,7 +599,19 @@ void RunDemo(void)
 
 int main(int argc, char* argv[])
 {
-	if ( Sys_InitSystem() == false)
+	printf("**** bitmap.c Demo Suite **** \n");
+
+	// initialize the system object
+	if ((global_system = Sys_New()) == NULL)
+	{
+		//LOG_ERR(("%s %d: Couldn't instantiate system object", __func__, __LINE__));
+		printf("Couldn't instantiate system object \n");
+		exit(0);
+	}
+
+	DEBUG_OUT(("%s %d: System object created ok. Initiating system components...", __func__, __LINE__));
+	
+	if (Sys_InitSystem(global_system) == false)
 	{
 		DEBUG_OUT(("%s %d: Couldn't initialize the system", __func__, __LINE__));
 		exit(0);
@@ -608,8 +620,7 @@ int main(int argc, char* argv[])
 	srand(42); // need to have some better way to initialize this on c256. look in kernel. 
 	//srand(time(NULL));   // Initialization, should only be called once.
 	
-	//Sys_SetModeGraphics(global_system);
-	Sys_SetModeText(global_system, true);
+	Sys_SetGraphicMode(global_system, PARAM_SPRITES_OFF, PARAM_BITMAP_ON, PARAM_TILES_OFF, PARAM_TEXT_OVERLAY_ON, PARAM_TEXT_ON);
 
 	// temp keyboard test c256 only
 	#ifdef _C256_FMX_

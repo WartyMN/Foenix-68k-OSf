@@ -15,6 +15,7 @@
 
 
 // project includes
+#include "debug.h"
 #include "general.h"
 #include "sys.h"
 #include "text.h"
@@ -40,7 +41,7 @@
 /*                             Global Variables                              */
 /*****************************************************************************/
 
-extern System*			global_system;
+System*			global_system;
 
 
 /*****************************************************************************/
@@ -105,7 +106,8 @@ bool Test_MyGetUserResponseFunc(void)
 {
 	unsigned char	c;
 	
-	c = General_GetChar();
+	//c = General_GetChar();
+	General_DelaySeconds(1);
 	
 	if (c == 'q')
 	{
@@ -122,7 +124,8 @@ void WaitForUser(void)
 {
 	Text_DrawStringAtXY(global_system->screen_[ID_CHANNEL_B], 1, 4, (char*)"Press any key to continue", FG_COLOR_BRIGHT_YELLOW, BG_COLOR_BLUE);
 	
-	General_GetChar();
+	//General_GetChar();
+	General_DelaySeconds(1);
 	
 	Text_FillCharMem(global_system->screen_[ID_CHANNEL_A], ' ');
 	Text_FillAttrMem(global_system->screen_[ID_CHANNEL_A], 159);
@@ -143,7 +146,7 @@ void ShowDescription(char* the_message)
 	Text_FillBox(global_system->screen_[ID_CHANNEL_B], x1+1, y1+1, x2-1, y2-1, ' ', FG_COLOR_BRIGHT_WHITE, BG_COLOR_BLUE);
 	
 	// wrap text into the message box, leaving one row at the bottom for "press any key"
-	Text_DrawStringInBox(global_system->screen_[ID_CHANNEL_B], x1+1, y1+1, x2-1, y2-1, the_message, FG_COLOR_BRIGHT_WHITE, BG_COLOR_BLUE, NULL);
+	Text_DrawStringInBox(global_system->screen_[ID_CHANNEL_B], x1+1, y1+1, x2-1, y2-1, the_message, &global_system->text_temp_buffer_, FG_COLOR_BRIGHT_WHITE, BG_COLOR_BLUE, NULL);
 }
 
 
@@ -223,12 +226,14 @@ void Demo_Text_CopyMemBox2(void)
 	// copy colors on channel B, to off-screen buffer 1	
 	Text_CopyMemBox(global_system->screen_[ID_CHANNEL_B], buffer1, x, y, x+line_len/2, y+v_line_len, SCREEN_COPY_FROM_SCREEN, SCREEN_FOR_TEXT_ATTR);
 	
-	General_GetChar();
+// 	General_GetChar();
+	General_DelaySeconds(1);
 	
 	// copy colors in buffer 2 to screen (replacing what was there)
 	Text_CopyMemBox(global_system->screen_[ID_CHANNEL_B], buffer2, x, y, x+line_len/2, y+v_line_len, SCREEN_COPY_TO_SCREEN, SCREEN_FOR_TEXT_ATTR);
 	
-	General_GetChar();
+// 	General_GetChar();
+	General_DelaySeconds(1);
 	
 	// copy colors in buffer 1 to screen (restoring what had been there)
 	Text_CopyMemBox(global_system->screen_[ID_CHANNEL_B], buffer1, x, y, x+line_len/2, y+v_line_len, SCREEN_COPY_TO_SCREEN, SCREEN_FOR_TEXT_ATTR);
@@ -704,7 +709,7 @@ void Demo_Text_DrawStringInBox1(void)
 
 	Text_FillBox(global_system->screen_[ID_CHANNEL_B], x1+1, y1+1, x2-1, y2-1, ' ', BG_COLOR_BRIGHT_CYAN, BG_COLOR_BLACK);
 	Text_DrawBoxCoordsFancy(global_system->screen_[ID_CHANNEL_B], x1, y1, x2, y2, FG_COLOR_WHITE, BG_COLOR_BLACK);
-	Text_DrawStringInBox(global_system->screen_[ID_CHANNEL_B], x1+1, y1+1, x2-1, y2-1, the_message, BG_COLOR_BRIGHT_CYAN, BG_COLOR_BLACK, NULL);
+	Text_DrawStringInBox(global_system->screen_[ID_CHANNEL_B], x1+1, y1+1, x2-1, y2-1, the_message, &global_system->text_temp_buffer_, BG_COLOR_BRIGHT_CYAN, BG_COLOR_BLACK, NULL);
 
 	free(the_message);
 
@@ -732,7 +737,7 @@ void Demo_Text_DrawStringInBox2(void)
 
 	Text_FillBox(global_system->screen_[ID_CHANNEL_B], x1+1, y1+1, x2-1, y2-1, ' ', FG_COLOR_WHITE, BG_COLOR_BRIGHT_WHITE);
 	Text_DrawBoxCoordsFancy(global_system->screen_[ID_CHANNEL_B], x1, y1, x2, y2, FG_COLOR_BLACK, BG_COLOR_BRIGHT_WHITE);
-	Text_DrawStringInBox(global_system->screen_[ID_CHANNEL_B], x1+1, y1+1, x2-1, y2-1, the_message, FG_COLOR_BLACK, BG_COLOR_BRIGHT_WHITE, &Test_MyGetUserResponseFunc);
+	Text_DrawStringInBox(global_system->screen_[ID_CHANNEL_B], x1+1, y1+1, x2-1, y2-1, the_message, &global_system->text_temp_buffer_, FG_COLOR_BLACK, BG_COLOR_BRIGHT_WHITE, &Test_MyGetUserResponseFunc);
 
 	free(the_message);
 
@@ -1070,12 +1075,24 @@ int main(int argc, char* argv[])
 {
 	DEBUG_OUT(("%s %d: starting text demo...", __func__, __LINE__));
 	
-	if (Sys_InitSystem() == false)
+	printf("**** text.c Demo Suite **** \n");
+
+	// initialize the system object
+	if ((global_system = Sys_New()) == NULL)
+	{
+		//LOG_ERR(("%s %d: Couldn't instantiate system object", __func__, __LINE__));
+		printf("Couldn't instantiate system object \n");
+		exit(0);
+	}
+
+	DEBUG_OUT(("%s %d: System object created ok. Initiating system components...", __func__, __LINE__));
+	
+	if (Sys_InitSystem(global_system) == false)
 	{
 		DEBUG_OUT(("%s %d: Couldn't initialize the system", __func__, __LINE__));
-		//exit(0); // maybe this isn't doing anything on FMX?
-		return 0;
+		exit(0);
 	}
+
 
 	RunDemo();
 

@@ -15,7 +15,11 @@
 
 
 // project includes
-
+#include "debug.h"
+#include "font.h"
+#include "general.h"
+#include "sys.h"
+#include "text.h"
 
 // C includes
 #include <stdbool.h>
@@ -23,15 +27,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-
 // A2560 includes
+#include "a2560k.h"
 #include <mcp/syscalls.h>
-#include <mb/a2560_platform.h>
-#include <mb/general.h>
-#include <mb/text.h>
-#include <mb/bitmap.h>
-#include <mb/font.h>
-#include <mb/lib_sys.h>
 
 
 /*****************************************************************************/
@@ -44,7 +42,7 @@
 /*                             Global Variables                              */
 /*****************************************************************************/
 
-extern System*			global_system;
+System*			global_system;
 
 
 /*****************************************************************************/
@@ -81,7 +79,8 @@ void WaitForUser(void)
 {
 	Text_DrawStringAtXY(global_system->screen_[ID_CHANNEL_B], 1, 4, (char*)"Press any key to continue", FG_COLOR_BRIGHT_YELLOW, 0);
 	
-	General_GetChar();
+	//General_GetChar();
+	General_DelaySeconds(3);
 	
 // 	Bitmap_FillMemory(Sys_GetScreenBitmap(global_system, back_layer), 0xbb);
 	Text_FillCharMem(global_system->screen_[ID_CHANNEL_B], ' ');
@@ -101,7 +100,7 @@ void ShowDescription(char* the_message)
 	Text_FillBox(global_system->screen_[ID_CHANNEL_B], x1+1, y1+1, x2-1, y2-1, ' ', FG_COLOR_BRIGHT_WHITE, 0);
 	
 	// wrap text into the message box, leaving one row at the bottom for "press any key"
-	Text_DrawStringInBox(global_system->screen_[ID_CHANNEL_B], x1+1, y1+1, x2-1, y2-1, the_message, FG_COLOR_BRIGHT_WHITE, 0, NULL);
+	Text_DrawStringInBox(global_system->screen_[ID_CHANNEL_B], x1+1, y1+1, x2-1, y2-1, the_message, &global_system->text_temp_buffer_, FG_COLOR_BRIGHT_WHITE, 0, NULL);
 }
 
 
@@ -985,13 +984,24 @@ void RunDemo(void)
 
 int main(int argc, char* argv[])
 {
-	if (Sys_InitSystem() == false)
+	printf("**** font.c Demo Suite **** \n");
+
+	// initialize the system object
+	if ((global_system = Sys_New()) == NULL)
+	{
+		//LOG_ERR(("%s %d: Couldn't instantiate system object", __func__, __LINE__));
+		printf("Couldn't instantiate system object \n");
+		exit(0);
+	}
+
+	DEBUG_OUT(("%s %d: System object created ok. Initiating system components...", __func__, __LINE__));
+	
+	if (Sys_InitSystem(global_system) == false)
 	{
 		DEBUG_OUT(("%s %d: Couldn't initialize the system", __func__, __LINE__));
 		exit(0);
 	}
 
-	//Sys_SetModeGraphics(global_system);
 	Sys_SetModeText(global_system, true);
 	
  	RunDemo();
