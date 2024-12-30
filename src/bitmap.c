@@ -258,7 +258,7 @@ Bitmap* Bitmap_New(int16_t width, int16_t height, Font* the_font, bool in_vram)
 
 	// check width/height for some maximum??
 	// TODO
-	if ( (width < 2 || width > 2000) || (height < 2 || height > 2000) )
+	if ( (width < 2 || width > VICKY_BITMAP_MAX_H_RES) || (height < 2 || height > VICKY_BITMAP_MAX_V_RES) )
 	{
 		LOG_ERR(("%s %d: Illegal width (%i) and/or height (%i)", __func__, __LINE__, width, height));
 		goto error;

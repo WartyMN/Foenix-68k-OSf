@@ -121,38 +121,6 @@
 
 // update: the numbers shown in vicky2 file in morfe don't match up to what's shown on screen, at least with a2560 config. eg, 20/00/00 is not a super dark blue, it's some totally bright thing. need to spend some time mapping these out better. But since user configurable, will wait until real machine comes and I can make sure of what's in flash rom. 
 
-/*****************************************************************************/
-/*                  Character-codes (IBM Page 437 charset)                   */
-/*****************************************************************************/
-// https://en.wikipedia.org/wiki/Code_page_437
-
-#define CH_PATTERN_B0	(unsigned char)0xB0	// on C256, this is vertical lines; on A2560, it is lighter pattern of dots
-#define CH_CHECKERED	(unsigned char)0xB1	// every-other-dot checkered pattern
-#define CH_PATTERN_B2	(unsigned char)0xB2 // on C256, this is 2-on, 2-ff vertical pattern of white space and checkered; on A2560, it is darker pattern of dots
-#define CH_SPACE		(unsigned char)0x20	// regular space
-#define CH_SOLID		(unsigned char)0xDB	// inverse space
-#define CH_WALL_H		(unsigned char)0xC4
-#define CH_WALL_V		(unsigned char)0xB3
-#define CH_WALL_UL		(unsigned char)0xDA
-#define CH_WALL_UR		(unsigned char)0xBF
-#define CH_WALL_LL		(unsigned char)0xC0
-#define CH_WALL_LR		(unsigned char)0xD9
-#define CH_INTERSECT	(unsigned char)0xC5
-#define CH_T_DOWN		(unsigned char)0xC2 // T-shape pointing down
-#define CH_T_UP			(unsigned char)0xC1 // T-shape pointing up
-#define CH_T_LEFT		(unsigned char)0xB4 // T-shape pointing left
-#define CH_T_RIGHT		(unsigned char)0xC3 // T-shape pointing right
-#define CH_SMILEY1		(unsigned char)0x01 // 
-#define CH_SMILEY2		(unsigned char)0x02 // 
-#define CH_HEART		(unsigned char)0x03 // 
-#define CH_DIAMOND		(unsigned char)0x04 // 
-#define CH_CLUB			(unsigned char)0x05 // 
-#define CH_SPADE		(unsigned char)0x06 // 
-#define CH_MIDDOT		(unsigned char)0x07 // 
-#define CH_RIGHT		(unsigned char)0x10 // Triangle pointing right
-#define CH_LEFT			(unsigned char)0x11 // Triangle pointing left
-#define CH_UP			(unsigned char)0x1E // Triangle pointing up
-#define CH_DOWN			(unsigned char)0x1F // Triangle pointing down
 
 
 /*****************************************************************************/

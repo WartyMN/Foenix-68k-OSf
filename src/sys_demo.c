@@ -1476,9 +1476,8 @@ int main(int argc, char* argv[])
 	// initialize the system object
 	if ((global_system = Sys_New()) == NULL)
 	{
-		//LOG_ERR(("%s %d: Couldn't instantiate system object", __func__, __LINE__));
 		printf("Couldn't instantiate system object \n");
-		exit(0);
+		sys_exit(-1);
 	}
 
 	DEBUG_OUT(("%s %d: System object created ok. Initiating system components...", __func__, __LINE__));
@@ -1486,7 +1485,7 @@ int main(int argc, char* argv[])
 	if (Sys_InitSystem(global_system) == false)
 	{
 		DEBUG_OUT(("%s %d: Couldn't initialize the system", __func__, __LINE__));
-		exit(0);
+		Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);
 	}
 	
 	// NOTE: at this point, the_system should equal global_system, as that is set by Sys_InitSystem().
@@ -1507,6 +1506,8 @@ int main(int argc, char* argv[])
  	Sys_SetModeText(global_system, false);
 	
 	DEBUG_OUT(("%s %d: **** DEMO COMPLETE ****", __func__, __LINE__));
+	
+	Sys_Exit(&global_system, PARAM_EXIT_NO_ERROR);
 	
 	return 0;
 }

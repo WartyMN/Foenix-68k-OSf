@@ -511,22 +511,22 @@ MU_TEST(test_fill_attr)
 MU_TEST(test_fill_box)
 {
 	// bad values
-	mu_check( Text_FillBoxSlow(global_system->screen_[ID_CHANNEL_A], 0, 6, 15, 8, CH_PATTERN_B0, COLOR_BLACK, BG_COLOR_BRIGHT_WHITE, CHAR_AND_ATTR) == true );
-	mu_check( Text_FillBoxSlow(global_system->screen_[ID_CHANNEL_A], 21, 5, 39, 7, CH_CHECKERED, COLOR_RED, COLOR_BRIGHT_RED, CHAR_AND_ATTR) == true );
-	mu_check( Text_FillBox(global_system->screen_[ID_CHANNEL_A], 3, 6, 67, 50, CH_PATTERN_B2, COLOR_BRIGHT_GREEN, COLOR_GREEN) == true );
-	mu_check( Text_FillBox(global_system->screen_[ID_CHANNEL_B], 21, 21, 40, 40, CH_PATTERN_B2, COLOR_BRIGHT_YELLOW, COLOR_YELLOW) == true );
+	mu_check( Text_FillBoxSlow(global_system->screen_[ID_CHANNEL_A], 0, 6, 15, 8, CH_DIAG_R1, COLOR_BLACK, BG_COLOR_BRIGHT_WHITE, CHAR_AND_ATTR) == true );
+	mu_check( Text_FillBoxSlow(global_system->screen_[ID_CHANNEL_A], 21, 5, 39, 7, CH_HFILLC_UP_8, COLOR_RED, COLOR_BRIGHT_RED, CHAR_AND_ATTR) == true );
+	mu_check( Text_FillBox(global_system->screen_[ID_CHANNEL_A], 3, 6, 67, 50, CH_HDITH_8, COLOR_BRIGHT_GREEN, COLOR_GREEN) == true );
+	mu_check( Text_FillBox(global_system->screen_[ID_CHANNEL_B], 21, 21, 40, 40, CH_HDITH_8, COLOR_BRIGHT_YELLOW, COLOR_YELLOW) == true );
 
 	// bad values
 	// Text_FillBoxSlow accepts an illegal screen ID?
-	mu_check( Text_FillBoxSlow(NULL, 0, 6, 15, 8, CH_PATTERN_B0, COLOR_BRIGHT_MAGENTA, COLOR_CYAN, CHAR_AND_ATTR) == false );
+	mu_check( Text_FillBoxSlow(NULL, 0, 6, 15, 8, CH_DIAG_R1, COLOR_BRIGHT_MAGENTA, COLOR_CYAN, CHAR_AND_ATTR) == false );
 	// Text_FillBoxSlow accepts an illegal x coord?
-	mu_check( Text_FillBox(global_system->screen_[ID_CHANNEL_B], -67, 6, 72, 30, CH_PATTERN_B2, COLOR_BRIGHT_BLUE, COLOR_BLUE) == false );
+	mu_check( Text_FillBox(global_system->screen_[ID_CHANNEL_B], -67, 6, 72, 30, CH_HDITH_8, COLOR_BRIGHT_BLUE, COLOR_BLUE) == false );
 	// Text_FillBoxSlow accepts an illegal x coord?
-	mu_check( Text_FillBox(global_system->screen_[ID_CHANNEL_B], 32767, 6, 72, 30, CH_PATTERN_B2, COLOR_BRIGHT_BLUE, COLOR_BLUE) == false );
+	mu_check( Text_FillBox(global_system->screen_[ID_CHANNEL_B], 32767, 6, 72, 30, CH_HDITH_8, COLOR_BRIGHT_BLUE, COLOR_BLUE) == false );
 	// Text_FillBoxSlow accepts an illegal y coord?
-	mu_check( Text_FillBox(global_system->screen_[ID_CHANNEL_B], 5, -6, 72, 30, CH_PATTERN_B2, COLOR_BRIGHT_BLUE, COLOR_BLUE) == false );
+	mu_check( Text_FillBox(global_system->screen_[ID_CHANNEL_B], 5, -6, 72, 30, CH_HDITH_8, COLOR_BRIGHT_BLUE, COLOR_BLUE) == false );
 	// Text_FillBoxSlow accepts an illegal y coord?
-	mu_check( Text_FillBox(global_system->screen_[ID_CHANNEL_B], 5, 6000, 72, 30, CH_PATTERN_B2, COLOR_BRIGHT_BLUE, COLOR_BLUE) == false );
+	mu_check( Text_FillBox(global_system->screen_[ID_CHANNEL_B], 5, 6000, 72, 30, CH_HDITH_8, COLOR_BRIGHT_BLUE, COLOR_BLUE) == false );
 }
 
 
@@ -725,9 +725,9 @@ MU_TEST(test_char_and_attr_reading)
 	Text_SetColorAtXY(global_system->screen_[ID_CHANNEL_A], x, y, FG_COLOR_BRIGHT_WHITE, BG_COLOR_BLACK);
 	Text_SetColorAtXY(global_system->screen_[ID_CHANNEL_A], x+1, y, FG_COLOR_BRIGHT_MAGENTA, BG_COLOR_GRAY);
 	Text_SetColorAtXY(global_system->screen_[ID_CHANNEL_A], x+2, y, FG_COLOR_MAGENTA, BG_COLOR_BRIGHT_WHITE);
-	Text_SetCharAtXY(global_system->screen_[ID_CHANNEL_A], x, y, CH_DIAMOND);
-	Text_SetCharAtXY(global_system->screen_[ID_CHANNEL_A], x+1, y, CH_CLUB);
-	Text_SetCharAtXY(global_system->screen_[ID_CHANNEL_A], x+2, y, CH_SPADE);
+	Text_SetCharAtXY(global_system->screen_[ID_CHANNEL_A], x, y, CH_MISC_DIA);
+	Text_SetCharAtXY(global_system->screen_[ID_CHANNEL_A], x+1, y, CH_MISC_CLUB);
+	Text_SetCharAtXY(global_system->screen_[ID_CHANNEL_A], x+2, y, CH_MISC_SPADE);
 	
 	// Failure: Text_GetForeColorAtXY failed
 	mu_check( (the_color = Text_GetForeColorAtXY(global_system->screen_[ID_CHANNEL_A], x, y)) == FG_COLOR_BRIGHT_WHITE );
@@ -746,13 +746,13 @@ MU_TEST(test_char_and_attr_reading)
 	
 	x = 0;
 	// Failure: Text_GetCharAtXY failed
-	mu_check( (the_char = Text_GetCharAtXY(global_system->screen_[ID_CHANNEL_A], x, y)) == CH_DIAMOND );
+	mu_check( (the_char = Text_GetCharAtXY(global_system->screen_[ID_CHANNEL_A], x, y)) == CH_MISC_DIA );
 	x++;
 	// Failure: Text_GetCharAtXY failed
-	mu_check( (the_char = Text_GetCharAtXY(global_system->screen_[ID_CHANNEL_A], x, y)) == CH_CLUB );
+	mu_check( (the_char = Text_GetCharAtXY(global_system->screen_[ID_CHANNEL_A], x, y)) == CH_MISC_CLUB );
 	x++;
 	// Failure: Text_GetCharAtXY failed
-	mu_check( (the_char = Text_GetCharAtXY(global_system->screen_[ID_CHANNEL_A], x, y)) == CH_SPADE );
+	mu_check( (the_char = Text_GetCharAtXY(global_system->screen_[ID_CHANNEL_A], x, y)) == CH_MISC_SPADE );
 }
 
 
@@ -767,7 +767,7 @@ MU_TEST(test_line_drawing)
 	x = 20;
 	y = 4;
 	line_len = 20;
-	the_char = CH_WALL_H;	
+	the_char = SC_HLINE;	
  	// Failure: Text_DrawHLine failed
 	mu_check( Text_DrawHLine(global_system->screen_[ID_CHANNEL_A], x, y, line_len, the_char, FG_COLOR_BRIGHT_GREEN, BG_COLOR_BLACK, CHAR_ONLY) == true );
 	
@@ -777,7 +777,7 @@ MU_TEST(test_line_drawing)
 	
 	y = 4;
 	line_len = 4;
-	the_char = CH_WALL_V;	
+	the_char = SC_VLINE;	
  	// Failure: Text_DrawVLine failed
 	mu_check( Text_DrawVLine(global_system->screen_[ID_CHANNEL_A], x, y, line_len, the_char, BG_COLOR_BRIGHT_YELLOW, BG_COLOR_BLACK, ATTR_ONLY) == true );
 
@@ -809,7 +809,7 @@ MU_TEST(test_basic_box_coords)
 	y = 4;
 	h_line_len = 6;
 	v_line_len = 6;
-	the_char = CH_PATTERN_B0;
+	the_char = CH_DIAG_R1;
 
 	// good values	
  	// Failure: Text_DrawBoxCoords failed
@@ -833,7 +833,7 @@ MU_TEST(test_basic_box_hw)
 	y = 6;
 	h_line_len = 6;
 	v_line_len = 6;
-	the_char = CH_PATTERN_B2;
+	the_char = CH_HDITH_8;
 
 	// good values	
  	// Failure: Text_DrawBox failed
@@ -876,7 +876,7 @@ MU_TEST(test_fancy_box)
 	x2 = 95;
 	y2 = 70;
 	// Failure: Text_FillBox failed
-	mu_check( Text_FillBox(global_system->screen_[ID_CHANNEL_A], x1+1, y1+1, x2-1, y2-1, CH_PATTERN_B0, BG_COLOR_BRIGHT_CYAN, BG_COLOR_BLUE) == true );
+	mu_check( Text_FillBox(global_system->screen_[ID_CHANNEL_A], x1+1, y1+1, x2-1, y2-1, CH_DIAG_R1, BG_COLOR_BRIGHT_CYAN, BG_COLOR_BLUE) == true );
  	// Failure: Text_DrawBoxCoordsFancy failed
 	mu_check( Text_DrawBoxCoordsFancy(global_system->screen_[ID_CHANNEL_A], x1, y1, x2, y2, FG_COLOR_WHITE, BG_COLOR_BLACK) == true );
 
@@ -895,7 +895,7 @@ MU_TEST(test_fancy_box)
 	y2 = 51;
 
 	// Failure: Text_FillBox failed
-	mu_check( Text_FillBox(global_system->screen_[ID_CHANNEL_B], x1+1, y1+1, x2-1, y2-1, CH_PATTERN_B2, FG_COLOR_WHITE, BG_COLOR_BRIGHT_WHITE) == true );
+	mu_check( Text_FillBox(global_system->screen_[ID_CHANNEL_B], x1+1, y1+1, x2-1, y2-1, CH_HDITH_8, FG_COLOR_WHITE, BG_COLOR_BRIGHT_WHITE) == true );
  	// Failure: Text_DrawBoxCoordsFancy failed
 	mu_check( Text_DrawBoxCoordsFancy(global_system->screen_[ID_CHANNEL_B], x1, y1, x2, y2, FG_COLOR_WHITE, BG_COLOR_GRAY) == true );
 
@@ -914,7 +914,7 @@ MU_TEST(test_fancy_box)
 	y2 = 41;
 
 	// Failure: Text_FillBox failed
-	mu_check( Text_FillBox(global_system->screen_[ID_CHANNEL_B], x1+1, y1+1, x2-1, y2-1, CH_PATTERN_B0, BG_COLOR_BRIGHT_CYAN, BG_COLOR_BLUE) == true );
+	mu_check( Text_FillBox(global_system->screen_[ID_CHANNEL_B], x1+1, y1+1, x2-1, y2-1, CH_DIAG_R1, BG_COLOR_BRIGHT_CYAN, BG_COLOR_BLUE) == true );
  	// Failure: Text_DrawBoxCoordsFancy failed
 	mu_check( Text_DrawBoxCoordsFancy(global_system->screen_[ID_CHANNEL_B], x1, y1, x2, y2, FG_COLOR_WHITE, BG_COLOR_BLACK) == true );
 	
@@ -999,7 +999,7 @@ MU_TEST(test_speed_1_hline)
 	x = 1;
 	y = 1;
 	line_len = 120;
-	the_char = CH_WALL_H;	
+	the_char = SC_HLINE;	
 	
 	// test speed of first variant
 	start1 = mu_timer_real();
@@ -1037,7 +1037,7 @@ MU_TEST(test_speed_1_hline)
 	x = 1;
 	y = 1;
 	line_len = 120;
-	the_char = CH_WALL_H;	
+	the_char = SC_HLINE;	
 	
 	// test speed of first variant
 	start1 = mu_timer_real();
@@ -1107,15 +1107,15 @@ MU_TEST_SUITE(test_suite_units)
 	MU_RUN_TEST(test_basic_box_coords);
 	MU_RUN_TEST(test_basic_box_hw);
 	MU_RUN_TEST(test_fancy_box);
-// 	
-// 	MU_RUN_TEST(test_draw_string);
-// 	MU_RUN_TEST(test_draw_string_in_box);
-// 
-// 	MU_RUN_TEST(test_invert_box);
-// 	
-// 	MU_RUN_TEST(test_block_copy);
-// 	
-// 	MU_RUN_TEST(font_replace_test);
+	
+	MU_RUN_TEST(test_draw_string);
+	MU_RUN_TEST(test_draw_string_in_box);
+
+	MU_RUN_TEST(test_invert_box);
+	
+	MU_RUN_TEST(test_block_copy);
+	
+	MU_RUN_TEST(font_replace_test);
 }
 
 
@@ -1133,9 +1133,8 @@ int main(int argc, char* argv[])
 	// allocate the system object
 	if ((global_system = Sys_New()) == NULL)
 	{
-		//LOG_ERR(("%s %d: Couldn't instantiate system object", __func__, __LINE__));
 		printf("Couldn't instantiate system object \n");
-		exit(0);
+		sys_exit(-1);
 	}
 
 	DEBUG_OUT(("%s %d: System object created ok. Initiating system components...", __func__, __LINE__));
@@ -1144,7 +1143,7 @@ int main(int argc, char* argv[])
 	if (Sys_InitSystem(global_system) == false)
 	{
 		DEBUG_OUT(("%s %d: Couldn't initialize the system", __func__, __LINE__));
-		exit(0);
+		Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);
 	}
 
 	DEBUG_OUT(("%s %d: System initiation complete, starting tests...", __func__, __LINE__));
@@ -1155,5 +1154,7 @@ int main(int argc, char* argv[])
 // 	MU_RUN_SUITE(test_suite_speed);
  	MU_REPORT();
 
+	Sys_Exit(&global_system, PARAM_EXIT_NO_ERROR);
+	
 	return MU_EXIT_CODE;
 }

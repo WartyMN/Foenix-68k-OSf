@@ -185,9 +185,8 @@ int main(int argc, char* argv[])
 	// allocate the system object
 	if ((global_system = Sys_New()) == NULL)
 	{
-		//LOG_ERR(("%s %d: Couldn't instantiate system object", __func__, __LINE__));
 		printf("Couldn't instantiate system object \n");
-		exit(0);
+		sys_exit(-1);
 	}
 
 	DEBUG_OUT(("%s %d: System object created ok. Initiating system components...", __func__, __LINE__));
@@ -196,7 +195,7 @@ int main(int argc, char* argv[])
 	if (Sys_InitSystem(global_system) == false)
 	{
 		DEBUG_OUT(("%s %d: Couldn't initialize the system", __func__, __LINE__));
-		exit(0);
+		Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);
 	}
 
 	DEBUG_OUT(("%s %d: Setting graphics mode...", __func__, __LINE__));
@@ -302,5 +301,7 @@ int16_t uart;
 
 	printf("sys test complete \n");
 
+	Sys_Exit(&global_system, PARAM_EXIT_NO_ERROR);
+	
 	return MU_EXIT_CODE;
 }

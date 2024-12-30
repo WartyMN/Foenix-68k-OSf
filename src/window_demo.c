@@ -320,9 +320,11 @@ void RunDemo(void)
 	if ( (the_win_template = Window_GetNewWinTemplate(the_win_title)) == NULL)
 	{
 		LOG_ERR(("%s %d: Could not get a new window template", __func__ , __LINE__));
+printf("Could not get a new window template \n");
 		return;
 	}	
 	// note: all the default values are fine for us in this case.
+printf("got new window template \n");
 	
 	DEBUG_OUT(("%s %d: x=%i, y=%i, width=%i, title='%s'", __func__, __LINE__, the_win_template->x_, the_win_template->y_, the_win_template->width_, the_win_template->title_));
 	
@@ -330,7 +332,9 @@ void RunDemo(void)
 	{
 		DEBUG_OUT(("%s %d: Couldn't instantiate a window", __func__, __LINE__));
 		return;
+printf("Couldn't instantiate a window \n");
 	}
+printf("instantiated window \n");
 
 	// say hi
 	Window_SetPenXY(the_window, 5, 5);
@@ -338,6 +342,7 @@ void RunDemo(void)
 	if (Window_DrawString(the_window, (char*)"Hello, World", GEN_NO_STRLEN_CAP) == false)
 	{
 		// oh, no! you should handle this.
+printf("Could do Window_DrawString \n");
 	}
 	
 
@@ -422,9 +427,8 @@ int main(int argc, char* argv[])
 	// initialize the system object
 	if ((global_system = Sys_New()) == NULL)
 	{
-		//LOG_ERR(("%s %d: Couldn't instantiate system object", __func__, __LINE__));
 		printf("Couldn't instantiate system object \n");
-		exit(0);
+		sys_exit(-1);
 	}
 
 	DEBUG_OUT(("%s %d: System object created ok. Initiating system components...", __func__, __LINE__));
@@ -432,11 +436,13 @@ int main(int argc, char* argv[])
 	if (Sys_InitSystem(global_system) == false)
 	{
 		DEBUG_OUT(("%s %d: Couldn't initialize the system", __func__, __LINE__));
-		exit(0);
+		Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);
 	}
 
 	
  	RunDemo();
 
+	Sys_Exit(&global_system, PARAM_EXIT_NO_ERROR);
+	
 	return 0;
 }

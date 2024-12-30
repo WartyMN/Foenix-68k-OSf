@@ -44,6 +44,10 @@
 /*****************************************************************************/
 
 
+/*****************************************************************************/
+/*                          File-scoped Variables                            */
+/*****************************************************************************/
+
 
 /*****************************************************************************/
 /*                             Global Variables                              */
@@ -1194,7 +1198,7 @@ bool Text_UpdateFontData(Screen* the_screen, char* new_font_data)
 		return false;
 	}
 
-	memcpy(the_screen->text_font_ram_, new_font_data, 8*256*1);
+	memcpy(the_screen->text_font_ram_, new_font_data, 2048);
 
 	return true;
 }
@@ -1778,35 +1782,35 @@ bool Text_DrawBoxCoordsFancy(Screen* the_screen, int16_t x1, int16_t y1, int16_t
 	
 	// draw all lines one char shorter on each end so that we don't overdraw when we do corners
 	
-	if (!Text_DrawHLine(the_screen, x1+1, y1, dx, CH_WALL_H, fore_color, back_color, CHAR_AND_ATTR))
+	if (!Text_DrawHLine(the_screen, x1+1, y1, dx, SC_HLINE, fore_color, back_color, CHAR_AND_ATTR))
 	{
 		LOG_ERR(("%s %d: draw box failed", __func__, __LINE__));
 		return false;
 	}
 	
-	if (!Text_DrawHLine(the_screen, x1+1, y2, dx, CH_WALL_H, fore_color, back_color, CHAR_AND_ATTR))
+	if (!Text_DrawHLine(the_screen, x1+1, y2, dx, SC_HLINE, fore_color, back_color, CHAR_AND_ATTR))
 	{
 		LOG_ERR(("%s %d: draw box failed", __func__, __LINE__));
 		return false;
 	}
 	
-	if (!Text_DrawVLine(the_screen, x2, y1+1, dy, CH_WALL_V, fore_color, back_color, CHAR_AND_ATTR))
+	if (!Text_DrawVLine(the_screen, x2, y1+1, dy, SC_VLINE, fore_color, back_color, CHAR_AND_ATTR))
 	{
 		LOG_ERR(("%s %d: draw box failed", __func__, __LINE__));
 		return false;
 	}
 	
-	if (!Text_DrawVLine(the_screen, x1, y1+1, dy, CH_WALL_V, fore_color, back_color, CHAR_AND_ATTR))
+	if (!Text_DrawVLine(the_screen, x1, y1+1, dy, SC_VLINE, fore_color, back_color, CHAR_AND_ATTR))
 	{
 		LOG_ERR(("%s %d: draw box failed", __func__, __LINE__));
 		return false;
 	}
 	
 	// draw the 4 corners with dedicated corner pieces
-	Text_SetCharAndColorAtXY(the_screen, x1, y1, CH_WALL_UL, fore_color, back_color);		
-	Text_SetCharAndColorAtXY(the_screen, x2, y1, CH_WALL_UR, fore_color, back_color);		
-	Text_SetCharAndColorAtXY(the_screen, x2, y2, CH_WALL_LR, fore_color, back_color);		
-	Text_SetCharAndColorAtXY(the_screen, x1, y2, CH_WALL_LL, fore_color, back_color);		
+	Text_SetCharAndColorAtXY(the_screen, x1, y1, SC_ULCORNER, fore_color, back_color);		
+	Text_SetCharAndColorAtXY(the_screen, x2, y1, SC_URCORNER, fore_color, back_color);		
+	Text_SetCharAndColorAtXY(the_screen, x2, y2, SC_LRCORNER, fore_color, back_color);		
+	Text_SetCharAndColorAtXY(the_screen, x1, y2, SC_LLCORNER, fore_color, back_color);		
 	
 	return true;
 }

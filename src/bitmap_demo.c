@@ -603,9 +603,8 @@ int main(int argc, char* argv[])
 	// initialize the system object
 	if ((global_system = Sys_New()) == NULL)
 	{
-		//LOG_ERR(("%s %d: Couldn't instantiate system object", __func__, __LINE__));
 		printf("Couldn't instantiate system object \n");
-		exit(0);
+		sys_exit(-1);
 	}
 
 	DEBUG_OUT(("%s %d: System object created ok. Initiating system components...", __func__, __LINE__));
@@ -613,7 +612,7 @@ int main(int argc, char* argv[])
 	if (Sys_InitSystem(global_system) == false)
 	{
 		DEBUG_OUT(("%s %d: Couldn't initialize the system", __func__, __LINE__));
-		exit(0);
+		Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);
 	}
 
 	srand(42); // need to have some better way to initialize this on c256. look in kernel. 
@@ -623,5 +622,7 @@ int main(int argc, char* argv[])
 
 	RunDemo();
 
+	Sys_Exit(&global_system, PARAM_EXIT_NO_ERROR);
+	
 	return 0;
 }

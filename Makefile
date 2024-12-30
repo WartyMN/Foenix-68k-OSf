@@ -78,7 +78,7 @@ tests:	$(TEST_OBJS)
 	ln68k -o test_font.pgz obj/font_test.o a2560k.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=test_font.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=510000 
 	ln68k -o test_window.pgz obj/window_test.o a2560k.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=test_window.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=510000 
 	ln68k -o test_bitmap.pgz obj/bitmap_test.o a2560k.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=test_bitmap.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=510000 
-	ln68k -o test_text.pgz obj/text_test.o a2560k.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=test_text.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=500000 --stack-size=18000 
+	ln68k -o test_text.pgz obj/text_test.o a2560k.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=test_text.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=490000 --stack-size=18000 
 
 demos:	$(DEMO_OBJS)
 	@echo "Building demos..."
@@ -86,7 +86,7 @@ demos:	$(DEMO_OBJS)
 	ln68k -o demo_font.pgz obj/font_demo.o a2560k.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=demo_font.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=510000 
 	ln68k -o demo_window.pgz obj/window_demo.o a2560k.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=demo_window.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=510000 
 	ln68k -o demo_bitmap.pgz obj/bitmap_demo.o a2560k.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=demo_bitmap.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=510000 
-	ln68k -o demo_text.pgz obj/text_demo.o a2560k.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=demo_text.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=510000 
+	ln68k -o demo_text.pgz obj/text_demo.o a2560k.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=demo_text.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=490000 --stack-size=18000 
 
 
 
