@@ -289,7 +289,7 @@ void Window_ConfigureStructureRects(Window* the_window)
 	return;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 
@@ -421,7 +421,7 @@ void Window_UpdateControlTheme(Window* the_window)
 	return;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 
@@ -503,7 +503,7 @@ static int16_t Window_CalculateTitleSpace(Window* the_window)
 	return the_window->avail_title_width_;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return -1;
 }
 
@@ -529,7 +529,7 @@ Control* Window_GetRootControl(Window* the_window)
 	return the_window->root_control_;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return NULL;
 }
 
@@ -567,7 +567,7 @@ static void Window_DrawStructure(Window* the_window)
 	return;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 
@@ -589,7 +589,7 @@ static void Window_DrawAll(Window* the_window)
 	return;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 
@@ -629,7 +629,7 @@ static void Window_DrawControls(Window* the_window, bool force_redraw)
 	return;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 
@@ -743,7 +743,7 @@ static void Window_DrawTitle(Window* the_window)
 	return;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 
@@ -988,7 +988,7 @@ Window* Window_New(NewWinTemplate* the_win_template, void (* event_handler)(Even
 	
 error:
 	if (the_window)					Window_Destroy(&the_window);
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return NULL;
 }
 
@@ -1022,7 +1022,7 @@ bool Window_Destroy(Window** the_window)
 	return true;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
 }
 
@@ -1062,7 +1062,7 @@ NewWinTemplate* Window_GetNewWinTemplate(char* the_win_title)
 	return the_win_template;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return NULL;
 }
 
@@ -1122,7 +1122,7 @@ bool Window_AddClipRect(Window* the_window, Rectangle* new_rect)
 	return true;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
 }
 
@@ -1141,7 +1141,7 @@ bool Window_MergeClipRects(Window* the_window)
 	return false;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
 }
 
@@ -1195,7 +1195,7 @@ bool Window_BlitClipRects(Window* the_window)
 	return true;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
 }
 
@@ -1220,7 +1220,7 @@ bool Window_GenerateDamageRects(Window* the_window, Rectangle* the_old_rect)
 	return (the_window->damage_count_ != -1);
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
 }
 
@@ -1276,7 +1276,7 @@ bool Window_AcceptDamageRect(Window* the_window, Rectangle* damage_rect)
 	return false;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
 }
 
@@ -1342,7 +1342,7 @@ MouseMode Window_CheckForDragZone(Window* the_window, int16_t x, int16_t y)
 	return mouseFree;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return mouseFree;
 }
 
@@ -1375,7 +1375,7 @@ bool Window_SetSelectedControl(Window* the_window, Control* the_control)
 	return true;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
 }
 
@@ -1414,7 +1414,7 @@ bool Window_AddControl(Window* the_window, Control* the_control)
 	return false;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
 }
 
@@ -1454,7 +1454,7 @@ Control* Window_AddNewControlFromTemplate(Window* the_window, ControlTemplate* t
 	return the_control;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return NULL;
 }
 
@@ -1507,7 +1507,7 @@ Control* Window_AddNewControl(Window* the_window, control_type the_type, int16_t
 	return the_control;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return NULL;
 }
 
@@ -1543,7 +1543,7 @@ void Window_InvalidateTitlebar(Window* the_window)
 	return;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 
@@ -1562,7 +1562,7 @@ Control* Window_GetSelectedControl(Window* the_window)
 	return the_window->selected_control_;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return NULL;
 }
 
@@ -1594,7 +1594,7 @@ Control* Window_GetLastControl(Window* the_window)
 	return NULL;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return NULL;
 }
 
@@ -1629,7 +1629,7 @@ Control* Window_GetControl(Window* the_window, uint16_t the_control_id)
 	return the_control;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return NULL;
 }
 
@@ -1664,7 +1664,7 @@ uint16_t Window_GetControlID(Window* the_window, Control* the_control)
 	return CONTROL_ID_NOT_FOUND;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return CONTROL_ID_ERROR;
 }
 
@@ -1709,7 +1709,7 @@ Control* Window_GetControlAtXY(Window* the_window, int16_t x, int16_t y)
 	return NULL;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return NULL;
 }
 
@@ -1803,7 +1803,7 @@ void Window_Render(Window* the_window)
 	return;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 
@@ -1834,7 +1834,7 @@ void Window_UpdateTheme(Window* the_window)
 	return;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 
@@ -1858,7 +1858,7 @@ void Window_ClearContent(Window* the_window)
 	return;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 
@@ -1883,7 +1883,7 @@ void Window_Invalidate(Window* the_window)
 	return;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 
@@ -1918,7 +1918,7 @@ void Window_SetTitle(Window* the_window, char* the_title)
 	LOG_ALLOC(("%s %d:	__ALLOC__	the_window->title_	%p	size	%i		'%s'", __func__ , __LINE__, the_window->title_, General_Strnlen(the_window->title_, WINDOW_MAX_WINTITLE_SIZE) + 1, the_window->title_));
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 
@@ -1941,7 +1941,7 @@ void Window_SetVisible(Window* the_window, bool is_visible)
 	return;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 
@@ -1964,7 +1964,7 @@ void Window_SetDisplayOrder(Window* the_window, int8_t the_display_order)
 	return;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 
@@ -1991,7 +1991,7 @@ void Window_SetActive(Window* the_window, bool is_active)
 	return;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 
@@ -2016,7 +2016,7 @@ void Window_SetState(Window* the_window, window_state the_state)
 	return;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 
@@ -2064,7 +2064,7 @@ void Window_EvaluateWindowChange(Window* the_window, int16_t* x, int16_t* y, int
 	return;
 
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 
@@ -2168,7 +2168,7 @@ void Window_ChangeWindow(Window* the_window, int16_t x, int16_t y, int16_t width
 	return;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 
@@ -2200,7 +2200,7 @@ void Window_Maximize(Window* the_window)
 	return;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 
@@ -2230,7 +2230,7 @@ void Window_NormSize(Window* the_window)
 	return;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 
@@ -2271,7 +2271,7 @@ void Window_Minimize(Window* the_window)
 	return;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 
@@ -2310,7 +2310,7 @@ char* Window_GetTitle(Window* the_window)
 	return the_window->title_;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return NULL;
 }
 
@@ -2330,7 +2330,7 @@ uint32_t Window_GetUserData(Window* the_window)
 	return the_window->user_data_;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return 0;
 }
 
@@ -2349,7 +2349,7 @@ window_type Window_GetType(Window* the_window)
 	return the_window->type_;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return WIN_UNKNOWN_TYPE;
 }
 
@@ -2368,7 +2368,7 @@ window_state Window_GetState(Window* the_window)
 	return the_window->state_;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return WIN_UNKNOWN_STATE;
 }
 
@@ -2388,7 +2388,7 @@ Bitmap* Window_GetBitmap(Window* the_window)
 	return the_window->bitmap_;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return NULL;
 }
 
@@ -2407,7 +2407,7 @@ int16_t Window_GetX(Window* the_window)
 	return the_window->x_;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return -1;
 }
 
@@ -2426,7 +2426,7 @@ int16_t Window_GetY(Window* the_window)
 	return the_window->y_;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return -1;
 }
 
@@ -2445,7 +2445,7 @@ int16_t Window_GetWidth(Window* the_window)
 	return the_window->width_;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return -1;
 }
 
@@ -2464,7 +2464,7 @@ int16_t Window_GetHeight(Window* the_window)
 	return the_window->height_;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return -1;
 }
 
@@ -2483,7 +2483,7 @@ bool Window_IsBackdrop(Window* the_window)
 	return the_window->is_backdrop_;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
 }
 
@@ -2503,7 +2503,7 @@ bool Window_IsVisible(Window* the_window)
 	return the_window->visible_;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
 }
 
@@ -2522,7 +2522,7 @@ bool Window_IsActive(Window* the_window)
 	return the_window->active_;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
 }
 
@@ -2548,7 +2548,7 @@ void Window_GlobalToLocal(Window* the_window, int16_t* x, int16_t* y)
 	return;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 
@@ -2568,7 +2568,7 @@ void Window_LocalToGlobal(Window* the_window, int16_t* x, int16_t* y)
 	return;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 
@@ -2600,7 +2600,7 @@ bool Window_SetFont(Window* the_window, Font* the_font)
 	return true;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
 }
 
@@ -2626,7 +2626,7 @@ bool Window_SetColor(Window* the_window, uint8_t the_color)
 	return true;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
 }
 
@@ -2656,7 +2656,7 @@ bool Window_SetPenXYFromGlobal(Window* the_window, int16_t x, int16_t y)
 	return Window_SetPenXY(the_window, x, y);
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
 }
 
@@ -2704,7 +2704,7 @@ bool Window_SetPenXY(Window* the_window, int16_t x, int16_t y)
 	return true;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
 }
 
@@ -2726,7 +2726,7 @@ bool Window_Blit(Window* the_window, Bitmap* src_bm, int16_t src_x, int16_t src_
 	return Bitmap_Blit(src_bm, src_x, src_y, the_window->bitmap_, the_window->pen_x_, the_window->pen_y_, width, height);
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
 }
 
@@ -2748,7 +2748,7 @@ bool Window_FillBox(Window* the_window, int16_t width, int16_t height, uint8_t t
 	return Bitmap_FillBox(the_window->bitmap_, the_window->pen_x_, the_window->pen_y_, width, height, the_color);
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
 }
 
@@ -2780,7 +2780,7 @@ bool Window_FillBoxRect(Window* the_window, Rectangle* the_coords, uint8_t the_c
 	return Bitmap_FillBox(the_window->bitmap_, x1, y1, x2 - x1, y2 - y1, the_color);
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
 }
 
@@ -2800,7 +2800,7 @@ bool Window_SetPixel(Window* the_window, uint8_t the_color)
 	return Bitmap_SetPixelAtXY(the_window->bitmap_, the_window->pen_x_, the_window->pen_y_, the_color);
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
 }
 
@@ -2831,7 +2831,7 @@ bool Window_DrawLine(Window* the_window, int16_t x1, int16_t y1, int16_t x2, int
 	return Bitmap_DrawLine(the_window->bitmap_, x1, y1, x2, y2, the_color);
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
 }
 
@@ -2852,7 +2852,7 @@ bool Window_DrawHLine(Window* the_window, int16_t the_line_len, uint8_t the_colo
 	return Bitmap_DrawHLine(the_window->bitmap_, the_window->pen_x_, the_window->pen_y_, the_line_len, the_color);
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
 }
 
@@ -2873,7 +2873,7 @@ bool Window_DrawVLine(Window* the_window, int16_t the_line_len, uint8_t the_colo
 	return Bitmap_DrawVLine(the_window->bitmap_, the_window->pen_x_, the_window->pen_y_, the_line_len, the_color);
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
 }
 
@@ -2905,7 +2905,7 @@ bool Window_DrawBoxRect(Window* the_window, Rectangle* the_coords, uint8_t the_c
 	return Bitmap_DrawBoxCoords(the_window->bitmap_, x1, y1, x2, y2, the_color);
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
 }
 
@@ -2935,7 +2935,7 @@ bool Window_DrawBoxCoords(Window* the_window, int16_t x1, int16_t y1, int16_t x2
 	return Bitmap_DrawBoxCoords(the_window->bitmap_, x1, y1, x2, y2, the_color);
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
 }
 
@@ -2958,7 +2958,7 @@ bool Window_DrawBox(Window* the_window, int16_t width, int16_t height, uint8_t t
 	return Bitmap_DrawBox(the_window->bitmap_, the_window->pen_x_, the_window->pen_y_, width, height, the_color, do_fill);
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
 }
 
@@ -2982,7 +2982,7 @@ bool Window_DrawRoundBox(Window* the_window, int16_t width, int16_t height, int1
 	return Bitmap_DrawRoundBox(the_window->bitmap_, the_window->pen_x_, the_window->pen_y_, width, height, radius, the_color, do_fill);
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
 }
 
@@ -3003,7 +3003,7 @@ bool Window_DrawCircle(Window* the_window, int16_t radius, uint8_t the_color)
 	return Bitmap_DrawCircle(the_window->bitmap_, the_window->pen_x_, the_window->pen_y_, radius, the_color);
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
 }
 
@@ -3024,7 +3024,7 @@ bool Window_DrawString(Window* the_window, char* the_string, int16_t max_chars)
 	return Font_DrawString(the_window->bitmap_, the_string, max_chars);
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
 }
 
@@ -3062,7 +3062,7 @@ char* Window_DrawStringInBox(Window* the_window, int16_t width, int16_t height, 
 	return Font_DrawStringInBox(the_window->bitmap_, width, height, the_string, num_chars, wrap_buffer, continue_function);
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return NULL;
 }
 

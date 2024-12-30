@@ -513,7 +513,7 @@ bool Bitmap_Blit(Bitmap* src_bm, int16_t src_x, int16_t src_y, Bitmap* dst_bm, i
 		the_read_loc = (uint8_t*)the_read_loc_int;
 		//DEBUG_OUT(("%s %d: the_read_loc=%p, the_write_loc=%p, copy_size=%lu", __func__, __LINE__, the_read_loc, the_write_loc, copy_size));
 
-		#ifdef _C256_FMX_
+		#ifdef _DO_NOT_TRUST_MEMCPY_
 			uint32_t i;
 			
 			for (i=0; i < copy_size; i++)
@@ -941,7 +941,7 @@ bool Bitmap_FillMemory(Bitmap* the_bitmap, uint8_t the_color)
 	the_write_loc = (uint8_t*)the_write_loc_int;
 	the_write_len = (uint32_t)the_bitmap->width_ * (uint32_t)the_bitmap->height_;
 		
-	#ifdef _C256_FMX_
+	#ifdef _DO_NOT_TRUST_MEMCPY_
 		uint32_t i;
 		for (i=0; i < the_write_len; i++)
 		{
@@ -1004,7 +1004,7 @@ bool Bitmap_FillBox(Bitmap* the_bitmap, int16_t x, int16_t y, int16_t width, int
 	{
 		the_write_loc = (uint8_t*)the_write_loc_int;
 		
-		#ifdef _C256_FMX_
+		#ifdef _DO_NOT_TRUST_MEMCPY_
 			uint16_t i;
 			for (i=0; i < width; i++)
 			{

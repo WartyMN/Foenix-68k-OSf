@@ -409,34 +409,49 @@
 
 // ** A2560K Serial control registers
 
-// common to both serial ports
-#define UART_BAUD_DIV_300		5244	// divisor for 300 baud
-#define UART_BAUD_DIV_600		2622	// divisor for 600 baud
-#define UART_BAUD_DIV_1200		1311	// divisor for 1200 baud
-#define UART_BAUD_DIV_1800		874		// divisor for 1800 baud
-#define UART_BAUD_DIV_2000		786		// divisor for 2000 baud
-#define UART_BAUD_DIV_2400		655		// divisor for 2400 baud
-#define UART_BAUD_DIV_3600		437		// divisor for 3600 baud
-#define UART_BAUD_DIV_4800		327		// divisor for 4800 baud
-#define UART_BAUD_DIV_9600		163		// divisor for 9600 baud
-#define UART_BAUD_DIV_19200		81		// divisor for 19200 baud
-#define UART_BAUD_DIV_38400		40		// divisor for 38400 baud
-#define UART_BAUD_DIV_57600		27		// divisor for 57600 baud
-#define UART_BAUD_DIV_115200	13		// divisor for 115200 baud
+// common to both serial ports -- from LPC47M107 datasheet
+#define UART_BAUD_DIV_300		384	// divisor for 300 baud
+#define UART_BAUD_DIV_600		192	// divisor for 600 baud
+#define UART_BAUD_DIV_1200		96	// divisor for 1200 baud
+#define UART_BAUD_DIV_1800		64		// divisor for 1800 baud
+#define UART_BAUD_DIV_2000		58		// divisor for 2000 baud
+#define UART_BAUD_DIV_2400		48		// divisor for 2400 baud
+#define UART_BAUD_DIV_3600		32		// divisor for 3600 baud
+#define UART_BAUD_DIV_4800		24		// divisor for 4800 baud
+#define UART_BAUD_DIV_9600		12		// divisor for 9600 baud
+#define UART_BAUD_DIV_19200		6		// divisor for 19200 baud
+#define UART_BAUD_DIV_38400		3		// divisor for 38400 baud
+#define UART_BAUD_DIV_57600		2		// divisor for 57600 baud
+#define UART_BAUD_DIV_115200	1		// divisor for 115200 baud
 
-#define UART_DATA_BITS			0b00000011	// 8 bits
-#define UART_STOP_BITS			0			// 1 stop bit
-#define UART_PARITY				0			// no parity
-#define UART_BRK_SIG			0b01000000
-#define UART_NO_BRK_SIG			0b00000000
-#define UART_DLAB_MASK			0b10000000
-#define UART_THR_IS_EMPTY		0b00100000
-#define UART_THR_EMPTY_IDLE		0b01000000
-#define UART_DATA_AVAILABLE		0b00000001
+// common to LCR register for both ports
+#define UART_DATA_BITS			0b00000011	// 0/0: 5 bit word len. 0/1=6b. 1/0=7b. 1/1=8b.
+#define UART_STOP_BITS			0b00000100	// stop bits. clear to have stop bits at 1. 
+#define UART_PARITY_ENABLE		0b00001000	// when 1 a parity bit is generated (transmit) or checked (receive)
+#define UART_PARITY_EVEN		0b00010000	// even parity: this and b3 are 1s. odd parity: this is 1, b3 is 0.
+#define UART_PARITY_STICK		0b00100000	// clear this if doing no parity
+#define UART_BRK_SIG			0b01000000	// when 1, TXD is forced to Spacing. don't use.
+#define UART_DLAB_MASK			0b10000000	// Divisor Latch Access bit DLAB. set to 1 to access baud rate generator. must be at 0 to access receiver buffer reg, transmitter reg, and IER.
+
+// common to LSR register for both ports
+#define UART_DATA_AVAILABLE		0b00000001	// Data Ready (DR). set to 1 whenever an incoming char is available. reset to 0 by reading all of the data in the receive buffer register or the FIFO.
+#define UART_OVERRUN_ERROR		0b00000010	// Overrun Error (OE). When set, indicates the receiver buffer register was not read before the next char was transferred. In FIFO mode an overrun error will occur only when the FIFO is full. 
+#define UART_PARITY_ERROR		0b00000100	// Parity Error (PE). When set, indicates the received data char does not have the correct even or odd parity.
+#define UART_FRAMING_ERROR		0b00001000	// Framing Error (FE). When set, indicates received char did not have a valid stop bit
+#define UART_BREAK_INT			0b00010000	// Break Interrupt (BI). see datasheet.
+#define UART_THR_IS_EMPTY		0b00100000	// Transmitter Holding Register Empty (THRE). When 1, serial port is ready to accept a new char for transmission. RO.
+#define UART_THR_EMPTY_IDLE		0b01000000	// Transmitter Empty (TEMT). When 1, serial both THR and TSR are empty. RO.
+#define UART_ERROR				0b10000000	// In non-FIFO mode, will be 0. In FIFO mode, will be 1 when there is any of the following: parity error, framing error, or break indication. Cleared when LSR is read.
 #define UART_ERROR_MASK			0b10011110
 
+// MCP has these #s:
+// #define UART1_BASE              0xFEC023F8  /* Base address for UART 1 (COM1) */
+// #define UART2_BASE              0xFEC022F8  /* Base address for UART 2 (COM2) */
+// Manual version 0.0.2 has fec02278 and 0xfec023f8
+
 // serial port 2
-#define GAVIN_SERIAL_2_BASE			0xfec02278	// start of Serial Port 2 registers -- all are 1 byte, RW except as noted
+// #define GAVIN_SERIAL_2_BASE			0xfec02278	// start of Serial Port 2 registers -- all are 1 byte, RW except as noted
+#define GAVIN_SERIAL_2_BASE			0xfec022F8	// start of Serial Port 2 registers -- all are 1 byte, RW except as noted
 #define UART2_BASE					(GAVIN_SERIAL_2_BASE)
 #define UART2_RBR					(UART2_BASE + 0)	// F256 naming compatibility
 #define UART2_RHR					(UART2_BASE + 0)	// When DLAB=0 (RHR) Receiver Holding Register (R)
@@ -455,7 +470,7 @@
 #define UART2_SCR					(UART2_BASE + 7)	// (SPR) Scratch Pad Register
 
 // serial port 1
-#define GAVIN_SERIAL_1_BASE			0xfec023f8	// start of Serial Port 1 registers -- all are 1 byte, RW except as noted
+#define GAVIN_SERIAL_1_BASE			0xfec023F8	// start of Serial Port 1 registers -- all are 1 byte, RW except as noted
 #define UART_BASE					(GAVIN_SERIAL_1_BASE)
 #define UART_RBR					(UART_BASE + 0)		// F256 naming compatibility
 #define UART_RHR					(UART_BASE + 0)		// When DLAB=0 (RHR) Receiver Holding Register (R)

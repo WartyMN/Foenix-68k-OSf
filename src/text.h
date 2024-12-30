@@ -192,7 +192,19 @@ int16_t General_StrFindNextWordEnd(const char* the_string, int16_t max_search_le
 // Find the next line break character and return its position within the string (+1: first char is '1'). If none found before end of string or max len, returns 0.
 int16_t General_StrFindNextLineBreak(const char* the_string, int16_t max_search_len);
 
-
+//! Format a string by wrapping and trimming to fit the passed width and height. 
+//! If the string cannot be displayed in the specified height and width, processing will stop, but it is not an error condition
+//! @param	orig_string: pointer to a string pointer that holds the text to be formatted. Upon return, this pointer will point to the next character after the last processed character (if the string was too long to fit). If the entire string fits, this pointer will not be adjusted.
+//! @param	formatted_string: pointer to a string pointer to an empty string buffer that will be filled with the formatted version of the text.
+//! @param	max_chars_to_format: the length of the string to format (in characters). If max_chars_to_format is less than the length of string, processing will stop after that many characters.
+//! @param	max_width: the width into which the text must fit, in pixels. 
+//! @param	max_height: the height into which the text must fit, in pixels. Pass a 0 to disable the governor on vertical space. 
+//! @param	one_char_width: the width in pixels, of one character. NOTE: This is only used for fixed-width, text mode operations. 
+//! @param	one_row_height: the height in pixels, of one row of text, including any leading. 
+//! @param	the_font: the font object to be used in measuring width. This is optional and ignore if called for text mode operations.
+//! @param	measure_function: pointer to the function responsible for measuring the graphical width of a string 
+//! @return Returns number of vertical pixels required. Returns -1 in any error condition.
+int16_t General_WrapAndTrimTextToFit(char** orig_string, char** formatted_string, int16_t max_chars_to_format, int16_t max_width, int16_t max_height, int16_t one_char_width, int16_t one_row_height, Font* the_font, int16_t (* measure_function)(Font*, char*, int16_t, int16_t, int16_t, int16_t*));
 
 
 // **** Block copy functions ****
@@ -526,7 +538,7 @@ bool Text_DrawStringAtXY(Screen* the_screen, int16_t x, int16_t y, char* the_str
 //! @param	back_color: Index to the desired background color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
 //! @param	continue_function: optional hook to a function that will be called if the provided text cannot fit into the specified box. If provided, the function will be called each time text exceeds available space. If the function returns true, another chunk of text will be displayed, replacing the first. If the function returns false, processing will stop. If no function is provided, processing will stop at the point text exceeds the available space.
 //! @return	Returns a pointer to the first character in the string after which it stopped processing (if string is too long to be displayed in its entirety). Returns the original string if the entire string was processed successfully. Returns NULL in the event of any error.
-char* Text_DrawStringInBox(Screen* the_screen, int16_t x1, int16_t y1, int16_t x2, int16_t y2, char* the_string, uint8_t fore_color, uint8_t back_color, bool (* continue_function)(void));
+char* Text_DrawStringInBox(Screen* the_screen, int16_t x1, int16_t y1, int16_t x2, int16_t y2, char* the_string, char** work_buffer, uint8_t fore_color, uint8_t back_color, bool (* continue_function)(void));
 
 //! Calculates how many characters of the passed string will fit into the passed pixel width.
 //! In Text Mode, all characters have the same fixed width, so this is measuring against the font width described in the screen object.

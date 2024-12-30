@@ -79,8 +79,7 @@ void WaitForUser(void)
 {
 	Text_DrawStringAtXY(global_system->screen_[ID_CHANNEL_B], 1, 4, (char*)"Press any key to continue", FG_COLOR_BRIGHT_YELLOW, 0);
 	
-	//General_GetChar();
-	General_DelaySeconds(3);
+	General_GetChar();
 	
 // 	Bitmap_FillMemory(Sys_GetScreenBitmap(global_system, back_layer), 0xbb);
 	Text_FillCharMem(global_system->screen_[ID_CHANNEL_B], ' ');
@@ -1002,7 +1001,7 @@ int main(int argc, char* argv[])
 		exit(0);
 	}
 
-	Sys_SetModeText(global_system, true);
+	Sys_SetGraphicMode(global_system, PARAM_SPRITES_OFF, PARAM_BITMAP_ON, PARAM_TILES_OFF, PARAM_TEXT_OVERLAY_ON, PARAM_TEXT_ON);
 	
  	RunDemo();
 

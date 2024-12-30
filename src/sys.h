@@ -60,6 +60,22 @@
 #define SYS_WIN_Z_ORDER_BACKDROP		-127
 #define SYS_WIN_Z_ORDER_NEWLY_ACTIVE	SYS_MAX_WINDOWS + 1
 
+#define PARAM_SPRITES_ON		true	// parameter for Sys_SetGraphicMode
+#define PARAM_SPRITES_OFF		false	// parameter for Sys_SetGraphicMode
+#define PARAM_BITMAP_ON			true	// parameter for Sys_SetGraphicMode
+#define PARAM_BITMAP_OFF		false	// parameter for Sys_SetGraphicMode
+#define PARAM_TILES_ON			true	// parameter for Sys_SetGraphicMode
+#define PARAM_TILES_OFF			false	// parameter for Sys_SetGraphicMode
+#define PARAM_TEXT_OVERLAY_ON	true	// parameter for Sys_SetGraphicMode
+#define PARAM_TEXT_OVERLAY_OFF	false	// parameter for Sys_SetGraphicMode
+#define PARAM_TEXT_ON			true	// parameter for Sys_SetGraphicMode
+#define PARAM_TEXT_OFF			false	// parameter for Sys_SetGraphicMode
+
+#define PARAM_DOUBLE_SIZE_TEXT	true	// parameter for Sys_SetTextPixelHeight
+#define PARAM_NORMAL_SIZE_TEXT	false	// parameter for Sys_SetTextPixelHeight
+
+#define PARAM_EXIT_ON_ERROR		true	// parameter for Sys_Exit
+#define PARAM_EXIT_NO_ERROR		false	// parameter for Sys_Exit
 
 /*****************************************************************************/
 /*                               Enumerations                                */
@@ -84,6 +100,7 @@ struct System
 	uint8_t			window_count_;
 	uint16_t		model_number_;
 	Menu*			menu_manager_;
+	char*			text_temp_buffer_;	// general use temp buffer big enough for full screen word wrap - do NOT use for real storage - any utility function clobber it
 };
 
 
@@ -112,6 +129,13 @@ System* Sys_New(void);
 bool Sys_Destroy(System** the_system);
 
 
+//! Exit to MCP
+//! Destroys the system on the way out
+//! @param	the_system -- valid pointer to system object
+//! @param	error_condition -- true if error, false if a normal exit. Use PARAM_EXIT_ON_ERROR/PARAM_EXIT_NO_ERROR
+void Sys_Exit(System** the_system, bool error_condition);
+
+
 
 // **** System Initialization functions *****
 
@@ -128,39 +152,27 @@ bool Sys_InitSystem(System* the_system);
 
 // **** Screen mode/resolution/size functions *****
 
-//! Find out what kind of machine the software is running on, and determine # of screens available
-//! @param	the_system: valid pointer to system object
-//! @return	Returns false if the machine is known to be incompatible with this software. 
-bool Sys_AutoDetectMachine(System* the_system);
-
-//! Find out what kind of machine the software is running on, and configure the passed screen accordingly
-//! Configures screen settings, RAM addresses, etc. based on known info about machine types
-//! Configures screen width, height, total text rows and cols, and visible text rows and cols by checking hardware
-//! @param	the_system: valid pointer to system object
-//! @return	Returns false if the machine is known to be incompatible with this software. 
-bool Sys_AutoConfigure(System* the_system);
-
-//! Detect the current screen mode/resolution, and set # of columns, rows, H pixels, V pixels, accordingly
-//! @param	the_screen: valid pointer to the target screen to operate on
-//! @return	returns false on any error/invalid input.
-bool Sys_DetectScreenSize(Screen* the_screen);
-
 //! Change video mode to the one passed.
 //! @param	the_screen: valid pointer to the target screen to operate on
 //! @param	new_mode: One of the enumerated screen_resolution values. Must correspond to a valid VICKY video mode for the host machine. See VICKY_IIIA_RES_800X600_FLAGS, etc. defined in a2560_platform.h
 //! @return	returns false on any error/invalid input.
 bool Sys_SetVideoMode(Screen* the_screen, screen_resolution new_mode);
 
-//! Switch machine into graphics mode
-//! @param	the_system: valid pointer to system object
-//! @return	returns false on any error/invalid input.
-bool Sys_SetModeGraphics(System* the_system);
+// //! Switch machine into graphics mode
+// //! @param	the_system -- valid pointer to system object
+// //! @return	returns false on any error/invalid input.
+// bool Sys_SetModeGraphics(System* the_system);
 
 //! Switch machine into text mode
-//! @param	the_system: valid pointer to system object
-//! @param as_overlay: If true, sets text overlay mode (text over graphics). If false, sets full text mode (no graphics);
+//! @param	the_system -- valid pointer to system object
+//! @param as_overlay -- If true, sets text overlay mode (text over graphics). If false, sets full text mode (no graphics);
 //! @return	returns false on any error/invalid input.
 bool Sys_SetModeText(System* the_system, bool as_overlay);
+
+//! Switch machine into graphics mode, text mode, sprite mode, etc.
+//! @param	the_system -- valid pointer to system object
+//! Use PARAM_SPRITES_ON/OFF, PARAM_BITMAP_ON/OFF, PARAM_TILES_ON/OFF, PARAM_TEXT_OVERLAY_ON/OFF, PARAM_TEXT_ON/OFF
+bool Sys_SetGraphicMode(System* the_system, bool enable_sprites, bool enable_bitmaps, bool enable_tiles, bool enable_text_overlay, bool enable_text);
 
 //! Enable or disable the hardware cursor in text mode, for the specified screen
 //! @param	the_system: valid pointer to system object

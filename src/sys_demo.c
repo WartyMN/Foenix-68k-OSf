@@ -391,8 +391,7 @@ void WaitForUser(void)
 {
 	Text_DrawStringAtXY(global_system->screen_[ID_CHANNEL_B], 1, DESCRIPTION_START_Y_LINE + DESCRIPTION_NUM_LINES, (char*)"Press any key to continue", FG_COLOR_BRIGHT_YELLOW, BG_COLOR_BLUE);
 	
-	//General_GetChar();
-	General_DelaySeconds(3);
+	General_GetChar();
 	
 	Text_FillCharMem(global_system->screen_[ID_CHANNEL_B], ' ');
 	Text_FillAttrMem(global_system->screen_[ID_CHANNEL_B], 0);
@@ -814,6 +813,7 @@ void Open2Windows(void)
 	if ( (the_win_template = Window_GetNewWinTemplate(the_win_title)) == NULL)
 	{
 		LOG_ERR(("%s %d: Could not get a new window template", __func__ , __LINE__));
+printf("Could not get a new window template \n");
 		return;
 	}	
 	// note: all the default values are fine for us in this case.
@@ -831,14 +831,17 @@ void Open2Windows(void)
 		if ( (the_window[win_num] = Window_New(the_win_template, &SharedEventHandler)) == NULL)
 		{
 			DEBUG_OUT(("%s %d: Couldn't instantiate a window", __func__, __LINE__));
+printf("Couldn't instantiate a window \n");
 			return;
 		}
 		
 		// add controls to the window
 		AddControls(the_window[win_num]);
+printf("added controls to the window \n");
 	
 		// declare the window to be visible
 		Window_SetVisible(the_window[win_num], true);
+printf("declared the window to be visible \n");
 	}
 }
 
@@ -1493,8 +1496,7 @@ int main(int argc, char* argv[])
 	
 	Sys_EnableTextModeCursor(global_system, the_screen, false);
 	
-// 	Sys_SetModeGraphics(global_system);
-	Sys_SetModeText(global_system, true);
+	Sys_SetGraphicMode(global_system, PARAM_SPRITES_OFF, PARAM_BITMAP_ON, PARAM_TILES_OFF, PARAM_TEXT_OVERLAY_ON, PARAM_TEXT_ON);
 
  	RunDemo();
 	

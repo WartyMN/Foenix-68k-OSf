@@ -138,178 +138,6 @@ void Font_Print(Font* the_font)
 // **** CONSTRUCTOR AND DESTRUCTOR *****
 
 
-//! Create a Font object on the C256 platform, and populate it from the passed buffer.
-//! NOTE: it is not possible to create a Font object without having a valid 'FONT' data chunk already in memory.
-//! NOTE: this copies the passed font data to permanent storage, overwriting the previously loaded font (if any). It is not dependent on the data in the buffer after returning.
-//! @param	the_data: Must contain a valid Mac 'FONT' resource data hunk. 
-//! @param	data_size: Count of all bytes in the data buffer, including the font record and following font tables.
-Font* Font_NewC256(unsigned char* the_data, uint16_t data_size)
-{
-
-	#ifndef _C256_FMX_
-		return Font_New(the_data, data_size);
-	#else
-
-		Font*		the_font;
-		uint16_t	image_table_count;
-		uint16_t	loc_table_count;
-		uint16_t	width_table_count;
-		uint16_t	height_table_count;
-		bool		has_height_table;
-		uint16_t	write_index = 0;
-		uint16_t	write_len;
-		uint16_t	i;
-		uint8_t*	the_write_loc;
-		uint8_t		b0;
-		uint8_t		b1;
-		uint16_t	count;
-	
-		// LOGIC:
-		//   the font data will contain 26 bytes of font record, followed by data
-		//   the data is: 
-		//     font bits. size is 2 * rowWords * fRectHeight
-		//     location table. size is 2 * (lastChar-firstChar+3)
-		//     glyph offset/width table. size is 2 * (lastChar-firstChar+3)
-		//
-		//   process is allocate space for font rec, copy over its 20 bytes
-		//   use the data now in the font rec to allocate space for the other 3 tables and copy them over. 
-		//
-		//   Table data size:
-		//     bitmap image table: char
-		//     bitmap offset table: word
-		//     width/offset table: word
-		//     height_table_: word
-		//   When reading on 65816, the word tables need to have all bytes swapped
-	
-		// ALLOC LOGIC:
-		//   if 68k, allocate memory for each font as it is created. plenty of memory. 
-		//   if 65816, we cannot afford to allocate on heap for fonts. system is limited to one font only, storage is pre-allocated.
-		//     the Font object is part of the system object, as rom_font_, with the data for all 4 pointers in the record in fixed storage
-		//     when a new font is loaded, it will overwrite the data that was there before
-	
-		// BYTE SWAP/ENDIAN LOGIC
-		//   OS/f framework uses legacy MacOS-style fonts
-		//   That font data is in big endian format (68000)
-		//   For C256s, words must be byte swapped, as 65816 is little endian
-		//     The FontRec properties, and all tables (each has word-sized data need to be byte swapped
-
-		write_len = FONT_RECORD_SIZE;
-		the_font = &global_system->rom_font_;
-		the_write_loc = (uint8_t*)the_font;
-		
-		// byte swap and copy the fontRecord section
-		for (i = 0; i < write_len; i += 2)
-		{
-			b0 = the_data[i];
-			b1 = the_data[i+1];
-			*the_write_loc++ = b1;
-			*the_write_loc++ = b0;
-		}
-	
-		//DEBUG_OUT(("%s %d: the_font=%p", __func__, __LINE__, the_font));
-
-		// byte swap and copy the rest of the font data
-		
-		count = data_size - FONT_RECORD_SIZE;
-		i = FONT_RECORD_SIZE; // start reading from after the font record chunk
-		write_index = 0; // start writing at the beginning of the fixed data storage
-		
-		for (; i < count; i += 2)
-		{
-			b0 = the_data[i];
-			b1 = the_data[i+1];
-			global_system->font_data_[write_index++] = b1;
-			global_system->font_data_[write_index++] = b0;
-		}
-		//General_GetChar();
-	
-		
-		// set up font data tables
-	
-		// LOGIC: 
-		//   Mac fonts will have 3 tables immediately after the rowWords table: bitmap image table, bitmap offset table, and width/offset table
-		//   Mac fonts can optionally have a separate (higher-precision) character width table after the width offset table
-		//   Mac fonts can optionally have a separate image height table after the width offset table (or height table if present)
-		//   Both tables are presumed to be same size as the width offset table
-		//   We have no use for the higher precision character width table, but the optional height table, if present, can speed up drawing
-		//   Flags for both these are stored in bits 0 and 1 of the font type field. 
-
-		write_index = 0; // we are at start of the permanent storage
-
-		// font image table -- holds the pixels for each glyph, packed into 16 bit ints
-		image_table_count = the_font->rowWords * the_font->fRectHeight;
-		write_len = image_table_count * sizeof(uint16_t);
-		the_font->image_table_ = (uint16_t*)(&global_system->font_data_[write_index]);
-		write_index += write_len;
-
-
-		// location table -- holds offsets to each glyph, in BITS, from the start of the image table
-		loc_table_count = the_font->lastChar - the_font->firstChar + 3;
-		write_len = loc_table_count * sizeof(uint16_t);
-		the_font->loc_table_ = (uint16_t*)(&global_system->font_data_[write_index]);
-		write_index += write_len;
-	
-
-		// width/offset table -- holds the horizontal offset to first pixel and total render width	
-		//   the low byte will be the h offset (eg, 1, if you need to start drawing 1 pixel to the right of the pen location)
-		//   the high byte will contain the total width needed to render the character (including any whitespace to left or right of pixels)
-		width_table_count = the_font->lastChar - the_font->firstChar + 3;
-		write_len = width_table_count * sizeof(uint16_t);
-		the_font->width_table_ = (uint16_t*)(&global_system->font_data_[write_index]);
-		write_index += write_len;
-
-
-		// get the optional height table, if any - this can be used to optimize drawing speed
-		//   the low byte will be the v offset from top of glyph rect (eg, 3, if the first pixel is in the 4th row down)
-		//   the high byte will contain the total rows of visible pixels (eg, 3 for say a comma, but 9 for a capital letter)
-
-		has_height_table = (bool)((the_font->fontType >> 0) & 0x01);
-	// 	DEBUG_OUT(("%s %d: has_height_table=%u, has_detailed_width_table=%u", __func__, __LINE__, has_height_table, (bool)((the_font->fontType >> 1) & 0x01)));	
-		
-		if (has_height_table)
-		{
-			//DEBUG_OUT(("%s %d: this font has the optional height table", __func__, __LINE__));	
-		
-			height_table_count = the_font->lastChar - the_font->firstChar + 3;
-			write_len = height_table_count * sizeof(uint16_t);
-			the_font->height_table_ = (uint16_t*)(&global_system->font_data_[write_index]);
-		}
-		else
-		{
-			//DEBUG_OUT(("%s %d: this font does NOT have the optional height table", __func__, __LINE__));
-		
-			height_table_count = 0;
-			the_font->height_table_ = NULL;
-		}
-
-		//DEBUG_OUT(("%s %d: image_table_count=%u, loc_table_count=%u, width_table_count=%u", __func__, __LINE__, image_table_count, loc_table_count, width_table_count));
-	
-		// DEBUG
-		//Font_Print(the_font);
-
-		uint8_t*		the_byte;
-		count = data_size - FONT_RECORD_SIZE; // data is in bytes; -26 bytes for the font record part that went into the allocated Font* object		
-		the_byte = (uint8_t*)global_system->font_data_;
-		
-		for (i = 0; i < count; i++)
-		{
-			//printf("%02x ", *the_byte);
-			the_byte++;
-			
-			if (i % 900 == 1)
-			{
-				//General_GetChar();
-			}
-		}
-		//printf("\n");
-		//General_GetChar();
-		
-		return the_font;
-
-	#endif
-}
-
-
 //! Create a Font object on the non-C256 platforms, and populate it from the passed buffer.
 //! NOTE: it is not possible to create a Font object without having a valid 'FONT' data chunk already in memory.
 //! NOTE: this allocates new memory for the font, and copies the font data to it from the passed buffer. It is not dependent on the data in the buffer after returning.
@@ -319,147 +147,142 @@ Font* Font_New(unsigned char* the_data, uint16_t data_size)
 {
 	Font*			the_font;
 
-	#ifdef _C256_FMX_
-		return Font_NewC256(the_data, data_size);
-	#else
-		uint16_t		image_table_count;
-		uint16_t		loc_table_count;
-		uint16_t		width_table_count;
-		uint16_t		height_table_count;
-		bool			has_height_table;
-		uint16_t		write_index = 0;
-		uint16_t		write_len;
+	uint16_t		image_table_count;
+	uint16_t		loc_table_count;
+	uint16_t		width_table_count;
+	uint16_t		height_table_count;
+	bool			has_height_table;
+	uint16_t		write_index = 0;
+	uint16_t		write_len;
 
-		// LOGIC:
-		//   the font data will contain 26 bytes of font record, followed by data
-		//   the data is: 
-		//     font bits. size is 2 * rowWords * fRectHeight
-		//     location table. size is 2 * (lastChar-firstChar+3)
-		//     glyph offset/width table. size is 2 * (lastChar-firstChar+3)
-		//
-		//   process is allocate space for font rec, copy over its 20 bytes
-		//   use the data now in the font rec to allocate space for the other 3 tables and copy them over. 
-		//
-		//   Table data size:
-		//     bitmap image table: char
-		//     bitmap offset table: word
-		//     width/offset table: word
-		//     height_table_: word
-		//   When reading on 65816, the word tables need to have all bytes swapped
+	// LOGIC:
+	//   the font data will contain 26 bytes of font record, followed by data
+	//   the data is: 
+	//     font bits. size is 2 * rowWords * fRectHeight
+	//     location table. size is 2 * (lastChar-firstChar+3)
+	//     glyph offset/width table. size is 2 * (lastChar-firstChar+3)
+	//
+	//   process is allocate space for font rec, copy over its 20 bytes
+	//   use the data now in the font rec to allocate space for the other 3 tables and copy them over. 
+	//
+	//   Table data size:
+	//     bitmap image table: char
+	//     bitmap offset table: word
+	//     width/offset table: word
+	//     height_table_: word
+	//   When reading on 65816, the word tables need to have all bytes swapped
+
+	// allocate the base Font object - this is small enough to allocate safely on the heap for 65816 but we might as well have perm storage.
+	if ( (the_font = (Font*)calloc(1, sizeof(Font)) ) == NULL)
+	{
+		LOG_ERR(("%s %d: could not allocate memory to create new font record", __func__ , __LINE__));
+		goto error;
+	}
+	LOG_ALLOC(("%s %d:	__ALLOC__	the_font	%p	size	%i", __func__ , __LINE__, the_font, sizeof(Font)));
+
+	// copy in the font record
+	write_len = FONT_RECORD_SIZE;
+	memcpy(the_font, the_data, write_len);
+	the_data += write_len;
+
+	DEBUG_OUT(("%s %d: the_font=%p", __func__, __LINE__, the_font));
 	
-		// allocate the base Font object - this is small enough to allocate safely on the heap for 65816 but we might as well have perm storage.
-		if ( (the_font = (Font*)calloc(1, sizeof(Font)) ) == NULL)
+	// set up font data tables
+
+	// LOGIC: 
+	//   Mac fonts will have 3 tables immediately after the rowWords table: bitmap image table, bitmap offset table, and width/offset table
+	//   Mac fonts can optionally have a separate (higher-precision) character width table after the width offset table
+	//   Mac fonts can optionally have a separate image height table after the width offset table (or height table if present)
+	//   Both tables are presumed to be same size as the width offset table
+	//   We have no use for the higher precision character width table, but the optional height table, if present, can speed up drawing
+	//   Flags for both these are stored in bits 0 and 1 of the font type field. 
+
+
+	// font image table -- holds the pixels for each glyph, packed into 16 bit ints
+	image_table_count = the_font->rowWords * the_font->fRectHeight;
+	write_len = image_table_count * sizeof(uint16_t);
+	//DEBUG_OUT(("%s %d: rowWords=%u, fRectHeight=%u, image_table_count=%u", __func__, __LINE__, the_font->rowWords, the_font->fRectHeight, image_table_count));
+
+	if ( (the_font->image_table_ = (uint16_t*)calloc(image_table_count, sizeof(uint16_t)) ) == NULL)
+	{
+		LOG_ERR(("%s %d: could not allocate memory to create new font image data (%lu)", __func__ , __LINE__, image_table_count * sizeof(uint16_t)));
+		goto error;
+	}
+	LOG_ALLOC(("%s %d:	__ALLOC__	the_font->image_table_	%p	size	%i", __func__ , __LINE__, the_font->image_table_, image_table_count * sizeof(uint16_t)));
+
+	memcpy((char*)the_font->image_table_, (char*)the_data, write_len);
+	the_data += write_len;
+
+
+	// location table -- holds offsets to each glyph, in BITS, from the start of the image table
+	loc_table_count = the_font->lastChar - the_font->firstChar + 3;
+	write_len = loc_table_count * sizeof(uint16_t);
+
+	if ( (the_font->loc_table_ = (uint16_t*)calloc(loc_table_count, sizeof(uint16_t)) ) == NULL)
+	{
+		LOG_ERR(("%s %d: could not allocate memory to create new font location data", __func__ , __LINE__));
+		goto error;
+	}
+	LOG_ALLOC(("%s %d:	__ALLOC__	the_font->loc_table_	%p	size	%i", __func__ , __LINE__, the_font->loc_table_, loc_table_count * sizeof(uint16_t)));
+
+	memcpy((char*)the_font->loc_table_, (char*)the_data, write_len);
+	the_data += write_len;
+
+
+	// width/offset table -- holds the horizontal offset to first pixel and total render width	
+	//   the low byte will be the h offset (eg, 1, if you need to start drawing 1 pixel to the right of the pen location)
+	//   the high byte will contain the total width needed to render the character (including any whitespace to left or right of pixels)
+	width_table_count = the_font->lastChar - the_font->firstChar + 3;
+	write_len = width_table_count * sizeof(uint16_t);
+
+	if ( (the_font->width_table_ = (uint16_t*)calloc(width_table_count, sizeof(uint16_t)) ) == NULL)
+	{
+		LOG_ERR(("%s %d: could not allocate memory to create new font width data", __func__ , __LINE__));
+		goto error;
+	}
+	LOG_ALLOC(("%s %d:	__ALLOC__	the_font->width_table_	%p	size	%i", __func__ , __LINE__, the_font->width_table_, width_table_count * sizeof(uint16_t)));
+
+	memcpy((char*)the_font->width_table_, (char*)the_data, write_len);
+	the_data +=write_len;
+
+
+	// get the optional height table, if any - this can be used to optimize drawing speed
+	//   the low byte will be the v offset from top of glyph rect (eg, 3, if the first pixel is in the 4th row down)
+	//   the high byte will contain the total rows of visible pixels (eg, 3 for say a comma, but 9 for a capital letter)
+
+	has_height_table = (bool)((the_font->fontType >> 0) & 0x01);
+// 	DEBUG_OUT(("%s %d: has_height_table=%u, has_detailed_width_table=%u", __func__, __LINE__, has_height_table, (bool)((the_font->fontType >> 1) & 0x01)));	
+	
+	if (has_height_table)
+	{
+		//DEBUG_OUT(("%s %d: this font has the optional height table", __func__, __LINE__));	
+	
+		height_table_count = the_font->lastChar - the_font->firstChar + 3;
+		write_len = height_table_count * sizeof(uint16_t);
+
+		if ( (the_font->height_table_ = (uint16_t*)calloc(height_table_count, sizeof(uint16_t)) ) == NULL)
 		{
-			LOG_ERR(("%s %d: could not allocate memory to create new font record", __func__ , __LINE__));
+			LOG_ERR(("%s %d: could not allocate memory to create new font height data", __func__ , __LINE__));
 			goto error;
 		}
-		LOG_ALLOC(("%s %d:	__ALLOC__	the_font	%p	size	%i", __func__ , __LINE__, the_font, sizeof(Font)));
+		LOG_ALLOC(("%s %d:	__ALLOC__	the_font->height_table_	%p	size	%i", __func__ , __LINE__, the_font->height_table_, height_table_count * sizeof(uint16_t)));
 
-		// copy in the font record
-		write_len = FONT_RECORD_SIZE;
-		memcpy(the_font, the_data, write_len);
-		the_data += write_len;
+		memcpy((char*)the_font->height_table_, (char*)the_data, write_len);
+	}
+	else
+	{
+		//DEBUG_OUT(("%s %d: this font does NOT have the optional height table", __func__, __LINE__));		
+		height_table_count = 0;
+		the_font->height_table_ = NULL;
+	}
+
+	//DEBUG_OUT(("%s %d: image_table_count=%u, loc_table_count=%u, width_table_count=%u", __func__, __LINE__, image_table_count, loc_table_count, width_table_count));
+
+	// DEBUG
+	//Font_Print(the_font);
+
+	return the_font;
 	
-		DEBUG_OUT(("%s %d: the_font=%p", __func__, __LINE__, the_font));
-		
-		// set up font data tables
-	
-		// LOGIC: 
-		//   Mac fonts will have 3 tables immediately after the rowWords table: bitmap image table, bitmap offset table, and width/offset table
-		//   Mac fonts can optionally have a separate (higher-precision) character width table after the width offset table
-		//   Mac fonts can optionally have a separate image height table after the width offset table (or height table if present)
-		//   Both tables are presumed to be same size as the width offset table
-		//   We have no use for the higher precision character width table, but the optional height table, if present, can speed up drawing
-		//   Flags for both these are stored in bits 0 and 1 of the font type field. 
-
-
-		// font image table -- holds the pixels for each glyph, packed into 16 bit ints
-		image_table_count = the_font->rowWords * the_font->fRectHeight;
-		write_len = image_table_count * sizeof(uint16_t);
-		//DEBUG_OUT(("%s %d: rowWords=%u, fRectHeight=%u, image_table_count=%u", __func__, __LINE__, the_font->rowWords, the_font->fRectHeight, image_table_count));
-	
-		if ( (the_font->image_table_ = (uint16_t*)calloc(image_table_count, sizeof(uint16_t)) ) == NULL)
-		{
-			LOG_ERR(("%s %d: could not allocate memory to create new font image data (%lu)", __func__ , __LINE__, image_table_count * sizeof(uint16_t)));
-			goto error;
-		}
-		LOG_ALLOC(("%s %d:	__ALLOC__	the_font->image_table_	%p	size	%i", __func__ , __LINE__, the_font->image_table_, image_table_count * sizeof(uint16_t)));
-
-		memcpy((char*)the_font->image_table_, (char*)the_data, write_len);
-		the_data += write_len;
-
-	
-		// location table -- holds offsets to each glyph, in BITS, from the start of the image table
-		loc_table_count = the_font->lastChar - the_font->firstChar + 3;
-		write_len = loc_table_count * sizeof(uint16_t);
-
-		if ( (the_font->loc_table_ = (uint16_t*)calloc(loc_table_count, sizeof(uint16_t)) ) == NULL)
-		{
-			LOG_ERR(("%s %d: could not allocate memory to create new font location data", __func__ , __LINE__));
-			goto error;
-		}
-		LOG_ALLOC(("%s %d:	__ALLOC__	the_font->loc_table_	%p	size	%i", __func__ , __LINE__, the_font->loc_table_, loc_table_count * sizeof(uint16_t)));
-
-		memcpy((char*)the_font->loc_table_, (char*)the_data, write_len);
-		the_data += write_len;
-
-
-		// width/offset table -- holds the horizontal offset to first pixel and total render width	
-		//   the low byte will be the h offset (eg, 1, if you need to start drawing 1 pixel to the right of the pen location)
-		//   the high byte will contain the total width needed to render the character (including any whitespace to left or right of pixels)
-		width_table_count = the_font->lastChar - the_font->firstChar + 3;
-		write_len = width_table_count * sizeof(uint16_t);
-
-		if ( (the_font->width_table_ = (uint16_t*)calloc(width_table_count, sizeof(uint16_t)) ) == NULL)
-		{
-			LOG_ERR(("%s %d: could not allocate memory to create new font width data", __func__ , __LINE__));
-			goto error;
-		}
-		LOG_ALLOC(("%s %d:	__ALLOC__	the_font->width_table_	%p	size	%i", __func__ , __LINE__, the_font->width_table_, width_table_count * sizeof(uint16_t)));
-
-		memcpy((char*)the_font->width_table_, (char*)the_data, write_len);
-		the_data +=write_len;
-
-
-		// get the optional height table, if any - this can be used to optimize drawing speed
-		//   the low byte will be the v offset from top of glyph rect (eg, 3, if the first pixel is in the 4th row down)
-		//   the high byte will contain the total rows of visible pixels (eg, 3 for say a comma, but 9 for a capital letter)
-
-		has_height_table = (bool)((the_font->fontType >> 0) & 0x01);
-	// 	DEBUG_OUT(("%s %d: has_height_table=%u, has_detailed_width_table=%u", __func__, __LINE__, has_height_table, (bool)((the_font->fontType >> 1) & 0x01)));	
-		
-		if (has_height_table)
-		{
-			//DEBUG_OUT(("%s %d: this font has the optional height table", __func__, __LINE__));	
-		
-			height_table_count = the_font->lastChar - the_font->firstChar + 3;
-			write_len = height_table_count * sizeof(uint16_t);
-
-			if ( (the_font->height_table_ = (uint16_t*)calloc(height_table_count, sizeof(uint16_t)) ) == NULL)
-			{
-				LOG_ERR(("%s %d: could not allocate memory to create new font height data", __func__ , __LINE__));
-				goto error;
-			}
-			LOG_ALLOC(("%s %d:	__ALLOC__	the_font->height_table_	%p	size	%i", __func__ , __LINE__, the_font->height_table_, height_table_count * sizeof(uint16_t)));
-
-			memcpy((char*)the_font->height_table_, (char*)the_data, write_len);
-		}
-		else
-		{
-			//DEBUG_OUT(("%s %d: this font does NOT have the optional height table", __func__, __LINE__));		
-			height_table_count = 0;
-			the_font->height_table_ = NULL;
-		}
-
-		//DEBUG_OUT(("%s %d: image_table_count=%u, loc_table_count=%u, width_table_count=%u", __func__, __LINE__, image_table_count, loc_table_count, width_table_count));
-	
-		// DEBUG
-		//Font_Print(the_font);
-	
-		return the_font;
-		
-	#endif
-
 error:
 	if (the_font)					Font_Destroy(&the_font);
 	return NULL;

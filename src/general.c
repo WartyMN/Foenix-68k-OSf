@@ -1003,8 +1003,7 @@ char General_GetChar(void)
 {
 	uint8_t		the_char;
 	
-	the_char = getchar();
-	//the_char = sys_chan_read_b(0);
+	the_char = sys_chan_read_b(0);
 	
 	return the_char;
 }

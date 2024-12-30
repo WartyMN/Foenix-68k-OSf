@@ -328,9 +328,8 @@ void Demo_Bitmap_DrawRoundBox(void)
 	{
 		Bitmap_DrawRoundBox(Sys_GetScreenBitmap(global_system, back_layer), x + color, y + color, width + i*2, height + i*2, i, color, PARAM_DO_NOT_FILL);
 		
-		#ifndef _C256_FMX_
-			Bitmap_DrawRoundBox(Sys_GetScreenBitmap(global_system, back_layer), xleft - color, y + color, width*2 + i*2, height*2 + i*2, 20 - i, color, PARAM_DO_FILL);
-		#endif
+		// MB 2024-12-30: this does not work / freezes up machine or does something bad - possibly stack as fill is recursive.
+		//Bitmap_DrawRoundBox(Sys_GetScreenBitmap(global_system, back_layer), xleft - color, y + color, width*2 + i*2, height*2 + i*2, 20 - i, color, PARAM_DO_FILL);
 		
 		Bitmap_DrawRoundBox(Sys_GetScreenBitmap(global_system, back_layer), xleft - color, y + color, width*2 + i*2, height*2 + i*2, 20 - i, line_color, PARAM_DO_NOT_FILL);
 		color += 7;
@@ -352,9 +351,9 @@ void Demo_Bitmap_DrawRoundBox(void)
 	
 	// faster fill by making rect fills and then just flood filling the corners
 	y = 250;
-	#ifndef _C256_FMX_
-		Bitmap_DrawRoundBox(Sys_GetScreenBitmap(global_system, back_layer), x, y, width, height, radius, color, PARAM_DO_FILL);
-	#endif
+	// MB 2024-12-30: this does not work / freezes up machine or does something bad - possibly stack as fill is recursive.
+	//Bitmap_DrawRoundBox(Sys_GetScreenBitmap(global_system, back_layer), x, y, width, height, radius, color, PARAM_DO_FILL);
+
 	Bitmap_DrawRoundBox(Sys_GetScreenBitmap(global_system, back_layer), x, y, width, height, radius, 0x01, PARAM_DO_NOT_FILL);
 	Text_DrawStringAtXY(global_system->screen_[ID_CHANNEL_B], (x)/8-2, y/8-1, (char*)"Cancel", FG_COLOR_BLACK, BG_COLOR_BLACK);
 
@@ -622,32 +621,6 @@ int main(int argc, char* argv[])
 	
 	Sys_SetGraphicMode(global_system, PARAM_SPRITES_OFF, PARAM_BITMAP_ON, PARAM_TILES_OFF, PARAM_TEXT_OVERLAY_ON, PARAM_TEXT_ON);
 
-	// temp keyboard test c256 only
-	#ifdef _C256_FMX_
-		uint8_t	chan_in = R8((void*)(0x0704));
-		char	(*Kernal_GetCharWithWait)(void);
-		//GETCHW	$00:104C	Get a character from the input channel. Waits until data received. A=0 and Carry=1 if no data is waiting
-		Kernal_GetCharWithWait = (void*)(0x00104c);
-		DEBUG_OUT(("CHAR_IN=%u", chan_in));
-		if (chan_in != 0)
-		{
-			R8((void*)(0x0704)) = 0;
-		}
-	
-		uint8_t	c;
-		do
-		{
-			//c = Kernal_GetCharWithWait();
-			//c = General_GetChar();
-			c = Kernal_GetCharWithWait();
-			DEBUG_OUT(("char=%x, %u, '%c'", c, c, c));
-		} while (c != 32);
-	
-		// reset chan for debugger
-		R8((void*)(0x0704)) = chan_in;
-	#endif
-	//
-	
 	RunDemo();
 
 	return 0;

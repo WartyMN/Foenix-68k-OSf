@@ -255,7 +255,7 @@ void Menu_GlobalToLocal(Menu* the_menu, int16_t* x, int16_t* y)
 	return;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 
@@ -385,7 +385,7 @@ bool Menu_AddClipRect(Menu* the_menu, Rectangle* new_rect)
 	return true;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
 }
 
@@ -437,7 +437,7 @@ bool Menu_BlitClipRects(Menu* the_menu)
 	return true;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
 }
 
@@ -465,6 +465,7 @@ Menu* Menu_New(void)
 	if ( (the_menu->bitmap_ = Bitmap_New(MENU_MAX_WIDTH, MENU_MAX_HEIGHT, Sys_GetAppFont(global_system), PARAM_NOT_IN_VRAM)) == NULL)
 	{
 		LOG_ERR(("%s %d: Failed to create bitmap", __func__, __LINE__));
+printf("menu bitmap allocation error!... \n");
 		goto error;
 	}
 
@@ -500,7 +501,7 @@ Menu* Menu_New(void)
 	
 error:
 	if (the_menu) Menu_Destroy(&the_menu);
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return NULL;
 }
 
@@ -526,7 +527,7 @@ void Menu_Destroy(Menu** the_menu)
 	return;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 
@@ -563,7 +564,7 @@ void Menu_Render(Menu* the_menu)
 	return;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 
@@ -633,7 +634,7 @@ void Menu_Open(Menu* the_menu, MenuGroup* the_menu_group, int16_t x, int16_t y)
 	return;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 
@@ -656,7 +657,7 @@ void Menu_CancelOpen(Menu* the_menu)
 	return;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 
@@ -690,7 +691,7 @@ void Menu_Hide(Menu* the_menu)
 	return;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 
@@ -710,7 +711,7 @@ void Menu_SetVisible(Menu* the_menu, bool is_visible)
 	return;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 
@@ -760,7 +761,7 @@ int16_t	Menu_AcceptClick(Menu* the_menu, int16_t x, int16_t y)
 	return MENU_ID_NO_SELECTION;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return MENU_ID_NO_SELECTION;
 }
 
@@ -824,7 +825,7 @@ void Menu_AcceptMouseMove(Menu* the_menu, int16_t x, int16_t y)
 	return;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 
@@ -854,6 +855,6 @@ bool Menu_SetFont(Menu* the_menu, Font* the_font)
 	return true;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
 }

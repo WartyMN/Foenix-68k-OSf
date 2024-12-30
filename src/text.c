@@ -113,7 +113,7 @@ void General_WrapParaWriteLine(char** src, char** dst, int16_t write_len);
 // PRIVATE - no checking of parameters
 // passed a string with no line breaks in it, and a buffer to write into, copies the string contents into the target buffer, performing line breaks as it goes
 // stops when all characters have been processed, or when all available vertical space has been used up.
-int16_t General_WrapPara(char* this_line_start, char* formatted_text, int16_t remaining_len, int16_t max_width, int16_t remaining_v_pixels, int16_t one_char_width, int16_t one_row_height, Font* the_font, int16_t (* measure_function)(Font*, char*, int16_t, int16_t, int16_t, int16_t*));
+int16_t General_WrapPara(char* this_line_start, char** formatted_text, int16_t remaining_len, int16_t max_width, int16_t remaining_v_pixels, int16_t one_char_width, int16_t one_row_height, Font* the_font, int16_t (* measure_function)(Font*, char*, int16_t, int16_t, int16_t, int16_t*));
 
 //! \endcond
 
@@ -172,6 +172,7 @@ bool Text_ValidateXY(Screen* the_screen, int16_t x, int16_t y)
 	
 	if (x < 0 || x > max_col || y < 0 || y > max_row)
 	{
+		DEBUG_OUT(("%s %d: x=%u, y=%u, max_col=%u, max_row=%u", __func__, __LINE__, x, y, max_col, max_row));
 		return false;
 	}
 
@@ -288,7 +289,7 @@ void General_WrapParaWriteLine(char** src, char** dst, int16_t write_len)
 // PRIVATE - no checking of parameters
 // passed a string with no line breaks in it, and a buffer to write into, copies the string contents into the target buffer, performing line breaks as it goes
 // stops when all characters have been processed, or when all available vertical space has been used up.
-int16_t General_WrapPara(char* this_line_start, char* formatted_text, int16_t remaining_len, int16_t max_width, int16_t remaining_v_pixels, int16_t one_char_width, int16_t one_row_height, Font* the_font, int16_t (* measure_function)(Font*, char*, int16_t, int16_t, int16_t, int16_t*))
+int16_t General_WrapPara(char* this_line_start, char** formatted_text, int16_t remaining_len, int16_t max_width, int16_t remaining_v_pixels, int16_t one_char_width, int16_t one_row_height, Font* the_font, int16_t (* measure_function)(Font*, char*, int16_t, int16_t, int16_t, int16_t*))
 {
 	int16_t			v_pixels = 0;
 	int16_t			next_line_len;
@@ -337,12 +338,12 @@ int16_t General_WrapPara(char* this_line_start, char* formatted_text, int16_t re
 				int16_t		proposed_new_line_len = this_line_len + next_line_len;
 				
 				chars_that_fit = (*measure_function)(the_font, this_line_start, proposed_new_line_len, max_width, one_char_width, &pixels_used);
-				
+			
 				if (chars_that_fit >= proposed_new_line_len)
 				{
 					// the upcoming word will fit on current line
 					// extend length of current line; push start of next line to position past the word
-					General_WrapParaWriteLine(&this_line_start, &formatted_text, proposed_new_line_len);
+					General_WrapParaWriteLine(&this_line_start, formatted_text, proposed_new_line_len);
 
 					this_line_len = 0;
 
@@ -359,13 +360,13 @@ int16_t General_WrapPara(char* this_line_start, char* formatted_text, int16_t re
 					if (this_line_len > 0)
 					{
 						// we already have some words, so end the current line and continue
-						General_WrapParaWriteLine(&this_line_start, &formatted_text, this_line_len);
+						General_WrapParaWriteLine(&this_line_start, formatted_text, this_line_len);
 						this_line_len = 0;
 					}
 					else
 					{
 						// the whole string is word-break-less: we must force a break
-						General_WrapParaWriteLine(&this_line_start, &formatted_text, chars_that_fit);
+						General_WrapParaWriteLine(&this_line_start, formatted_text, chars_that_fit);
 					}
 				}
 				
@@ -394,7 +395,7 @@ int16_t General_WrapPara(char* this_line_start, char* formatted_text, int16_t re
 					// either we got an error, or all the characters will not fit on this line
 					// in either case, end the current line, write it to formatted
 
-					General_WrapParaWriteLine(&this_line_start, &formatted_text, this_line_len);
+					General_WrapParaWriteLine(&this_line_start, formatted_text, this_line_len);
 
 					this_line_len = 0;
 
@@ -408,7 +409,7 @@ int16_t General_WrapPara(char* this_line_start, char* formatted_text, int16_t re
 					{
 						// handle error condition: having completed the current line, force function to exit with an error.
 						LOG_ERR(("%s %d: next_line_len=%i, this_line_start='%s'", __func__, __LINE__, next_line_len, this_line_start));	
-						*(formatted_text) = '\0';
+						*(*(formatted_text)) = '\0';
 						return -1;
 					}
 				}
@@ -563,7 +564,7 @@ int16_t General_WrapAndTrimTextToFit(char** orig_string, char** formatted_string
 			}		
 				
 			// process one paragraph
-			new_v_pixels_used = General_WrapPara(para_to_process, formatted_text, len_to_process, max_width, remaining_v_pixels, one_row_height, one_char_width, the_font, measure_function);		
+			new_v_pixels_used = General_WrapPara(para_to_process, formatted_string, len_to_process, max_width, remaining_v_pixels, one_row_height, one_char_width, the_font, measure_function);		
 		}
 	
 		if (new_v_pixels_used == -1)
@@ -574,6 +575,7 @@ int16_t General_WrapAndTrimTextToFit(char** orig_string, char** formatted_string
 			v_pixels += new_v_pixels_used;
 			remaining_v_pixels -= new_v_pixels_used;
 			remaining_len -= len_to_process;
+
 			formatted_text += len_to_process;
 			remaining_text += len_to_process;
 			
@@ -1945,7 +1947,7 @@ bool Text_DrawStringAtXY(Screen* the_screen, int16_t x, int16_t y, char* the_str
 //! @param	back_color: Index to the desired background color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
 //! @param	continue_function: optional hook to a function that will be called if the provided text cannot fit into the specified box. If provided, the function will be called each time text exceeds available space. If the function returns true, another chunk of text will be displayed, replacing the first. If the function returns false, processing will stop. If no function is provided, processing will stop at the point text exceeds the available space.
 //! @return	Returns a pointer to the first character in the string after which it stopped processing (if string is too long to be displayed in its entirety). Returns the original string if the entire string was processed successfully. Returns NULL in the event of any error.
-char* Text_DrawStringInBox(Screen* the_screen, int16_t x1, int16_t y1, int16_t x2, int16_t y2, char* the_string, uint8_t fore_color, uint8_t back_color, bool (* continue_function)(void))
+char* Text_DrawStringInBox(Screen* the_screen, int16_t x1, int16_t y1, int16_t x2, int16_t y2, char* the_string, char** work_buffer, uint8_t fore_color, uint8_t back_color, bool (* continue_function)(void))
 {
 	char*			the_char_loc;
 	char*			needs_formatting;
@@ -1992,7 +1994,7 @@ char* Text_DrawStringInBox(Screen* the_screen, int16_t x1, int16_t y1, int16_t x
 	// LOGIC: text mode only supports 16 colors. lower 4 bits are back, upper 4 bits are foreground
 	the_attribute_value = ((fore_color << 4) | back_color);
 
-	formatted_string = the_screen->text_temp_buffer_2_;
+	formatted_string = *work_buffer;
 	needs_formatting = the_string;
 	needed_formatting_last_round = needs_formatting;
 
@@ -2011,10 +2013,10 @@ char* Text_DrawStringInBox(Screen* the_screen, int16_t x1, int16_t y1, int16_t x
 		orig_len = remaining_len;
 
 		// clear out the word wrap buffer in case anything had been there before. Shouldn't be necessary, but something weird happening in some cases with 2nd+ wrap, and this does prevent it.
-		memset(formatted_string, 0, TEXT_COL_COUNT_FOR_PLOTTING_A2560K * TEXT_ROW_COUNT_FOR_PLOTTING_A2560K + 1);
+		memset(*work_buffer, 0, WORD_WRAP_MAX_LEN);
 		
 		// format the string into chunks that will fit in the width specified, with line breaks on each line
-		v_pixels = General_WrapAndTrimTextToFit(&needs_formatting, &formatted_string, orig_len, max_pix_width, max_pix_height, the_screen->text_font_width_, the_screen->text_font_height_, NULL, &Text_MeasureStringWidth);
+		v_pixels = General_WrapAndTrimTextToFit(&needs_formatting, work_buffer, orig_len, max_pix_width, max_pix_height, the_screen->text_font_width_, the_screen->text_font_height_, NULL, &Text_MeasureStringWidth);
 		num_rows = v_pixels / the_screen->text_font_height_;
 	
 		// LOGIC:

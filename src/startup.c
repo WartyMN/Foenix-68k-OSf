@@ -6974,11 +6974,7 @@ bool Startup_CopyCLUTtoVicky(Screen* the_screen)
 	char*		dest;
 	size_t		data_size = 0x400;
 	
-	#ifdef _C256_FMX_
-		dest = (char*)VICKY_II_CLUT0;
-	#else
-		dest = (char*)P32(the_screen->vicky_ + CLUT0_OFFSET_L);
-	#endif
+	dest = (char*)P32(the_screen->vicky_ + CLUT0_OFFSET_L);
 	
 	memcpy(dest, (uint8_t*)splash_clut, data_size);
 	
@@ -7087,7 +7083,7 @@ bool Startup_ShowSplash(void)
 
 	R32(VICKYB_BORDER_COLOR_A2560K) = 0x01;
 	R32(VICKYB_BACK_COLOR_A2560K) = 0x01;
-	Sys_SetModeGraphics(global_system);
+	Sys_SetGraphicMode(global_system, PARAM_SPRITES_OFF, PARAM_BITMAP_ON, PARAM_TILES_OFF, PARAM_TEXT_OVERLAY_ON, PARAM_TEXT_ON);
 	
 	screen_bitmap = Sys_GetScreenBitmap(global_system, back_layer);
 	

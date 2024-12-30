@@ -156,7 +156,7 @@ static void Control_DrawCaption(Control* the_control)
 	return;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 
@@ -298,7 +298,7 @@ Control* Control_New(ControlTemplate* the_template, Window* the_window, Rectangl
 	
 error:
 	if (the_control)					Control_Destroy(&the_control);
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return NULL;
 }
 
@@ -327,7 +327,7 @@ bool Control_Destroy(Control** the_control)
 	return true;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
 }
 
@@ -385,7 +385,7 @@ bool Control_UpdateFromTemplate(Control* the_control, ControlTemplate* the_templ
 	return true;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
 }
 
@@ -406,7 +406,7 @@ bool Control_SetNextControl(Control* the_control, Control* the_next_control)
 	return true;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
 }
 
@@ -428,7 +428,7 @@ void Control_SetActive(Control* the_control, bool is_active)
 	return;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 
@@ -450,7 +450,7 @@ void Control_SetPressed(Control* the_control, bool is_pressed)
 	return;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 
@@ -470,7 +470,7 @@ void Control_MarkInvalidated(Control* the_control, bool invalidated)
 	return;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 
@@ -542,7 +542,7 @@ void Control_AlignToParentRect(Control* the_control)
 	return;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 
@@ -571,7 +571,7 @@ uint16_t Control_GetID(Control* the_control)
 	return the_control->id_;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return -1;
 }
 
@@ -589,7 +589,7 @@ Control* Control_GetNextControl(Control* the_control)
 	return the_control->next_;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return NULL;
 }
 
@@ -607,7 +607,7 @@ control_type Control_GetType(Control* the_control)
 	return the_control->type_;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return CONTROL_TYPE_ERROR;
 }
 
@@ -625,7 +625,7 @@ bool Control_GetPressed(Control* the_control)
 	return the_control->pressed_;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
 }
 
@@ -650,7 +650,7 @@ bool Control_IsRighter(Control* the_control, int16_t* x)
 	return false;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
 }
 
@@ -674,7 +674,7 @@ bool Control_IsLefter(Control* the_control, int16_t* x)
 	return false;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
 }
 
@@ -742,7 +742,7 @@ void Control_Render(Control* the_control)
 	return;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 

@@ -150,26 +150,58 @@ extern System*			global_system;
 		// set up UART for serial comms
 		void Serial_InitUART(void)
 		{
-			R8(UART_LCR) = UART_DATA_BITS | UART_STOP_BITS | UART_PARITY | UART_NO_BRK_SIG;
+			R8(UART_LCR) = UART_DATA_BITS;	// 8 bits, no parity, 1 stop bit, no break signal required
 			Serial_SetDLAB();
-			R16(UART_DLL) = UART_BAUD_DIV_57600;
+			//R16(UART_DLL) = UART_BAUD_DIV_57600;
+			//R16(UART_DLL) = BSWAP(UART_BAUD_DIV_57600);
+			//printf(" UART_BAUD_DIV_57600=%x, swapped=%x \n", UART_BAUD_DIV_57600, BSWAP(UART_BAUD_DIV_57600));
+			//printf(" UART_BAUD_DIV_57600 MSB=%x, LSB=%x \n", (UART_BAUD_DIV_57600 >> 8) & 0xFF, UART_BAUD_DIV_57600 & 0xFF);
+			R8(UART_DLL) = UART_BAUD_DIV_9600 & 0xFF;
+			R8(UART_DLM) = (UART_BAUD_DIV_9600 >> 8) & 0xFF;
+			
 			Serial_ClearDLAB();
+
+			//R8(UART_FCR) = 0xc1;	// enable FIFO mode - pjw example. same as UART_IIR
+
+	// no idea what this does. copying blindly from EMWhite's BASIC example
+	R8(UART_IIR) = 231;
+	R8(UART_IER) = 0;	// probably turns off interrupts
+
+	// Read and clear status registers
+	uint8_t		junk;
+	junk = R8(UART_LSR);
+	junk = R8(UART_MSR);
+
+// 			// check for an error, and clear it by reading LSR
+// 			uint8_t		error_check;
+// 			
+// 			error_check = R8(UART_LSR) & UART_ERROR_MASK;
+// 			
+// 			if (error_check > 0)
+// 			{
+// 				R8(UART_BASE);
+// 			}
+
+
 		}
-		
+
+
 		// send a byte over the UART serial connection
 		// if the UART send buffer does not have space for the byte, it will try for UART_MAX_SEND_ATTEMPTS then return an error
 		// returns false on any error condition
 		bool Serial_SendByte(uint8_t the_byte)
 		{
-			uint8_t		error_check;
+			uint8_t		error_code;
 			bool		uart_in_buff_is_empty = false;
 			uint16_t	num_tries = 0;
 			
-			error_check = R8(UART_LSR) & UART_ERROR_MASK;
+			error_code = R8(UART_LSR) & UART_ERROR_MASK;
 			
-			if (error_check > 0)
+			if (error_code > 0)
 			{
-				goto error;
+				// try to clear error. 
+				error_code = R8(UART_LSR);
+				error_code = R8(UART_MSR);
 			}
 			
 			while (uart_in_buff_is_empty == false && num_tries < UART_MAX_SEND_ATTEMPTS)
@@ -180,6 +212,7 @@ extern System*			global_system;
 			
 			if (uart_in_buff_is_empty == true)
 			{
+				printf(" in buff was still full after all tries \n");
 				goto error;
 			}
 			
@@ -188,6 +221,7 @@ extern System*			global_system;
 			return true;
 			
 			error:
+				printf(" serial send hit error condition \n");
 				return false;
 		}
 		
@@ -199,9 +233,11 @@ extern System*			global_system;
 			uint16_t	i;
 			uint8_t		the_byte;
 			
+printf("serial debug trying to send buffer of size %u: '%s' \n", buffer_size, the_buffer);
 			if (buffer_size > 256)
 			{
-				return 0;
+				buffer_size = 256;
+				//return 0;
 			}
 			
 			for (i=0; i <= buffer_size; i++)
@@ -340,6 +376,7 @@ extern System*			global_system;
 // globals for the log file
 bool General_LogInitialize(void)
 {
+printf("initializing logging... \n");
 
 	#if defined USE_SERIAL_LOGGING
 		// LOGIC FOR SERIAL LOGGING:
@@ -348,12 +385,15 @@ bool General_LogInitialize(void)
 		//   no READING of the serial port happens. just writing to it.
 		//   UART setup is based on mgr42's dcopy project, the uart.asm file.
 		//   linux/mac setup for using 'screen' command as terminal: screen /dev/tty.usbserial-FT53JP031 300,cs8,-ixon,-ixoff,-istrip,-parenb
+printf("Configuring UART for serial logging... \n");
 
 		Serial_InitUART();
 
 	#else
-		const char*		the_file_path = "osf_sys_log.txt";
+		const char*		the_file_path = "/sd/osf_sys_log2.txt";
 	
+printf("Opening log file for disk logging... \n");
+
 		debug_log_file = fopen( the_file_path, "w");
 		
 		if (debug_log_file == NULL)
@@ -376,6 +416,7 @@ void General_LogCleanUp(void)
 	#else
 		if (debug_log_file != NULL)
 		{
+			fprintf(debug_log_file, "*** end of log entries ***\n");
 			fclose(debug_log_file);
 		}
 	#endif

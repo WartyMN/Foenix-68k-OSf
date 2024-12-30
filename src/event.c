@@ -191,7 +191,7 @@ EventRecord* Event_New(void)
 	
 error:
 	if (the_event)					Event_Destroy(&the_event);
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return NULL;
 }
 
@@ -213,7 +213,7 @@ bool Event_Destroy(EventRecord** the_event)
 	return true;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
 }
 
@@ -262,7 +262,7 @@ EventManager* EventManager_New(void)
 	
 error:
 	if (the_event_manager)					EventManager_Destroy(&the_event_manager);
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return NULL;
 }
 
@@ -294,7 +294,7 @@ bool EventManager_Destroy(EventManager** the_event_manager)
 	return true;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
 }
 
@@ -659,7 +659,7 @@ void EventManager_HandleMouseUp(EventManager* the_event_manager, EventRecord* th
 	return;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 
@@ -768,7 +768,7 @@ void EventManager_HandleMouseDown(EventManager* the_event_manager, EventRecord* 
 	return;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 
@@ -841,7 +841,7 @@ void EventManager_HandleRightMouseDown(EventManager* the_event_manager, EventRec
 	return;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 

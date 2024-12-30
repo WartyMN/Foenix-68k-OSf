@@ -27,9 +27,9 @@
 // C includes
 #include <stdbool.h>
 
-
 // A2560 includes
 #include "a2560k.h"
+//#include <mcp/syscalls.h>
 
 
 
@@ -172,8 +172,8 @@ int main(int argc, char* argv[])
 	DEBUG_OUT(("%s %d: Setting graphics mode...", __func__, __LINE__));
 
 	
-	Sys_SetModeGraphics(global_system);
-	printf("now in graphics mode");
+	Sys_SetGraphicMode(global_system, PARAM_SPRITES_OFF, PARAM_BITMAP_ON, PARAM_TILES_OFF, PARAM_TEXT_OVERLAY_ON, PARAM_TEXT_ON);
+	printf("now in graphics mode with text overlay");
 
 
 	MU_RUN_SUITE(test_suite_units);

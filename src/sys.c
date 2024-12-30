@@ -18,6 +18,7 @@
 #include "debug.h"
 #include "event.h"
 #include "font.h"
+#include "general.h"
 #include "list.h"
 #include "menu.h"
 #include "sys.h"
@@ -98,11 +99,28 @@ void Sys_UpdateWindowTheme(System* the_system);
 
 void Sys_RenumberWindows(System* the_system);
 
+//! Event handler for the backdrop window
+void Window_BackdropWinEventHandler(EventRecord* the_event);
+
 // enable or disable the gamma correction 
 bool Sys_SetGammaMode(System* the_system, Screen* the_screen, bool enable_it);
 
-//! Event handler for the backdrop window
-void Window_BackdropWinEventHandler(EventRecord* the_event);
+//! Find out what kind of machine the software is running on, and determine # of screens available
+//! @param	the_system: valid pointer to system object
+//! @return	Returns false if the machine is known to be incompatible with this software. 
+bool Sys_AutoDetectMachine(System* the_system);
+
+//! Find out what kind of machine the software is running on, and configure the passed screen accordingly
+//! Configures screen settings, RAM addresses, etc. based on known info about machine types
+//! Configures screen width, height, total text rows and cols, and visible text rows and cols by checking hardware
+//! @param	the_system: valid pointer to system object
+//! @return	Returns false if the machine is known to be incompatible with this software. 
+bool Sys_AutoConfigure(System* the_system);
+
+//! Detect the current screen mode/resolution, and set # of columns, rows, H pixels, V pixels, accordingly
+//! @param	the_screen: valid pointer to the target screen to operate on
+//! @return	returns false on any error/invalid input.
+bool Sys_DetectScreenSize(Screen* the_screen);
 
 
 
@@ -112,6 +130,51 @@ void Window_BackdropWinEventHandler(EventRecord* the_event);
 /*****************************************************************************/
 
 
+
+
+//! Instruct all windows to close / clean themselves up
+//! @param	the_system: valid pointer to system object
+void Sys_DestroyAllWindows(System* the_system)
+{
+	int16_t		num_nodes = 0;
+	List*		the_item;
+	
+ 	if (the_system == NULL)
+ 	{
+		LOG_ERR(("%s %d: passed class object was null", __func__ , __LINE__));
+		goto error;
+ 	}
+	
+	if (the_system->list_windows_ == NULL)
+	{
+		DEBUG_OUT(("%s %d: the window list was NULL", __func__ , __LINE__));
+		goto error;
+	}
+	
+	the_item = *(the_system->list_windows_);
+
+	while (the_item != NULL)
+	{
+		Window*		this_window = (Window*)(the_item->payload_);
+		
+		Window_Destroy(&this_window);
+		++num_nodes;
+		--the_system->window_count_;
+
+		the_item = the_item->next_item_;
+	}
+
+	// now free up the list items themselves
+	List_Destroy(the_system->list_windows_);
+
+	DEBUG_OUT(("%s %d: %i windows closed", __func__ , __LINE__, num_nodes));
+	
+	return;
+	
+error:
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
+	return;
+}
 
 
 //! Instruct every window to update itself and its controls to match the system's current theme
@@ -140,7 +203,7 @@ void Sys_UpdateWindowTheme(System* the_system)
 	return;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 
@@ -189,7 +252,7 @@ void Sys_RenumberWindows(System* the_system)
 	return;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 
@@ -201,390 +264,6 @@ void Window_BackdropWinEventHandler(EventRecord* the_event)
 }
 
 
-// // interrupt 1 is PS2 keyboard, interrupt 2 is A2560K keyboard
-// void Sys_InterruptKeyboard(void)
-// {
-// 	kbd_handle_irq();
-// }
-
-// 
-// // interrupt 4 is PS2 mouse
-// void Sys_InterruptMouse(void);
-
-
-// **** Debug functions *****
-
-void Sys_Print(System* the_system)
-{
-	DEBUG_OUT(("System print out:"));
-	DEBUG_OUT(("  address: %p", 			the_system));
-	DEBUG_OUT(("  event_manager_: %p", 		the_system->event_manager_));
-	DEBUG_OUT(("  menu_manager_: %p", 		the_system->menu_manager_));
-	DEBUG_OUT(("  system_font_: %p", 		the_system->system_font_));
-	DEBUG_OUT(("  app_font_: %p",			the_system->app_font_));
-	DEBUG_OUT(("  theme_: %p",				the_system->theme_));
-	DEBUG_OUT(("  num_screens_: %i",		the_system->num_screens_));
-	DEBUG_OUT(("  window_count_: %i",		the_system->window_count_));
-	DEBUG_OUT(("  active_window_: %p",		the_system->active_window_));
-	DEBUG_OUT(("  model_number_: %i",		the_system->model_number_));
-}
-
-
-void Sys_PrintScreen(Screen* the_screen)
-{
-	DEBUG_OUT(("Screen print out:"));
-	DEBUG_OUT(("  address: %p", 			the_screen));
-	DEBUG_OUT(("  id_: %i", 				the_screen->id_));
-	DEBUG_OUT(("  vicky_: %p", 				the_screen->vicky_));
-	DEBUG_OUT(("  width_: %i", 				the_screen->width_));
-	DEBUG_OUT(("  height_: %i", 			the_screen->height_));
-	DEBUG_OUT(("  text_cols_vis_: %i", 		the_screen->text_cols_vis_));
-	DEBUG_OUT(("  text_rows_vis_: %i", 		the_screen->text_rows_vis_));
-	DEBUG_OUT(("  text_mem_cols_: %i", 		the_screen->text_mem_cols_));
-	DEBUG_OUT(("  text_mem_rows_: %i", 		the_screen->text_mem_rows_));
-	DEBUG_OUT(("  text_ram_: %p", 			the_screen->text_ram_));
-	DEBUG_OUT(("  text_attr_ram_: %p", 		the_screen->text_attr_ram_));
-	DEBUG_OUT(("  text_font_ram_: %p", 		the_screen->text_font_ram_));
-	DEBUG_OUT(("  bitmap_[0]: %p", 			the_screen->bitmap_[0]));
-	DEBUG_OUT(("  bitmap_[1]: %p", 			the_screen->bitmap_[1]));
-	DEBUG_OUT(("  text_font_height_: %i",	the_screen->text_font_height_));
-	DEBUG_OUT(("  text_font_width_: %i",	the_screen->text_font_width_));
-}
-
-
-
-/*****************************************************************************/
-/*                        Public Function Definitions                        */
-/*****************************************************************************/
-
-// **** CONSTRUCTOR AND DESTRUCTOR *****
-
-// constructor
-System* Sys_New(void)
-{
-	System*			the_system;
-	int16_t			i;
-	
-	
-	// LOGIC:
-	
-	if ( (the_system = (System*)calloc(1, sizeof(System)) ) == NULL)
-	{
-		LOG_ERR(("%s %d: could not allocate memory to create new system", __func__ , __LINE__));
-		goto error;
-	}
-	LOG_ALLOC(("%s %d:	__ALLOC__	the_system	%p	size	%i", __func__ , __LINE__, the_system, sizeof(System)));
-	
-	DEBUG_OUT(("%s %d: System object created ok...", __func__ , __LINE__));
-
-	// event manager
-	if ( (the_system->event_manager_ = EventManager_New() ) == NULL)
-	{
-		LOG_ERR(("%s %d: could not allocate memory to create the event manager", __func__ , __LINE__));
-		goto error;
-	}
-
-	DEBUG_OUT(("%s %d: EventManager created ok. Detecting hardware...", __func__ , __LINE__));
-	
-	// check what kind of hardware the system is running on
-	// LOGIC: we need to know how many screens it has before allocating screen objects
-	if (Sys_AutoDetectMachine(the_system) == false)
-	{
-		LOG_ERR(("%s %d: Detected machine hardware is incompatible with this software", __func__ , __LINE__));
-		goto error;
-	}
-	
-	DEBUG_OUT(("%s %d: Hardware detected (%u screens). Creating screens...", __func__ , __LINE__, the_system->num_screens_));
-
-	// screens
-	for (i = 0; i < the_system->num_screens_; i++)
-	{
-		if ( (the_system->screen_[i] = (Screen*)calloc(1, sizeof(Screen)) ) == NULL)
-		{
-			LOG_ERR(("%s %d: could not allocate memory to create screen object", __func__ , __LINE__));
-			goto error;
-		}
-		LOG_ALLOC(("%s %d:	__ALLOC__	the_system->screen_[%i]	%p	size	%i", __func__ , __LINE__, i, the_system->screen_[i], sizeof(Screen)));
-		
-		the_system->screen_[i]->id_ = i;
-	}
-
-	DEBUG_OUT(("%s %d: Screen(s) created ok.", __func__ , __LINE__, i));
-	
-	// for systems with only one screen, we will point the 2nd screen to the first, so that any call to 2nd screen works as if it was a call to the first. 
-	if (the_system->num_screens_ == 1)
-	{
-		the_system->screen_[1] = the_system->screen_[0];
-	}
-
-	DEBUG_OUT(("%s %d: returning to SysInit()...", __func__ , __LINE__, i));
-	
-	// LOGIC: we don't have font info yet; just want to make it clear these are not set and not rely on compiler behavior
-	the_system->system_font_ = NULL;
-	the_system->app_font_ = NULL;
-	the_system->theme_ = NULL;
-	the_system->active_window_ = NULL;
-	the_system->window_count_ = 0;
-	
-	return the_system;
-	
-error:
-	if (the_system)					Sys_Destroy(&the_system);
-	return NULL;
-}
-
-
-// destructor
-// frees all allocated memory associated with the passed object, and the object itself
-//! @param	the_system: valid pointer to system object
-bool Sys_Destroy(System** the_system)
-{
-	int16_t	i;
-	
-	if (*the_system == NULL)
-	{
-		LOG_ERR(("%s %d: passed class object was null", __func__ , __LINE__));
-		return false;
-	}
-
-	for (i = 0; i < 2; i++)
-	{
-		if ((*the_system)->screen_[i])
-		{
-			LOG_ALLOC(("%s %d:	__FREE__	(*the_system)->screen_[i]	%p	size	%i", __func__ , __LINE__, (*the_system)->screen_[i], sizeof(Screen)));
-			free((*the_system)->screen_[i]);
-			(*the_system)->screen_[i] = NULL;
-		}
-	}
-
-	if ((*the_system)->system_font_)
-	{
-		Font_Destroy(&(*the_system)->system_font_);
-	}
-
-	if ((*the_system)->app_font_)
-	{
-		Font_Destroy(&(*the_system)->app_font_);
-	}
-
-	if ((*the_system)->menu_manager_)
-	{
-		Menu_Destroy(&(*the_system)->menu_manager_);
-	}
-
-	if ((*the_system)->event_manager_)
-	{
-		EventManager_Destroy(&(*the_system)->event_manager_);
-	}
-
-	if ((*the_system)->list_windows_)
-	{
-		Sys_DestroyAllWindows(*the_system);
-	}
-
-
-	LOG_ALLOC(("%s %d:	__FREE__	*the_system	%p	size	%i", __func__ , __LINE__, *the_system, sizeof(System)));
-	free(*the_system);
-	*the_system = NULL;
-
-	DEBUG_OUT(("%s %d: **** SYSTEM EXIT ON ERROR! ****", __func__, __LINE__));
-	
-	exit(-1);
-	
-	return true;
-}
-
-
-//! Instruct all windows to close / clean themselves up
-//! @param	the_system: valid pointer to system object
-void Sys_DestroyAllWindows(System* the_system)
-{
-	int16_t		num_nodes = 0;
-	List*		the_item;
-	
- 	if (the_system == NULL)
- 	{
-		LOG_ERR(("%s %d: passed class object was null", __func__ , __LINE__));
-		goto error;
- 	}
-	
-	if (the_system->list_windows_ == NULL)
-	{
-		DEBUG_OUT(("%s %d: the window list was NULL", __func__ , __LINE__));
-		goto error;
-	}
-	
-	the_item = *(the_system->list_windows_);
-
-	while (the_item != NULL)
-	{
-		Window*		this_window = (Window*)(the_item->payload_);
-		
-		Window_Destroy(&this_window);
-		++num_nodes;
-		--the_system->window_count_;
-
-		the_item = the_item->next_item_;
-	}
-
-	// now free up the list items themselves
-	List_Destroy(the_system->list_windows_);
-
-	DEBUG_OUT(("%s %d: %i windows closed", __func__ , __LINE__, num_nodes));
-	
-	return;
-	
-error:
-	Sys_Destroy(&global_system);	// crash early, crash often
-	return;
-}
-
-
-
-// **** System Initialization functions *****
-
-//! Initialize the system (primary entry point for all system initialization activity)
-//! Starts up the memory manager, creates the global system object, runs autoconfigure to check the system hardware, loads system and application fonts, allocates a bitmap for the screen.
-bool Sys_InitSystem(System* the_system)
-{
-	Font*		the_system_font;
-	Font*		the_icon_font;
-	Theme*		the_theme;
-	int16_t		i;
-	
-// 	// set the global variable that other classes/libraries need access to.
-// 	global_system = the_system;
-
-	DEBUG_OUT(("%s %d: Running Autoconfigure...", __func__, __LINE__));
-	
-	if (Sys_AutoConfigure(global_system) == false)
-	{
-		LOG_ERR(("%s %d: Auto configure failed", __func__, __LINE__));
-		goto error;
-	}
-
-	// LOGIC:
-	//   load default theme so that fonts are available
-	//   having system fonts in lib sys so they are guaranteed is good, but once a theme is loaded it replaces theme
-	//   so default theme needs to know how to reload them in case user switches back
-	//   better to have it consistent: theme is responsible for loading and setting system fonts
-	
-	DEBUG_OUT(("%s %d: loading default theme...", __func__, __LINE__));
-	
-	if ( (the_theme = Theme_CreateDefaultTheme(THEME_PARAM_FULL_RESOURCES) ) == NULL)
-	{
-		LOG_ERR(("%s %d: Failed to create default system theme", __func__, __LINE__));
-		goto error;
-	}
-	
-	Theme_Activate(the_theme);
-	
-	DEBUG_OUT(("%s %d: Default theme loaded ok. Creating menu manager...", __func__ , __LINE__));
-	
-	// menu manager
-	if ( (global_system->menu_manager_ = Menu_New() ) == NULL)
-	{
-		LOG_ERR(("%s %d: could not allocate memory to create the menu manager", __func__ , __LINE__));
-		goto error;
-	}	
-
-	DEBUG_OUT(("%s %d: allocating screen bitmap...", __func__, __LINE__));
-	
-	// allocate the foreground and background bitmaps, then assign them fixed locations in VRAM
-	
-	// LOGIC: 
-	//   The only bitmaps we want pointing to VRAM locations are the system's layer0 and layer1 bitmaps for the screen
-	//   Only 1 screen has bitmapped graphics
-	//   We assign them fixed spaces in VRAM, 800*600 apart, so that the addresses are good even on a screen resolution change. 
-	
-	for (i = 0; i < 2; i++)
-	{
-		Bitmap*		the_bitmap;
-
-		if ( (the_bitmap = Bitmap_New(global_system->screen_[ID_CHANNEL_B]->width_, global_system->screen_[ID_CHANNEL_B]->height_, Sys_GetSystemFont(global_system), PARAM_IN_VRAM)) == NULL)
-		{
-			LOG_ERR(("%s %d: Failed to create bitmap #%i", __func__, __LINE__, i));
-			goto error;
-		}
-
-		the_bitmap->addr_int_ = (uint32_t)VRAM_START + (uint32_t)i * (uint32_t)VRAM_OFFSET_TO_NEXT_SCREEN;
-		the_bitmap->addr_ = (unsigned char*)the_bitmap->addr_int_;
-
-		//DEBUG_OUT(("%s %d: bitmap addr_int_=%lx, addr_=%p", __func__, __LINE__, the_bitmap->addr_int_, the_bitmap->addr_));
-		
-		Sys_SetScreenBitmap(global_system, the_bitmap, i);
-		
-		// clear the bitmap
-		Bitmap_FillMemory(the_bitmap, 0x00);
-	}
-	
-
-// 	// load the splash screen and progress bar
-// 	if (Startup_ShowSplash() == false)
-// 	{
-// 		LOG_ERR(("%s %d: Failed to load splash screen. Oh, no!", __func__, __LINE__));
-// 		// but who cares, just continue on... 
-// 	}
-
-	// create the backdrop window and add it to the list of the windows the system tracks
-	
-	// LOGIC:
-	//   Every app will use (or at least have access to) the backdrop window
-	//   The backdrop window shares the same bitmap as the Screen
-	//   The backdrop window will catch events that drop through the windows in the foreground
-	
-	if ( Sys_CreateBackdropWindow(global_system) == false)
-	{
-		LOG_ERR(("%s %d: Failed to create a backdrop window. Fatal error.", __func__, __LINE__));
-		goto error;
-	}
-	
-	// Enable mouse pointer -- no idea if this works, f68 emulator doesn't support mouse yet. 
-	//R32(VICKYB_MOUSE_CTRL_A2560K) = 1;
-	
-	// set interrupt handlers
-//	ps2_init();
-//	global_old_keyboard_interrupt = sys_int_register(INT_KBD_PS2, &Sys_InterruptKeyboard);
-// 	global_old_keyboard_interrupt = sys_int_register(INT_KBD_A2560K, &Sys_InterruptKeyboard);
-// 	global_old_mouse_interrupt = sys_int_register(INT_MOUSE, &Sys_InterruptKeyboard);
-
-	DEBUG_OUT(("%s %d: System initialization complete.", __func__, __LINE__));
-
-	return true;
-	
-error:
-	Sys_Destroy(&global_system);	// crash early, crash often
-	return false;
-}
-
-
-
-
-
-// **** Event-handling functions *****
-
-// see MCP's ps2.c for real examples once real machine available
-
-// // interrupt 1 is PS2 keyboard, interrupt 2 is A2560K keyboard
-// void Sys_InterruptKeyboard(void)
-// {
-// 	printf("keyboard!\n");
-// 	return;
-// }
-// 
-// // interrupt 4 is PS2 mouse
-// void Sys_InterruptMouse(void)
-// {
-// 	printf("mouse!\n");
-// 	return;
-// }
-
-
-
-
-// **** Screen mode/resolution/size functions *****
-
-
 //! Find out what kind of machine the software is running on, and determine # of screens available
 //! @param	the_system: valid pointer to system object
 //! @return	Returns false if the machine is known to be incompatible with this software. 
@@ -592,6 +271,10 @@ bool Sys_AutoDetectMachine(System* the_system)
 {
 	struct s_sys_info	sys_info;
 	struct s_sys_info*	the_sys_info = &sys_info; // doing this convoluted thing so that C256 macro can fake having sys_get_info
+
+	// MB: this is another way to get it, without depending on MCP:
+	// 	uint8_t	the_machine_id;	
+	// 	the_machine_id = (R8(MACHINE_ID_REGISTER) & MACHINE_MODEL_MASK);	
 
 	sys_get_info(the_sys_info);
 	
@@ -668,14 +351,14 @@ bool Sys_AutoConfigure(System* the_system)
 			the_system->model_number_ == MACHINE_A2560K40 ||
 			the_system->model_number_ == MACHINE_A2560K60 )
 	{
-		the_system->screen_[ID_CHANNEL_A]->vicky_ = P32(VICKY_A2560K_A);
+		the_system->screen_[ID_CHANNEL_A]->vicky_ = P32(VICKY_A_BASE_ADDRESS);
 		the_system->screen_[ID_CHANNEL_A]->text_ram_ = TEXTA_RAM_A2560K;
 		the_system->screen_[ID_CHANNEL_A]->text_attr_ram_ = TEXTA_ATTR_A2560K;
 		the_system->screen_[ID_CHANNEL_A]->text_font_ram_ = FONT_MEMORY_BANKA_A2560K;
 		the_system->screen_[ID_CHANNEL_A]->text_color_fore_ram_ = (char*)TEXTA_FORE_LUT_A2560K;
 		the_system->screen_[ID_CHANNEL_A]->text_color_back_ram_ = (char*)TEXTA_BACK_LUT_A2560K;
 
-		the_system->screen_[ID_CHANNEL_B]->vicky_ = P32(VICKY_A2560K_B);
+		the_system->screen_[ID_CHANNEL_B]->vicky_ = P32(VICKY_B_BASE_ADDRESS);
 		the_system->screen_[ID_CHANNEL_B]->text_ram_ = TEXTB_RAM_A2560K;
 		the_system->screen_[ID_CHANNEL_B]->text_attr_ram_ = TEXTB_ATTR_A2560K;
 		the_system->screen_[ID_CHANNEL_B]->text_font_ram_ = FONT_MEMORY_BANKB_A2560K;
@@ -686,6 +369,7 @@ bool Sys_AutoConfigure(System* the_system)
 	{
 		DEBUG_OUT(("%s %d: this system %i not supported!", __func__, __LINE__, the_system->model_number_));
 	}
+
 	
 // 	switch (the_system->model_number_)
 // 	{
@@ -718,12 +402,12 @@ bool Sys_AutoConfigure(System* the_system)
 // 			
 // 		case MACHINE_A2560X:
 // 		case MACHINE_A2560K:			
-// 			the_system->screen_[ID_CHANNEL_A]->vicky_ = P32(VICKY_A2560K_A);
+// 			the_system->screen_[ID_CHANNEL_A]->vicky_ = P32(VICKY_A_BASE_ADDRESS);
 // 			the_system->screen_[ID_CHANNEL_A]->text_ram_ = TEXTA_RAM_A2560K;
 // 			the_system->screen_[ID_CHANNEL_A]->text_attr_ram_ = TEXTA_ATTR_A2560K;
 // 			the_system->screen_[ID_CHANNEL_A]->text_font_ram_ = FONT_MEMORY_BANKA_A2560K;
 // 
-// 			the_system->screen_[ID_CHANNEL_B]->vicky_ = P32(VICKY_A2560K_B);
+// 			the_system->screen_[ID_CHANNEL_B]->vicky_ = P32(VICKY_B_BASE_ADDRESS);
 // 			the_system->screen_[ID_CHANNEL_B]->text_ram_ = TEXTB_RAM_A2560K;
 // 			the_system->screen_[ID_CHANNEL_B]->text_attr_ram_ = TEXTB_ATTR_A2560K;
 // 			the_system->screen_[ID_CHANNEL_B]->text_font_ram_ = FONT_MEMORY_BANKB_A2560K;
@@ -743,10 +427,8 @@ bool Sys_AutoConfigure(System* the_system)
 	{
 		the_system->screen_[i]->rect_.MinX = 0;
 		the_system->screen_[i]->rect_.MinY = 0;	
-		the_system->screen_[i]->text_temp_buffer_1_[0] = '\0';
-		the_system->screen_[i]->text_temp_buffer_2_[0] = '\0';
-		the_system->screen_[i]->text_font_width_ = TEXT_FONT_WIDTH_A2560;
-		the_system->screen_[i]->text_font_height_ = TEXT_FONT_HEIGHT_A2560;
+		the_system->screen_[i]->text_font_width_ = TEXT_FONT_WIDTH;
+		the_system->screen_[i]->text_font_height_ = TEXT_FONT_HEIGHT;
 
 		// use auto configure to set resolution, text cols, margins, etc
 		if (Sys_DetectScreenSize(the_system->screen_[i]) == false)
@@ -756,8 +438,16 @@ bool Sys_AutoConfigure(System* the_system)
 		}
 
 		// set standard color LUTs for text mode
-		memcpy(the_system->screen_[i]->text_color_fore_ram_, &standard_text_color_lut, 64);
-		memcpy(the_system->screen_[i]->text_color_back_ram_, &standard_text_color_lut, 64);
+// printf("about to copy text fore lut for screen %u... \n", i);
+// printf("the_system->screen_[i]->text_color_fore_ram_ = %p... \n", the_system->screen_[i]->text_color_fore_ram_);
+// General_DelaySeconds(2);
+// 		memcpy(the_system->screen_[i]->text_color_fore_ram_, &standard_text_color_lut, 64);
+// printf("copied text fore lut for screen %u... \n", i);
+// printf("the_system->screen_[i]->text_color_back_ram_ = %p... \n", the_system->screen_[i]->text_color_back_ram_);
+// General_DelaySeconds(3);
+// 		memcpy(the_system->screen_[i]->text_color_back_ram_, &standard_text_color_lut, 64);
+// printf("copied text back lut for screen %u... \n", i);
+// General_DelayTicks(10);
 	
 		DEBUG_OUT(("%s %d: This screen (id=%i: %i x %i, with %i x %i text (%i x %i visible)", __func__, __LINE__, 
 			the_system->screen_[i]->id_,
@@ -774,79 +464,6 @@ bool Sys_AutoConfigure(System* the_system)
 	Sys_SetGammaMode(the_system, the_system->screen_[0], true);
 	
 	return true;
-}
-
-
-//! Switch machine into graphics mode
-//! @param	the_system: valid pointer to system object
-bool Sys_SetModeGraphics(System* the_system)
-{	
-	if (the_system == NULL)
-	{
-		LOG_ERR(("%s %d: passed class object was NULL", __func__, __LINE__));
-		goto error;
-	}
-	
-	// LOGIC:
-	//   On an A2560K or X, the only screen that has a text/graphics mode is the Channel B screen
-	
-	// switch to graphics mode by setting graphics mode bit, and setting bitmap engine enable bit
-
-	// enable bitmap layers 0 and 1
-		//*the_screen->vicky_ = (*the_screen->vicky_ & GRAPHICS_MODE_MASK | (GRAPHICS_MODE_GRAPHICS) | GRAPHICS_MODE_EN_BITMAP);
-	R32(the_system->screen_[ID_CHANNEL_B]->vicky_) = (*the_system->screen_[ID_CHANNEL_B]->vicky_ & GRAPHICS_MODE_MASK | GRAPHICS_MODE_GRAPHICS | GRAPHICS_MODE_EN_BITMAP);
-
-	R32(the_system->screen_[ID_CHANNEL_B]->vicky_ + BITMAP_L0_CTRL_L) = 0x01;
-	R32(the_system->screen_[ID_CHANNEL_B]->vicky_ + BITMAP_L1_CTRL_L) = 0x01;	
-	
-	return true;
-	
-error:
-	Sys_Destroy(&global_system);	// crash early, crash often
-	return false;
-}
-
-
-//! Switch machine into text mode
-//! @param	the_system: valid pointer to system object
-//! @param as_overlay: If true, sets text overlay mode (text over graphics). If false, sets full text mode (no graphics);
-bool Sys_SetModeText(System* the_system, bool as_overlay)
-{	
-	if (the_system == NULL)
-	{
-		LOG_ERR(("%s %d: passed class object was NULL", __func__, __LINE__));
-		goto error;
-	}
-	
-	// LOGIC:
-	//   On an A2560K or X, the only screen that has a text/graphics mode is the Channel B screen
-	
-	if (as_overlay)
-	{
-		// switch to text mode with overlay by setting graphics mode bit, setting bitmap engine enable bit, and setting graphics mode overlay		
-		R32(the_system->screen_[ID_CHANNEL_B]->vicky_) = (*the_system->screen_[ID_CHANNEL_B]->vicky_ & GRAPHICS_MODE_MASK | GRAPHICS_MODE_TEXT | GRAPHICS_MODE_TEXT_OVER | GRAPHICS_MODE_GRAPHICS | GRAPHICS_MODE_EN_BITMAP);
-		
-		// c256foenix, discord 2022/03/10
-		// Normally, for example, if you setup everything to be in bitmap mode, and you download an image in VRAM and you can see it properly... If you turn on overlay, then you will see on top of that same image, your text that you had before.
-		// Mstr_Ctrl_Text_Mode_En  = $01       ; Enable the Text Mode
-		// Mstr_Ctrl_Text_Overlay  = $02       ; Enable the Overlay of the text mode on top of Graphic Mode (the Background Color is ignored)
-		// Mstr_Ctrl_Graph_Mode_En = $04       ; Enable the Graphic Mode
-		// Mstr_Ctrl_Bitmap_En     = $08       ; Enable the Bitmap Module In Vicky
-		// all of these should be ON
-	}
-	else
-	{
-		R32(the_system->screen_[ID_CHANNEL_B]->vicky_) = (*the_system->screen_[ID_CHANNEL_B]->vicky_ & GRAPHICS_MODE_MASK | GRAPHICS_MODE_TEXT);
-		// disable bitmap layers 0 and 1
-		R32(the_system->screen_[ID_CHANNEL_B]->vicky_ + BITMAP_L0_CTRL_L) = 0x00;
-		R32(the_system->screen_[ID_CHANNEL_B]->vicky_ + BITMAP_L1_CTRL_L) = 0x00;
-	}
-	
-	return true;
-	
-error:
-	Sys_Destroy(&global_system);	// crash early, crash often
-	return false;
 }
 
 
@@ -875,11 +492,11 @@ bool Sys_DetectScreenSize(Screen* the_screen)
 	the_video_mode_bits = (the_vicky_value >> 8) & 0xff;
 	//DEBUG_OUT(("%s %d: 32bit vicky value=%x, video mode bits=%x", __func__, __LINE__, the_vicky_value, the_video_mode_bits));
 	
-	if (the_screen->vicky_ == P32(VICKY_A2560K_A))
+	if (the_screen->vicky_ == P32(VICKY_A_BASE_ADDRESS))
 	{
 		// LOGIC: A2560K channel A only has 2 video modes, 1024x768 and 800x600. If bit 11 is set, it's 1024. 
 		
-		//DEBUG_OUT(("%s %d: vicky identified as VICKY_A2560K_A", __func__, __LINE__));
+		//DEBUG_OUT(("%s %d: vicky identified as VICKY_A_BASE_ADDRESS", __func__, __LINE__));
 
 		if (the_video_mode_bits & VICKY_IIIA_RES_1024X768_FLAGS)
 		{
@@ -890,13 +507,13 @@ bool Sys_DetectScreenSize(Screen* the_screen)
 			new_mode = RES_800X600;
 		}
 	}
-	else if (the_screen->vicky_ == P32(VICKY_A2560K_B))
+	else if (the_screen->vicky_ == P32(VICKY_B_BASE_ADDRESS))
 	{
 		// LOGIC: 
 		//   A2560K channel B only has 3 video modes, 800x600, 640x480, and 640x400 (currently non-functional)
 		//   if bit 8 is set, it's 800x600, if bits 8/9 both set, it's 640x400. 
 
-		//DEBUG_OUT(("%s %d: vicky identified as VICKY_A2560K_B", __func__, __LINE__));
+		//DEBUG_OUT(("%s %d: vicky identified as VICKY_B_BASE_ADDRESS", __func__, __LINE__));
 
 		if (the_video_mode_bits & VICKY_IIIB_RES_800X600_FLAGS)
 		{
@@ -979,10 +596,550 @@ bool Sys_DetectScreenSize(Screen* the_screen)
 	the_screen->rect_.MaxY = the_screen->height_;	
 	Sys_PrintScreen(the_screen);
 	
+	DEBUG_OUT(("%s %d: screen=%u, vis cols=%u, vis rows=%u, brdx=%u, brdy=%un", __func__, __LINE__, the_screen->id_, the_screen->text_cols_vis_, the_screen->text_rows_vis_, border_x_cols, border_y_cols));
+
 	return true;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
+	return false;
+}
+
+
+// // interrupt 1 is PS2 keyboard, interrupt 2 is A2560K keyboard
+// void Sys_InterruptKeyboard(void)
+// {
+// 	kbd_handle_irq();
+// }
+
+// 
+// // interrupt 4 is PS2 mouse
+// void Sys_InterruptMouse(void);
+
+
+// **** Debug functions *****
+
+void Sys_Print(System* the_system)
+{
+	DEBUG_OUT(("System print out:"));
+	DEBUG_OUT(("  address: %p", 			the_system));
+	DEBUG_OUT(("  event_manager_: %p", 		the_system->event_manager_));
+	DEBUG_OUT(("  menu_manager_: %p", 		the_system->menu_manager_));
+	DEBUG_OUT(("  system_font_: %p", 		the_system->system_font_));
+	DEBUG_OUT(("  app_font_: %p",			the_system->app_font_));
+	DEBUG_OUT(("  theme_: %p",				the_system->theme_));
+	DEBUG_OUT(("  num_screens_: %i",		the_system->num_screens_));
+	DEBUG_OUT(("  window_count_: %i",		the_system->window_count_));
+	DEBUG_OUT(("  active_window_: %p",		the_system->active_window_));
+	DEBUG_OUT(("  model_number_: %i",		the_system->model_number_));
+}
+
+
+void Sys_PrintScreen(Screen* the_screen)
+{
+	DEBUG_OUT(("Screen print out:"));
+	DEBUG_OUT(("  address: %p", 			the_screen));
+	DEBUG_OUT(("  id_: %i", 				the_screen->id_));
+	DEBUG_OUT(("  vicky_: %p", 				the_screen->vicky_));
+	DEBUG_OUT(("  width_: %i", 				the_screen->width_));
+	DEBUG_OUT(("  height_: %i", 			the_screen->height_));
+	DEBUG_OUT(("  text_cols_vis_: %i", 		the_screen->text_cols_vis_));
+	DEBUG_OUT(("  text_rows_vis_: %i", 		the_screen->text_rows_vis_));
+	DEBUG_OUT(("  text_mem_cols_: %i", 		the_screen->text_mem_cols_));
+	DEBUG_OUT(("  text_mem_rows_: %i", 		the_screen->text_mem_rows_));
+	DEBUG_OUT(("  text_ram_: %p", 			the_screen->text_ram_));
+	DEBUG_OUT(("  text_attr_ram_: %p", 		the_screen->text_attr_ram_));
+	DEBUG_OUT(("  text_font_ram_: %p", 		the_screen->text_font_ram_));
+	DEBUG_OUT(("  bitmap_[0]: %p", 			the_screen->bitmap_[0]));
+	DEBUG_OUT(("  bitmap_[1]: %p", 			the_screen->bitmap_[1]));
+	DEBUG_OUT(("  text_font_height_: %i",	the_screen->text_font_height_));
+	DEBUG_OUT(("  text_font_width_: %i",	the_screen->text_font_width_));
+}
+
+
+
+/*****************************************************************************/
+/*                        Public Function Definitions                        */
+/*****************************************************************************/
+
+// **** CONSTRUCTOR AND DESTRUCTOR *****
+
+// constructor
+System* Sys_New(void)
+{
+	System*			the_system;
+	int16_t			i;
+	
+	
+	// LOGIC:
+	
+	if ( (the_system = (System*)calloc(1, sizeof(System)) ) == NULL)
+	{
+		LOG_ERR(("%s %d: could not allocate memory to create new system", __func__ , __LINE__));
+		goto error;
+	}
+	LOG_ALLOC(("%s %d:	__ALLOC__	the_system	%p	size	%i", __func__ , __LINE__, the_system, sizeof(System)));
+	
+	DEBUG_OUT(("%s %d: System object created ok...", __func__ , __LINE__));
+	
+	return the_system;
+	
+error:
+	if (the_system)					Sys_Exit(&the_system, PARAM_EXIT_ON_ERROR);
+	return NULL;
+}
+
+
+// destructor
+// frees all allocated memory associated with the passed object, and the object itself
+//! @param	the_system -- valid pointer to system object
+bool Sys_Destroy(System** the_system)
+{
+	int16_t	i;
+	
+	if (*the_system == NULL)
+	{
+		LOG_ERR(("%s %d: passed class object was null", __func__ , __LINE__));
+		return false;
+	}
+
+	for (i = 0; i < 2; i++)
+	{
+		if ((*the_system)->screen_[i])
+		{
+			LOG_ALLOC(("%s %d:	__FREE__	(*the_system)->screen_[i]	%p	size	%i", __func__ , __LINE__, (*the_system)->screen_[i], sizeof(Screen)));
+			free((*the_system)->screen_[i]);
+			(*the_system)->screen_[i] = NULL;
+		}
+	}
+
+	if ((*the_system)->system_font_)
+	{
+		Font_Destroy(&(*the_system)->system_font_);
+	}
+
+	if ((*the_system)->app_font_)
+	{
+		Font_Destroy(&(*the_system)->app_font_);
+	}
+
+	if ((*the_system)->menu_manager_)
+	{
+		Menu_Destroy(&(*the_system)->menu_manager_);
+	}
+
+	if ((*the_system)->event_manager_)
+	{
+		EventManager_Destroy(&(*the_system)->event_manager_);
+	}
+
+	if ((*the_system)->list_windows_)
+	{
+		Sys_DestroyAllWindows(*the_system);
+	}
+
+
+	LOG_ALLOC(("%s %d:	__FREE__	*the_system	%p	size	%i", __func__ , __LINE__, *the_system, sizeof(System)));
+	free(*the_system);
+	*the_system = NULL;
+	
+	return true;
+}
+
+
+//! Exit to MCP
+//! Destroys the system on the way out
+//! @param	the_system -- valid pointer to system object
+//! @param	error_condition -- true if error, false if a normal exit. Use PARAM_EXIT_ON_ERROR/PARAM_EXIT_NO_ERROR
+void Sys_Exit(System** the_system, bool error_condition)
+{
+	// clean up system objects
+	Sys_Destroy(the_system);
+	
+	// close keyboard channel if it had been open
+	sys_chan_close(0);
+	
+	// call MCP exit to return control to it
+	if (error_condition == PARAM_EXIT_ON_ERROR)
+	{
+		DEBUG_OUT(("%s %d: **** SYSTEM EXIT ON ERROR! ****", __func__, __LINE__));		
+		sys_exit(-1);
+	}
+	else
+	{
+		DEBUG_OUT(("%s %d: **** SYSTEM EXIT ****", __func__, __LINE__));		
+		sys_exit(0);
+	}
+}
+
+
+
+// **** System Initialization functions *****
+
+//! Initialize the system (primary entry point for all system initialization activity)
+//! Starts up the memory manager, creates the global system object, runs autoconfigure to check the system hardware, loads system and application fonts, allocates a bitmap for the screen.
+bool Sys_InitSystem(System* the_system)
+{
+	Font*		the_system_font;
+	Font*		the_icon_font;
+	Theme*		the_theme;
+	int16_t		i;
+	
+	// initialize logging
+	#if defined LOG_LEVEL_1 || defined LOG_LEVEL_2 || defined LOG_LEVEL_3 || defined LOG_LEVEL_4 || defined LOG_LEVEL_5
+		General_LogInitialize();
+		printf("logging started \n");
+	#endif
+
+	// temp text buffer
+	if ( (the_system->text_temp_buffer_ = (char*)calloc(WORD_WRAP_MAX_LEN + 1, sizeof(char)) ) == NULL)
+	{
+		LOG_ERR(("%s %d: could not allocate memory to create the temp text buffer", __func__ , __LINE__));
+		goto error;
+	}
+
+	DEBUG_OUT(("%s %d: Sys temp text buffer created ok...", __func__ , __LINE__));
+
+	// event manager
+	if ( (the_system->event_manager_ = EventManager_New() ) == NULL)
+	{
+		LOG_ERR(("%s %d: could not allocate memory to create the event manager", __func__ , __LINE__));
+		goto error;
+	}
+
+	DEBUG_OUT(("%s %d: EventManager created ok. Detecting hardware...", __func__ , __LINE__));
+	
+	// check what kind of hardware the system is running on
+	// LOGIC: we need to know how many screens it has before allocating screen objects
+	if (Sys_AutoDetectMachine(the_system) == false)
+	{
+		LOG_ERR(("%s %d: Detected machine hardware is incompatible with this software", __func__ , __LINE__));
+		goto error;
+	}
+	
+	DEBUG_OUT(("%s %d: Hardware detected (%u screens). Creating screens...", __func__ , __LINE__, the_system->num_screens_));
+
+	// screens
+	for (i = 0; i < the_system->num_screens_; i++)
+	{
+		if ( (the_system->screen_[i] = (Screen*)calloc(1, sizeof(Screen)) ) == NULL)
+		{
+			LOG_ERR(("%s %d: could not allocate memory to create screen object", __func__ , __LINE__));
+			goto error;
+		}
+		LOG_ALLOC(("%s %d:	__ALLOC__	the_system->screen_[%i]	%p	size	%i", __func__ , __LINE__, i, the_system->screen_[i], sizeof(Screen)));
+		
+		the_system->screen_[i]->id_ = i;
+	}
+
+	DEBUG_OUT(("%s %d: Screen(s) created ok.", __func__ , __LINE__, i));
+	
+	// for systems with only one screen, we will point the 2nd screen to the first, so that any call to 2nd screen works as if it was a call to the first. 
+	if (the_system->num_screens_ == 1)
+	{
+		the_system->screen_[1] = the_system->screen_[0];
+	}
+
+	DEBUG_OUT(("%s %d: returning to SysInit()...", __func__ , __LINE__, i));
+	
+	// LOGIC: we don't have font info yet; just want to make it clear these are not set and not rely on compiler behavior
+	the_system->system_font_ = NULL;
+	the_system->app_font_ = NULL;
+	the_system->theme_ = NULL;
+	the_system->active_window_ = NULL;
+	the_system->window_count_ = 0;
+
+// 	// set the global variable that other classes/libraries need access to.
+// 	global_system = the_system;
+
+	DEBUG_OUT(("%s %d: Running Autoconfigure...", __func__, __LINE__));
+	
+	if (Sys_AutoConfigure(global_system) == false)
+	{
+		LOG_ERR(("%s %d: Auto configure failed", __func__, __LINE__));
+		goto error;
+	}
+
+	// LOGIC:
+	//   load default theme so that fonts are available
+	//   having system fonts in lib sys so they are guaranteed is good, but once a theme is loaded it replaces theme
+	//   so default theme needs to know how to reload them in case user switches back
+	//   better to have it consistent: theme is responsible for loading and setting system fonts
+	
+	DEBUG_OUT(("%s %d: loading default theme...", __func__, __LINE__));
+	
+	if ( (the_theme = Theme_CreateDefaultTheme(THEME_PARAM_FULL_RESOURCES) ) == NULL)
+	{
+		LOG_ERR(("%s %d: Failed to create default system theme", __func__, __LINE__));
+		goto error;
+	}
+	
+	Theme_Activate(the_theme);
+	
+	DEBUG_OUT(("%s %d: Default theme loaded ok. Creating menu manager...", __func__ , __LINE__));
+	
+	// menu manager
+	if ( (global_system->menu_manager_ = Menu_New() ) == NULL)
+	{
+		LOG_ERR(("%s %d: could not allocate memory to create the menu manager", __func__ , __LINE__));
+		goto error;
+	}	
+
+	DEBUG_OUT(("%s %d: allocating screen bitmap...", __func__, __LINE__));
+	
+	// allocate the foreground and background bitmaps, then assign them fixed locations in VRAM
+	
+	// LOGIC: 
+	//   The only bitmaps we want pointing to VRAM locations are the system's layer0 and layer1 bitmaps for the screen
+	//   Only 1 screen has bitmapped graphics
+	//   We assign them fixed spaces in VRAM, 800*600 apart, so that the addresses are good even on a screen resolution change. 
+	
+	for (i = 0; i < 2; i++)
+	{
+		Bitmap*		the_bitmap;
+
+		if ( (the_bitmap = Bitmap_New(global_system->screen_[ID_CHANNEL_B]->width_, global_system->screen_[ID_CHANNEL_B]->height_, Sys_GetSystemFont(global_system), PARAM_IN_VRAM)) == NULL)
+		{
+			LOG_ERR(("%s %d: Failed to create bitmap #%i", __func__, __LINE__, i));
+			goto error;
+		}
+
+		the_bitmap->addr_int_ = (uint32_t)VRAM_START + (uint32_t)i * (uint32_t)VRAM_OFFSET_TO_NEXT_SCREEN;
+		the_bitmap->addr_ = (unsigned char*)the_bitmap->addr_int_;
+
+		//DEBUG_OUT(("%s %d: bitmap addr_int_=%lx, addr_=%p", __func__, __LINE__, the_bitmap->addr_int_, the_bitmap->addr_));
+		
+		Sys_SetScreenBitmap(global_system, the_bitmap, i);
+		
+		// clear the bitmap
+		Bitmap_FillMemory(the_bitmap, 0x00);
+	}
+	
+// 	// load the splash screen and progress bar
+// 	if (Startup_ShowSplash() == false)
+// 	{
+// 		LOG_ERR(("%s %d: Failed to load splash screen. Oh, no!", __func__, __LINE__));
+// 		// but who cares, just continue on... 
+// 	}
+
+	// create the backdrop window and add it to the list of the windows the system tracks
+	
+	// LOGIC:
+	//   Every app will use (or at least have access to) the backdrop window
+	//   The backdrop window shares the same bitmap as the Screen
+	//   The backdrop window will catch events that drop through the windows in the foreground
+	
+	if ( Sys_CreateBackdropWindow(global_system) == false)
+	{
+		LOG_ERR(("%s %d: Failed to create a backdrop window. Fatal error.", __func__, __LINE__));
+		goto error;
+	}
+	
+	// Enable mouse pointer -- no idea if this works, f68 emulator doesn't support mouse yet. 
+	//R32(VICKYB_MOUSE_CTRL_A2560K) = 1;
+	
+	// set interrupt handlers
+//	ps2_init();
+//	global_old_keyboard_interrupt = sys_int_register(INT_KBD_PS2, &Sys_InterruptKeyboard);
+// 	global_old_keyboard_interrupt = sys_int_register(INT_KBD_A2560K, &Sys_InterruptKeyboard);
+// 	global_old_mouse_interrupt = sys_int_register(INT_MOUSE, &Sys_InterruptKeyboard);
+
+
+	// open keyboard channel with MCP so we can get keystrokes
+	if (sys_chan_open(0, NULL, 1) < 0)
+	{
+		LOG_ERR(("%s %d: Failed to open the keyboard channel with MCP", __func__, __LINE__));
+		goto error;
+	}
+
+	DEBUG_OUT(("%s %d: System initialization complete.", __func__, __LINE__));
+
+	return true;
+	
+error:
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
+	return false;
+}
+
+
+
+
+
+// **** Event-handling functions *****
+
+// see MCP's ps2.c for real examples once real machine available
+
+// // interrupt 1 is PS2 keyboard, interrupt 2 is A2560K keyboard
+// void Sys_InterruptKeyboard(void)
+// {
+// 	printf("keyboard!\n");
+// 	return;
+// }
+// 
+// // interrupt 4 is PS2 mouse
+// void Sys_InterruptMouse(void)
+// {
+// 	printf("mouse!\n");
+// 	return;
+// }
+
+
+
+
+// **** Screen mode/resolution/size functions *****
+
+
+//! Switch machine into graphics mode, text mode, sprite mode, etc.
+//! @param	the_system -- valid pointer to system object
+//! Use PARAM_SPRITES_ON/OFF, PARAM_BITMAP_ON/OFF, PARAM_TILES_ON/OFF, PARAM_TEXT_OVERLAY_ON/OFF, PARAM_TEXT_ON/OFF
+bool Sys_SetGraphicMode(System* the_system, bool enable_sprites, bool enable_bitmaps, bool enable_tiles, bool enable_text_overlay, bool enable_text)
+{	
+	uint8_t		the_bits;
+	uint32_t	the_old_value;
+	uint32_t	the_old_masked_value;
+	uint32_t	the_new_value;
+	
+	if (the_system == NULL)
+	{
+		LOG_ERR(("%s %d: passed class object was NULL", __func__, __LINE__));
+		goto error;
+	}
+	
+	// LOGIC:
+	//   On an A2560K or X, the only screen that has a text/graphics mode is the Channel B screen
+	//   clears everything from first byte of master control but the reserved bit (bit 6)
+	//   then re-enables only those modes specified
+
+	the_old_value = R32(the_system->screen_[ID_CHANNEL_B]->vicky_);
+	the_old_masked_value = the_old_value & GRAPHICS_MODE_MASK;
+	
+	the_bits = 0;
+	//the_bits = (uint8_t)the_old_masked_value;
+	//the_bits = R8(VICKY_MASTER_CTRL_REG_L) & GRAPHICS_MODE_EN_GAMMA;	
+
+	if (enable_sprites | enable_bitmaps | enable_tiles | enable_text_overlay)
+	{
+		the_bits |= GRAPHICS_MODE_GRAPHICS;
+	}
+	
+	if (enable_sprites)
+	{
+		the_bits |= GRAPHICS_MODE_EN_SPRITE;
+	}
+
+	if (enable_bitmaps)
+	{
+		the_bits |= GRAPHICS_MODE_EN_BITMAP;
+		// enable bitmap layers 0, 1; disable layer 2
+		R32(the_system->screen_[ID_CHANNEL_B]->vicky_ + BITMAP_L0_CTRL_L) = 0x01;
+		R32(the_system->screen_[ID_CHANNEL_B]->vicky_ + BITMAP_L1_CTRL_L) = 0x01;	
+	}
+
+	if (enable_tiles)
+	{
+		the_bits |= GRAPHICS_MODE_EN_TILE;
+	}
+
+	if (enable_text)
+	{
+		the_bits |= GRAPHICS_MODE_TEXT;
+		// disable bitmap layers 0, 1, 2
+// 		R32(the_system->screen_[ID_CHANNEL_B]->vicky_ + BITMAP_L0_CTRL_L) = 0x00;
+// 		R32(the_system->screen_[ID_CHANNEL_B]->vicky_ + BITMAP_L1_CTRL_L) = 0x00;	
+	}
+
+	if (enable_text_overlay)
+	{
+		the_bits |= GRAPHICS_MODE_TEXT;
+		the_bits |= GRAPHICS_MODE_TEXT_OVER;
+		the_bits |= GRAPHICS_MODE_GRAPHICS;
+	}
+
+	// switch to graphics mode by setting graphics mode bit, and setting bitmap engine enable bit
+	//the_new_value = (the_old_value & ~GRAPHICS_MODE_MASK) | (uint32_t)the_bits;
+	the_new_value = (the_old_masked_value) | (uint32_t)the_bits;
+	DEBUG_OUT(("%s %d: graphics: old masked=%ul, old=%ul, new=%ul", __func__, __LINE__, the_old_masked_value, the_old_value, the_new_value));
+// old masked = 280000001
+// old=			28000000B
+// new = 		280000047 0100 0111
+	R32(the_system->screen_[ID_CHANNEL_B]->vicky_) = the_new_value;
+	
+	return true;
+	
+error:
+	return false;
+}
+
+
+// //! Switch machine into graphics mode
+// //! @param	the_system: valid pointer to system object
+// bool Sys_SetModeGraphics(System* the_system)
+// {	
+// 	if (the_system == NULL)
+// 	{
+// 		LOG_ERR(("%s %d: passed class object was NULL", __func__, __LINE__));
+// 		goto error;
+// 	}
+// 	
+// 	// LOGIC:
+// 	//   On an A2560K or X, the only screen that has a text/graphics mode is the Channel B screen
+// 	
+// 	// switch to graphics mode by setting graphics mode bit, and setting bitmap engine enable bit
+// 
+// 	// enable bitmap layers 0 and 1
+// 		//*the_screen->vicky_ = (*the_screen->vicky_ & GRAPHICS_MODE_MASK | (GRAPHICS_MODE_GRAPHICS) | GRAPHICS_MODE_EN_BITMAP);
+// 	R32(the_system->screen_[ID_CHANNEL_B]->vicky_) = (*the_system->screen_[ID_CHANNEL_B]->vicky_ & GRAPHICS_MODE_MASK | GRAPHICS_MODE_GRAPHICS | GRAPHICS_MODE_EN_BITMAP);
+// 
+// 	R32(the_system->screen_[ID_CHANNEL_B]->vicky_ + BITMAP_L0_CTRL_L) = 0x01;
+// 	R32(the_system->screen_[ID_CHANNEL_B]->vicky_ + BITMAP_L1_CTRL_L) = 0x01;	
+// 	
+// 	return true;
+// 	
+// error:
+// 	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
+// 	return false;
+// }
+
+
+//! Switch machine into text mode
+//! @param	the_system: valid pointer to system object
+//! @param as_overlay: If true, sets text overlay mode (text over graphics). If false, sets full text mode (no graphics);
+bool Sys_SetModeText(System* the_system, bool as_overlay)
+{	
+	if (the_system == NULL)
+	{
+		LOG_ERR(("%s %d: passed class object was NULL", __func__, __LINE__));
+		goto error;
+	}
+	
+	// LOGIC:
+	//   On an A2560K or X, the only screen that has a text/graphics mode is the Channel B screen
+	
+	if (as_overlay)
+	{
+		// switch to text mode with overlay by setting graphics mode bit, setting bitmap engine enable bit, and setting graphics mode overlay		
+		R32(the_system->screen_[ID_CHANNEL_B]->vicky_) = (*the_system->screen_[ID_CHANNEL_B]->vicky_ & GRAPHICS_MODE_MASK | GRAPHICS_MODE_TEXT | GRAPHICS_MODE_TEXT_OVER | GRAPHICS_MODE_GRAPHICS | GRAPHICS_MODE_EN_BITMAP);
+		
+		// c256foenix, discord 2022/03/10
+		// Normally, for example, if you setup everything to be in bitmap mode, and you download an image in VRAM and you can see it properly... If you turn on overlay, then you will see on top of that same image, your text that you had before.
+		// Mstr_Ctrl_Text_Mode_En  = $01       ; Enable the Text Mode
+		// Mstr_Ctrl_Text_Overlay  = $02       ; Enable the Overlay of the text mode on top of Graphic Mode (the Background Color is ignored)
+		// Mstr_Ctrl_Graph_Mode_En = $04       ; Enable the Graphic Mode
+		// Mstr_Ctrl_Bitmap_En     = $08       ; Enable the Bitmap Module In Vicky
+		// all of these should be ON
+	}
+	else
+	{
+		R32(the_system->screen_[ID_CHANNEL_B]->vicky_) = (*the_system->screen_[ID_CHANNEL_B]->vicky_ & GRAPHICS_MODE_MASK | GRAPHICS_MODE_TEXT);
+		// disable bitmap layers 0 and 1
+		R32(the_system->screen_[ID_CHANNEL_B]->vicky_ + BITMAP_L0_CTRL_L) = 0x00;
+		R32(the_system->screen_[ID_CHANNEL_B]->vicky_ + BITMAP_L1_CTRL_L) = 0x00;
+	}
+	
+	return true;
+	
+error:
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
 }
 
@@ -1002,9 +1159,9 @@ bool Sys_SetVideoMode(Screen* the_screen, screen_resolution new_mode)
 	}
 
 	// TODO: figure out smarter way of knowing which video modes are legal for the machine being run on
-	if (the_screen->vicky_ == P32(VICKY_A2560K_A))
+	if (the_screen->vicky_ == P32(VICKY_A_BASE_ADDRESS))
 	{
-		//DEBUG_OUT(("%s %d: vicky identified as VICKY_A2560K_A", __func__, __LINE__));
+		//DEBUG_OUT(("%s %d: vicky identified as VICKY_A_BASE_ADDRESS", __func__, __LINE__));
 		
 		if (new_mode == RES_800X600)
 		{
@@ -1015,9 +1172,9 @@ bool Sys_SetVideoMode(Screen* the_screen, screen_resolution new_mode)
 			new_mode_flag = VICKY_IIIA_RES_1024X768_FLAGS;
 		}
 	}
-	else if (the_screen->vicky_ == P32(VICKY_A2560K_B))
+	else if (the_screen->vicky_ == P32(VICKY_B_BASE_ADDRESS))
 	{
-		//DEBUG_OUT(("%s %d: vicky identified as VICKY_A2560K_B", __func__, __LINE__));
+		//DEBUG_OUT(("%s %d: vicky identified as VICKY_B_BASE_ADDRESS", __func__, __LINE__));
 		
 		if (new_mode == RES_640X400)
 		{
@@ -1087,7 +1244,7 @@ bool Sys_SetVideoMode(Screen* the_screen, screen_resolution new_mode)
 	return true;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
 }
 
@@ -1131,7 +1288,7 @@ bool Sys_SetGammaMode(System* the_system, Screen* the_screen, bool enable_it)
 	return true; 
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
 }
 
@@ -1161,7 +1318,7 @@ bool Sys_EnableTextModeCursor(System* the_system, Screen* the_screen, bool enabl
 	return true;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
 }
 
@@ -1195,7 +1352,7 @@ bool Sys_SetBorderSize(System* the_system, Screen* the_screen, uint8_t border_wi
 	return true;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
 }
 
@@ -1264,7 +1421,7 @@ bool Sys_AddToWindowList(System* the_system, Window* the_new_window)
 	return true;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
 }
 
@@ -1317,7 +1474,7 @@ bool Sys_CreateBackdropWindow(System* the_system)
 	return true;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
 }
 
@@ -1335,7 +1492,7 @@ Window* Sys_GetActiveWindow(System* the_system)
 	return the_system->active_window_;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return NULL;
 }
 
@@ -1369,7 +1526,7 @@ Window* Sys_GetBackdropWindow(System* the_system)
 	return NULL;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return NULL;
 }
 
@@ -1462,7 +1619,7 @@ Window* Sys_GetNextWindow(System* the_system)
 	return next_window;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return NULL;
 }
 
@@ -1536,7 +1693,7 @@ Window* Sys_GetPreviousWindow(System* the_system)
 	return next_window;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return NULL;
 }
 
@@ -1591,7 +1748,7 @@ Window* Sys_GetWindowAtXY(System* the_system, int16_t x, int16_t y)
 	return NULL;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return NULL;
 }
 
@@ -1643,7 +1800,7 @@ bool Sys_SetActiveWindow(System* the_system, Window* the_window)
 	return true;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
 }
 
@@ -1745,7 +1902,7 @@ void Sys_CloseOneWindow(System* the_system, Window* the_window)
 	return;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 
@@ -1807,7 +1964,7 @@ void Sys_IssueDamageRects(System* the_system)
 	return;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 
@@ -1855,7 +2012,7 @@ void Sys_IssueMenuDamageRects(System* the_system)
 	return;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 
@@ -1925,7 +2082,7 @@ void Sys_CollectDamageRects(System* the_system, Window* the_future_active_window
 	return;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 
@@ -1947,7 +2104,7 @@ Theme* Sys_GetTheme(System* the_system)
 	return the_system->theme_;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return NULL;
 }
 
@@ -1963,7 +2120,7 @@ Font* Sys_GetSystemFont(System* the_system)
 	return the_system->system_font_;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return NULL;
 }
 
@@ -1980,7 +2137,7 @@ Font* Sys_GetAppFont(System* the_system)
 	return the_system->app_font_;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return NULL;
 }
 
@@ -2003,7 +2160,7 @@ Screen* Sys_GetScreen(System* the_system, int16_t channel_id)
 	return the_system->screen_[channel_id];
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return NULL;
 }
 
@@ -2020,7 +2177,7 @@ Menu* Sys_GetMenu(System* the_system)
 	return the_system->menu_manager_;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return NULL;
 }
 
@@ -2044,7 +2201,7 @@ Bitmap* Sys_GetScreenBitmap(System* the_system, bitmap_layer the_layer)
 	return the_system->screen_[ID_CHANNEL_B]->bitmap_[the_layer];
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return NULL;
 }
 
@@ -2061,7 +2218,7 @@ EventManager* Sys_GetEventManager(System* the_system)
 	return the_system->event_manager_;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return NULL;
 }
 
@@ -2085,7 +2242,7 @@ void Sys_SetSystemFont(System* the_system, Font* the_font)
 	return;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 
@@ -2104,7 +2261,7 @@ void Sys_SetAppFont(System* the_system, Font* the_font)
 	return;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 
@@ -2129,7 +2286,7 @@ void Sys_SetScreen(System* the_system, int16_t channel_id, Screen* the_screen)
 	return;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 
@@ -2165,7 +2322,7 @@ void Sys_SetScreenBitmap(System* the_system, Bitmap* the_bitmap, bitmap_layer th
 	return;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 
@@ -2216,7 +2373,7 @@ bool Sys_SetTheme(System* the_system, Theme* the_theme)
 	return true;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
 }
 
@@ -2274,7 +2431,7 @@ return true;
 	return true;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
 }
 
@@ -2341,7 +2498,7 @@ void Sys_Render(System* the_system)
 	return;
 	
 error:
-	Sys_Destroy(&global_system);	// crash early, crash often
+	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return;
 }
 

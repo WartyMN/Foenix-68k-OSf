@@ -2806,11 +2806,7 @@ bool Theme_CopyCLUTtoVicky(Theme* the_theme)
 	
 	the_screen = Sys_GetScreen(global_system, ID_CHANNEL_B);
 	
-	#ifdef _C256_FMX_
-		dest = (char*)VICKY_II_CLUT0;
-	#else
-		dest = (char*)P32(the_screen->vicky_ + CLUT0_OFFSET_L);
-	#endif
+	dest = (char*)P32(the_screen->vicky_ + CLUT0_OFFSET_L);
 	
 	if (the_theme == NULL)
 	{
@@ -3539,17 +3535,8 @@ Theme* Theme_CreateDefaultTheme(bool minimal_resources)
 	
 	the_screen = Sys_GetScreen(global_system, ID_CHANNEL_B);
 
-	#ifdef _C256_FMX_
-		R8(VICKY_II_BORDER_COLOR_B) = 0;
-		R8(VICKY_II_BORDER_COLOR_G) = 0;
-		R8(VICKY_II_BORDER_COLOR_R) = 0;
-		R8(VICKY_II_BACKGROUND_COLOR_B) = 0;
-		R8(VICKY_II_BACKGROUND_COLOR_G) = 0;
-		R8(VICKY_II_BACKGROUND_COLOR_R) = 0;
-	#else
-		R32(the_screen->vicky_ + BORDER_COLOR_OFFSET_L) = 0;
-		R32(the_screen->vicky_ + BACKGROUND_COLOR_OFFSET_L) = 0;
-	#endif
+	R32(the_screen->vicky_ + BORDER_COLOR_OFFSET_L) = 0;
+	R32(the_screen->vicky_ + BACKGROUND_COLOR_OFFSET_L) = 0;
 
 	return the_theme;
 	
@@ -4009,17 +3996,8 @@ Theme* Theme_CreateGreenTheme(void)
 	
 	the_screen = Sys_GetScreen(global_system, ID_CHANNEL_B);
 
-	#ifdef _C256_FMX_
-		R8(VICKY_II_BORDER_COLOR_B) = (the_theme->border_color_ >> (8*1)) & 0xff;
-		R8(VICKY_II_BORDER_COLOR_G) = (the_theme->border_color_ >> (8*2)) & 0xff;
-		R8(VICKY_II_BORDER_COLOR_R) = (the_theme->border_color_ >> (8*3)) & 0xff;
-		R8(VICKY_II_BACKGROUND_COLOR_B) = (the_theme->background_color_ >> (8*1)) & 0xff;
-		R8(VICKY_II_BACKGROUND_COLOR_G) = (the_theme->background_color_ >> (8*2)) & 0xff;
-		R8(VICKY_II_BACKGROUND_COLOR_R) = (the_theme->background_color_ >> (8*3)) & 0xff;
-	#else
-		R32(the_screen->vicky_ + BORDER_COLOR_OFFSET_L) = the_theme->border_color_;
-		R32(the_screen->vicky_ + BACKGROUND_COLOR_OFFSET_L) = the_theme->background_color_;
-	#endif
+	R32(the_screen->vicky_ + BORDER_COLOR_OFFSET_L) = the_theme->border_color_;
+	R32(the_screen->vicky_ + BACKGROUND_COLOR_OFFSET_L) = the_theme->background_color_;
 
 	return the_theme;
 	
