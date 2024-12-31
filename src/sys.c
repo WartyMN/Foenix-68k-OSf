@@ -130,6 +130,11 @@ bool Sys_AutoConfigure(System* the_system);
 //! @return	returns false on any error/invalid input.
 bool Sys_DetectScreenSize(Screen* the_screen);
 
+//! Change the cursor character to the passed character
+//! @param	the_char: the character point to be set as the cursor graphic
+//! FUTURE: pass and set foreground and background cursor color; pass and set blink speed.
+void Sys_ChangeCursor(uint8_t the_char);
+
 
 
 
@@ -378,56 +383,6 @@ bool Sys_AutoConfigure(System* the_system)
 		DEBUG_OUT(("%s %d: this system %i not supported!", __func__, __LINE__, the_system->model_number_));
 	}
 
-	
-// 	switch (the_system->model_number_)
-// 	{
-// 		case MACHINE_C256_U:
-// 		case MACHINE_C256_GENX:
-// 		case MACHINE_C256_UPLUS:
-// 		case MACHINE_C256_FMX:
-// 			DEBUG_OUT(("%s %d: Configuring screens for a C256 (1 screen)", __func__, __LINE__));
-// 			the_system->screen_[ID_CHANNEL_A]->vicky_ = P32(VICKY_C256);
-// 			the_system->screen_[ID_CHANNEL_A]->text_ram_ = TEXT_RAM_C256;
-// 			the_system->screen_[ID_CHANNEL_A]->text_attr_ram_ = TEXT_ATTR_C256;
-// 			the_system->screen_[ID_CHANNEL_A]->text_font_ram_ = FONT_MEMORY_BANK_C256;
-// 			the_system->screen_[ID_CHANNEL_B]->vicky_ = P32(VICKY_C256);
-// 			the_system->screen_[ID_CHANNEL_B]->text_ram_ = TEXT_RAM_C256;
-// 			the_system->screen_[ID_CHANNEL_B]->text_attr_ram_ = TEXT_ATTR_C256;
-// 			the_system->screen_[ID_CHANNEL_B]->text_font_ram_ = FONT_MEMORY_BANK_C256;
-// 			break;
-// 			
-// 		case MACHINE_A2560U_PLUS:
-// 		case MACHINE_A2560U:
-// 			the_system->screen_[ID_CHANNEL_A]->vicky_ = P32(VICKY_A2560U);
-// 			the_system->screen_[ID_CHANNEL_A]->text_ram_ = TEXT_RAM_A2560U;
-// 			the_system->screen_[ID_CHANNEL_A]->text_attr_ram_ = TEXT_ATTR_A2560U;
-// 			the_system->screen_[ID_CHANNEL_A]->text_font_ram_ = FONT_MEMORY_BANK_A2560U;
-// 			the_system->screen_[ID_CHANNEL_B]->vicky_ = P32(VICKY_A2560U);
-// 			the_system->screen_[ID_CHANNEL_B]->text_ram_ = TEXT_RAM_A2560U;
-// 			the_system->screen_[ID_CHANNEL_B]->text_attr_ram_ = TEXT_ATTR_A2560U;
-// 			the_system->screen_[ID_CHANNEL_B]->text_font_ram_ = FONT_MEMORY_BANK_A2560U;
-// 			break;
-// 			
-// 		case MACHINE_A2560X:
-// 		case MACHINE_A2560K:			
-// 			the_system->screen_[ID_CHANNEL_A]->vicky_ = P32(VICKY_A_BASE_ADDRESS);
-// 			the_system->screen_[ID_CHANNEL_A]->text_ram_ = TEXTA_RAM_A2560K;
-// 			the_system->screen_[ID_CHANNEL_A]->text_attr_ram_ = TEXTA_ATTR_A2560K;
-// 			the_system->screen_[ID_CHANNEL_A]->text_font_ram_ = FONT_MEMORY_BANKA_A2560K;
-// 
-// 			the_system->screen_[ID_CHANNEL_B]->vicky_ = P32(VICKY_B_BASE_ADDRESS);
-// 			the_system->screen_[ID_CHANNEL_B]->text_ram_ = TEXTB_RAM_A2560K;
-// 			the_system->screen_[ID_CHANNEL_B]->text_attr_ram_ = TEXTB_ATTR_A2560K;
-// 			the_system->screen_[ID_CHANNEL_B]->text_font_ram_ = FONT_MEMORY_BANKB_A2560K;
-// 		
-// 			break;
-// 		
-// 		default:
-// 			DEBUG_OUT(("%s %d: this application is not compatible with Foenix hardware ID %u.", __func__, __LINE__, the_system->model_number_));
-// 			return false;
-// 			break;
-// 		
-// 	}
 
 	// Teach each screen about its size, visible columns, resolution, etc.
 	// Ok to do for 1 screen only if system has only 1 physical screen, because sys_new() points second screen at first anyway in 1-screen systems
@@ -498,7 +453,8 @@ bool Sys_DetectScreenSize(Screen* the_screen)
 	//v = (unsigned char*)the_screen->vicky_;
 	the_vicky_value = *the_screen->vicky_;
 	the_video_mode_bits = (the_vicky_value >> 8) & 0xff;
-	//DEBUG_OUT(("%s %d: 32bit vicky value=%x, video mode bits=%x", __func__, __LINE__, the_vicky_value, the_video_mode_bits));
+	the_video_mode_bits &= VICKY_AB_RES_FLAG_MASK_8BIT;	// further mask down to just the 2 bits relevant for detecting screen resolution
+	DEBUG_OUT(("%s %d: 32bit vicky value=%x, video mode bits=%x", __func__, __LINE__, the_vicky_value, the_video_mode_bits));
 	
 	if (the_screen->vicky_ == P32(VICKY_A_BASE_ADDRESS))
 	{
@@ -521,7 +477,8 @@ bool Sys_DetectScreenSize(Screen* the_screen)
 		//   A2560K channel B only has 3 video modes, 800x600, 640x480, and 640x400 (currently non-functional)
 		//   if bit 8 is set, it's 800x600, if bits 8/9 both set, it's 640x400. 
 
-		//DEBUG_OUT(("%s %d: vicky identified as VICKY_B_BASE_ADDRESS", __func__, __LINE__));
+		DEBUG_OUT(("%s %d: vicky identified as VICKY_B_BASE_ADDRESS; bits=%x, 800x600=%x, 640x480=%x, vicky val=%x", __func__, __LINE__, the_video_mode_bits, VICKY_IIIB_RES_800X600_FLAGS, VICKY_IIIB_RES_640X480_FLAGS, the_vicky_value));
+		//printf("detectscreen: bits=%x, 800x600=%x, 640x480=%x, vicky val=%x \n", the_video_mode_bits, VICKY_IIIB_RES_800X600_FLAGS, VICKY_IIIB_RES_640X480_FLAGS, the_vicky_value);
 
 		if (the_video_mode_bits & VICKY_IIIB_RES_800X600_FLAGS)
 		{
@@ -611,6 +568,32 @@ bool Sys_DetectScreenSize(Screen* the_screen)
 error:
 	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
 	return false;
+}
+
+
+//! Change the cursor character to the passed character
+//! @param	the_char: the character point to be set as the cursor graphic
+//! FUTURE: pass and set foreground and background cursor color; pass and set blink speed.
+void Sys_ChangeCursor(uint8_t the_char)
+{
+	uint32_t	the_old_value1;
+	uint32_t	the_old_value2;
+	uint32_t	the_new_value1;
+	uint32_t	the_new_value2;
+	uint32_t	the_old_masked_value1;
+	uint32_t	the_old_masked_value2;
+
+	the_old_value1 = R32(VICKYA_CURSOR_CTRL_A2560K);
+	the_old_masked_value1 = the_old_value1 & VICKY_AB_CCR_CHAR_MASK;
+	the_new_value1 = the_old_masked_value1 | (CH_HFILL_UP_8 << 16);
+	//printf("A: old=%x, old masked=%x, new val=%x \n", the_old_value1, the_old_masked_value1, the_new_value1);
+	R32(VICKYA_CURSOR_CTRL_A2560K) = the_new_value1;
+	
+	the_old_value2 = R32(VICKYB_CURSOR_CTRL_A2560K);
+	the_old_masked_value2 = the_old_value2 & VICKY_AB_CCR_CHAR_MASK;
+	the_new_value2 = the_old_masked_value2 | (CH_HFILL_UP_8 << 16);
+	//printf("B: old=%x, old masked=%x, new val=%x \n", the_old_value2, the_old_masked_value2, the_new_value2);
+	R32(VICKYB_CURSOR_CTRL_A2560K) = the_new_value2;
 }
 
 
@@ -924,6 +907,9 @@ bool Sys_InitSystem(System* the_system)
 	Text_UpdateFontData(global_system->screen_[ID_CHANNEL_A], (char*)system_std_font);
 	Text_UpdateFontData(global_system->screen_[ID_CHANNEL_B], (char*)system_std_font);
 	
+	// switch cursor to a full block. 
+	Sys_ChangeCursor(CH_HFILL_UP_8);
+
 // 	// load the splash screen and progress bar
 // 	if (Startup_ShowSplash() == false)
 // 	{
@@ -1164,6 +1150,7 @@ bool Sys_SetVideoMode(Screen* the_screen, screen_resolution new_mode)
 	uint32_t	the_old_value;
 	uint32_t	the_old_masked_value;
 	uint32_t	the_new_value;
+	uint8_t		the_mcp_screen_id;
 	
 	if (the_screen == NULL)
 	{
@@ -1176,9 +1163,8 @@ bool Sys_SetVideoMode(Screen* the_screen, screen_resolution new_mode)
 	//   clears everything from first byte of master control but the reserved bit (bit 6)
 	//   then re-enables only those modes specified
 
-	the_old_value = R32(the_screen->vicky_);
-	the_old_masked_value = the_old_value & VIDEO_MODE_MASK;
-	
+	the_old_value = R32(the_screen->vicky_);	// R32(VICKY_B_MASTER_CONTROL) etc also works.
+	the_old_masked_value = the_old_value & VIDEO_MODE_MASK;	
 	the_bits = 0;
 
 	// TODO: figure out smarter way of knowing which video modes are legal for the machine being run on
@@ -1238,10 +1224,46 @@ bool Sys_SetVideoMode(Screen* the_screen, screen_resolution new_mode)
  	//DEBUG_OUT(("%s %d: specified video mode = %u, flag=%u", __func__, __LINE__, new_mode, the_bits));
 	
 	// switch to graphics mode by setting graphics mode bit, and setting bitmap engine enable bit
-	//the_new_value = (the_old_value & ~GRAPHICS_MODE_MASK) | (uint32_t)the_bits;
-	the_new_value = (the_old_masked_value) | (uint32_t)the_bits;
-	DEBUG_OUT(("%s %d: video mode: old masked=%ul, old=%ul, new=%ul", __func__, __LINE__, the_old_masked_value, the_old_value, the_new_value));
-	R32(the_screen->vicky_) = the_new_value;
+	//the_new_value = the_old_masked_value | (the_bits << 8);	// this is a 1-byte flag
+		//the_new_value = the_old_masked_value | VICKY_B_MC_RES_FLAG_1;	// this is a 4-byte flag, will also work if above logic tweaked to use 4 byte vals
+	//DEBUG_OUT(("%s %d: video mode: old masked=%ul, old=%ul, new=%ul", __func__, __LINE__, the_old_masked_value, the_old_value, the_new_value));
+	//R32(the_screen->vicky_) = the_new_value;
+
+	// the above code produces the correct values, but does not work by itself:
+		// looking at MCP source, it seems the PLL frequency has to be jiggled before changing resolution. 
+		// just going to use MCP technique for now.
+		// it also looks as if there is a high res DIP switch that can be used to indicate user preference, but isn't necessarily mechanically driving resolution (requires MCP or user program action)
+		// https://github.com/pweingar/FoenixMCP/blob/32af2939aff8b219a34fc18374785e43eb3a5e30/src/dev/txt_a2560k_b.c#L167
+		
+	// use MCP calls to set resolution
+	
+	// MCP uses 0 for B, 1 for A, we are opposite
+	if (the_screen->id_ == ID_CHANNEL_A)
+	{
+		the_mcp_screen_id = 1;
+	}
+	else
+	{
+		the_mcp_screen_id = 0;
+	}
+	
+	if (new_mode == RES_640X400)
+	{
+		sys_txt_set_resolution(the_mcp_screen_id, 640, 400);
+	}
+	else if (new_mode == RES_640X480)
+	{
+		sys_txt_set_resolution(the_mcp_screen_id, 640, 480);
+	}
+	else if (new_mode == RES_800X600)
+	{
+		sys_txt_set_resolution(the_mcp_screen_id, 800, 600);
+	}
+	else if (new_mode == RES_1024X768)
+	{
+		sys_txt_set_resolution(the_mcp_screen_id, 1024, 768);
+	}
+
 
 	// teach screen about the new settings
 	if (Sys_DetectScreenSize(the_screen) == false)

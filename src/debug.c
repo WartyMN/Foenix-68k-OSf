@@ -390,9 +390,9 @@ printf("Configuring UART for serial logging... \n");
 		Serial_InitUART();
 
 	#else
-		const char*		the_file_path = "/sd/osf_sys_log2.txt";
+		const char*		the_file_path = "/sd/sys_log.txt";
 	
-printf("Opening log file for disk logging... \n");
+		//printf("Opening log file for disk logging... \n");
 
 		debug_log_file = fopen( the_file_path, "w");
 		

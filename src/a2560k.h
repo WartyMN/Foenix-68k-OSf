@@ -51,9 +51,9 @@
 #define R8(x)						*((volatile __far uint8_t* const)(x))			// make sure we read an 8 bit byte; for VICKY registers, etc.
 #define P8(x)						(volatile __far uint8_t* const)(x)			// make sure we read an 8 bit byte; for VICKY registers, etc.
 #define R16(x)						*((volatile __far uint16_t* const)(x))		// make sure we read an 16 bit byte; for RNG etc.
-#define P16(x)						(volatile unsigned short* const)(x)		// make sure we read an 16 bit short; for VICKY registers, etc.
+#define P16(x)						(volatile __far uint16_t* const)(x)		// make sure we read an 16 bit short; for VICKY registers, etc.
 #define R32(x)						*((volatile __far uint32_t* const)(x))		// make sure we read an 32 bit byte;
-#define P32(x)						(volatile unsigned long* const)(x)		// make sure we read a 32 bit long; for VICKY registers, etc.
+#define P32(x)						(volatile __far uint32_t* const)(x)		// make sure we read a 32 bit long; for VICKY registers, etc.
 // and near variants. keeping far variants as regular "R8", etc, for backwards compatibility with other 6502 code of mine
 #define NR8(x)						*((volatile uint8_t* const)(x))			// make sure we read an 8 bit byte; for VICKY registers, etc.
 #define NP8(x)						(volatile uint8_t* const)(x)			// make sure we read an 8 bit byte; for VICKY registers, etc.
@@ -195,32 +195,6 @@
 	#define CLUT7_OFFSET_B				0x3C00		//!> the (byte) offset from the VICKY control register to the 8th CLUT RAM space
 	#define FONT_MEMORY_BANK0_OFFSET_B	0x8000		//!> the (byte) offset from the VICKY control register to the font memory for bank0
 
-
-
-// VICKY RESOLUTION FLAGS Per A2560K_UM_Rev0.0.1.pdf and A2560U_UM_Rev0.0.2.pdf
-// VICKY II / VICKY III Chan B
-// 640x480  @ 60FPS > 0 0
-// 800x600  @ 60FPS > 0 1
-// reserved         > 1 0
-// 640x400  @ 70FPS > 1 1
-
-// VICKY III Chan A
-// 800x600  @ 60FPS > 0 0
-// 1024x768 @ 60FPS > 0 1
-// reserved         > 1 0
-// reserved         > 1 1
-
-#define VICKY_II_RES_640X480_FLAGS		0x00	// 0b00000000
-#define VICKY_II_RES_800X600_FLAGS		0x01	// 0b00000001
-#define VICKY_II_PIX_DOUBLER_FLAGS		0x02	// 0b00000001
-#define VICKY_II_RES_640X400_FLAGS		0x03	// 0b00000011
-
-#define VICKY_IIIB_RES_640X480_FLAGS	0x00	// 0b00000000
-#define VICKY_IIIB_RES_800X600_FLAGS	0x01	// 0b00000001
-#define VICKY_IIIB_RES_640X400_FLAGS	0x03	// 0b00000011
-
-#define VICKY_IIIA_RES_800X600_FLAGS	0x00	// 0b00000000
-#define VICKY_IIIA_RES_1024X768_FLAGS	0x08	// 0b00000100
 
 
 
@@ -501,6 +475,43 @@
 #define VICKY_RES_FON_OVLY			0x10	// 0b00010000 -- if clear(0), only the text foreground color will be displayed when text overlays graphics (all background colors will be completely transparent). If set (1), both foreground and background colors will be displayed, except that background color 0 will be transparent.
 #define VICKY_RES_FON_SET			0x20	// 0b00100000 -- if set (1), the text font displayed will be font set 1. If clear (0), the text font displayed will be font set 0.
 
+// Common offsets from Vicky A/B base to desired reg.
+#define VICKY_AB_OFFSET_BORDER_CTRL_REG		4			// Border Control Register
+#define VICKY_AB_OFFSET_BORDER_COLOR_REG	8			// Border Color Register
+#define VICKY_AB_OFFSET_BACK_COLOR_REG		12			// Background Color Register
+#define VICKY_AB_OFFSET_CURSOR_CTRL_REG		16			// Cursor Control Register
+#define VICKY_AB_OFFSET_CURSOR_POS_REG		20			// Cursor Position Register
+
+// VICKY RESOLUTION FLAGS Per A2560K_UM_Rev0.0.1.pdf and A2560U_UM_Rev0.0.2.pdf
+// VICKY II / VICKY III Chan B
+// 640x480  @ 60FPS > 0 0
+// 800x600  @ 60FPS > 0 1
+// reserved         > 1 0
+// 640x400  @ 70FPS > 1 1
+
+// VICKY III Chan A
+// 800x600  @ 60FPS > 0 0
+// 1024x768 @ 60FPS > 0 1
+// reserved         > 1 0
+// reserved         > 1 1
+
+#define VICKY_II_RES_640X480_FLAGS		0x00	// 0b00000000
+#define VICKY_II_RES_800X600_FLAGS		0x01	// 0b00000001
+#define VICKY_II_PIX_DOUBLER_FLAGS		0x02	// 0b00000001
+#define VICKY_II_RES_640X400_FLAGS		0x03	// 0b00000011
+
+#define VICKY_IIIB_RES_640X480_FLAGS	0x00	// 0b00000000
+#define VICKY_IIIB_RES_800X600_FLAGS	0x01	// 0b00000001
+#define VICKY_IIIB_RES_640X400_FLAGS	0x03	// 0b00000011
+
+#define VICKY_IIIA_RES_800X600_FLAGS	0x00	// 0b00000000
+#define VICKY_IIIA_RES_1024X768_FLAGS	0x08	// 0b00000100
+
+#define VICKY_AB_RES_FLAG_MASK_8BIT		0b00000011	// when masking 2nd byte of VICKY, these are the bits related to resolution.
+#define VICKY_AB_RES_FLAG_MASK_32BIT	0x00000300	// when masking 2nd byte of VICKY, these are the bits related to resolution.
+
+
+
 
 // ** A2560K VICKY - CHANNEL A
 // NOTE: channel A is text only, no graphic modes
@@ -523,7 +534,9 @@
 
 #define VICKY_A_BORDER_CONTROL			(VICKY_A_MASTER_CONTROL + 4)	// VICKY Channel A border control register
 
-#define VICKYA_CURSOR_CTRL_A2560K	(VICKY_A_BASE_ADDRESS + 0x10)	// vicky III channel A cursor control register
+//#define VICKYA_CURSOR_CTRL_A2560K	(VICKY_A_BASE_ADDRESS + 0x10)	// vicky III channel A cursor control register
+#define VICKYA_CURSOR_CTRL_A2560K	(0xfec40010)	// vicky III channel A cursor control register
+	#define VICKY_AB_CCR_CHAR_MASK	0xFF00FFFF	//!> the mask for the cursor control register that controls the character used as cursor
 #define VICKYA_CURSOR_POS_A2560K	(VICKY_A_BASE_ADDRESS + 0x14)	// vicky III channel A cursor position register (x pos is lower word, y pos is upper word)
 
 // VICKY III - Channel B - Text and Graphics
@@ -534,6 +547,7 @@
 #define GAMMA_MODE_MASK				0xFF00FFFF	//!> the mask for the system control register that controls gamma (in some way not clear to me)
 
 #define VICKY_B_BASE_ADDRESS		0xfec80000		// start of VICKY channel B registers -- all are 4 byte, RW (some bits RO)
+
 #define VICKY_B_MASTER_CONTROL		(VICKY_B_BASE_ADDRESS)	// vicky III channel B control register
 
 	// VICKY B byte 0 bits (reserved except as noted below)
@@ -1342,7 +1356,7 @@ typedef struct Rectangle
 typedef struct Screen
 {
 	int16_t			id_;				// 0 for channel A, 1 for channel B. not all foenix's have 2 channels.
-	volatile unsigned long*	vicky_;		// VICKY primary register RAM loc. See VICKY_A_BASE_ADDRESS, VICKY_B_BASE_ADDRESS, VICKY_A2560U, etc.
+	volatile uint32_t*	vicky_;		// VICKY primary register RAM loc. See VICKY_A_BASE_ADDRESS, VICKY_B_BASE_ADDRESS, VICKY_A2560U, etc.
 	Rectangle		rect_;				// the x1, y1, > x2, y2 coordinates of the screen, taking into account any borders. 
 	int16_t			width_;				// for the current resolution, the max horizontal pixel count 
 	int16_t			height_;			// for the current resolution, the max vertical pixel count 

@@ -22,17 +22,11 @@ DEBUG_VIA_SERIAL=USE_DISK_LOGGING
 
 # source files
 ASM_SRCS =
-#C_SRCS = main.c bitmap.c control.c control_template.c debug.c event.c font.c general.c list.c menu.c mouse.c  sys.c text.c theme.c window.c
 C_SRCS = sys_test.c general_test.c font_test.c window_test.c bitmap_test.c text_test.c main.c startup.c sys_demo.c font_demo.c window_demo.c bitmap_demo.c text_demo.c
 LIB_SRCS = bitmap.c control_template.c control.c debug.c event.c font.c general.c list.c menu.c mouse.c sys.c text.c theme.c window.c  startup.c
 # Test source files (also requires core)
 TEST_SRCS = sys_test.c general_test.c font_test.c window_test.c bitmap_test.c text_test.c
 DEMO_SRCS = sys_demo.c font_demo.c window_demo.c bitmap_demo.c text_demo.c
-#bitmap_test.c font_test.c text_test.c window_test.c general_test.c 
-# Demo source files (also requires core)
-#TEXT_DEMO_SRCS = sys.c theme.c control_template.c font.c window.c control.c general.c bitmap.c text.c list.c event.c mouse.c menu.c text_demo.c
-#SYS_DEMO_SRCS = sys.c theme.c control_template.c font.c window.c control.c general.c bitmap.c text.c list.c event.c mouse.c menu.c sys_demo.c
-#BITMAP_DEMO_SRCS = bitmap_demo.c
 
 
 MODEL = --code-model=large --data-model=large
@@ -41,14 +35,9 @@ LIB_MODEL = lc-ld
 # Object files
 OBJS = $(ASM_SRCS:%.s=obj/%.o) $(C_SRCS:%.c=obj/%.o)
 #OBJS_DEBUG = $(ASM_SRCS:%.s=obj/%-debug.o) $(C_SRCS:%.c=obj/%-debug.o)
-#C_OBJS = $(C_SRCS:%.c=obj/%.o)
 LIB_OBJS = $(LIB_SRCS:%.c=obj/%.o)
 TEST_OBJS = $(TEST_SRCS:%.c=obj/%.o)
 DEMO_OBJS = $(DEMO_SRCS:%.c=obj/%.o)
-#TUTORIAL_OBJS = $(TUTORIAL_SRCS:%.c=obj/%.o)
-#TEXT_DEMO_OBJS = $(TEXT_DEMO_SRCS:%.c=obj/%.o)
-#SYS_DEMO_OBJS = $(SYS_DEMO_SRCS:%.c=obj/%.o)
-#BITMAP_DEMO_OBJS = $(BITMAP_DEMO_SRCS:%.c=obj/%.o)
 
 obj/%.o: %.s
 	as68k --core=68040 $(MODEL)  --list-file=$(@:%.o=%.lst) -o $@ $<
@@ -68,7 +57,6 @@ all: lib tests demos
 
 lib:	$(LIB_OBJS)
 	@echo "Building library..."
-#	ln68k -o $@ $^ $(FOENIX_LINKER_RULES) clib-68000-$(LIB_MODEL)-foenix.a --output-format=raw --list-file=a2560_sys.lst --cross-reference --rtattr printf=float --rtattr cstartup=Foenix_user
 	nlib $(TARGET_LIB)/a2560_sys.a $(LIB_OBJS)
 
 tests:	$(TEST_OBJS)
