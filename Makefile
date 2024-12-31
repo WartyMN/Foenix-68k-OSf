@@ -22,7 +22,7 @@ DEBUG_VIA_SERIAL=USE_DISK_LOGGING
 
 # source files
 ASM_SRCS =
-C_SRCS = sys_test.c general_test.c font_test.c window_test.c bitmap_test.c text_test.c main.c startup.c sys_demo.c font_demo.c window_demo.c bitmap_demo.c text_demo.c
+C_SRCS = sys_test.c general_test.c font_test.c window_test.c bitmap_test.c text_test.c main.c startup.c sys_demo.c font_demo.c window_demo.c bitmap_demo.c text_demo.c bitmap.c control_template.c control.c debug.c event.c font.c general.c list.c menu.c mouse.c sys.c text.c theme.c window.c  startup.c
 LIB_SRCS = bitmap.c control_template.c control.c debug.c event.c font.c general.c list.c menu.c mouse.c sys.c text.c theme.c window.c  startup.c
 # Test source files (also requires core)
 TEST_SRCS = sys_test.c general_test.c font_test.c window_test.c bitmap_test.c text_test.c
