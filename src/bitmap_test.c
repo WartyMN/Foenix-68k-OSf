@@ -100,6 +100,7 @@ MU_TEST(test_speed_1_tiling)
 	long	test1_ticks;
 	long	test2_ticks;
 	long	test3_ticks;
+	long	test4_ticks;
 	int16_t	i;
 	int16_t	times_to_run = 100;
 	
@@ -142,14 +143,28 @@ MU_TEST(test_speed_1_tiling)
 	// speed test 3 goes here
 	for (i = 0; i < times_to_run; i++)
 	{
-		Bitmap_Tile(the_pattern, 0, 0, the_target_bitmap, 16, 16);
+		Bitmap_TileV3(the_pattern, 0, 0, the_target_bitmap, 16, 16);
 	}
 		
 	end_ticks = mu_timer_real();
 	test3_ticks = end_ticks - start_ticks;
+
+
 	
-	printf("\nSpeed results: 1st: %li ticks; 2nd: %li ticks; 3rd: %li ticks\n", test1_ticks, test2_ticks, test3_ticks);
-	DEBUG_OUT(("Speed results: 1st: %li ticks; 2nd: %li ticks; 3rd: %li ticks", test1_ticks, test2_ticks, test3_ticks));
+	// test speed of 4th variant
+	start_ticks = mu_timer_real();
+	
+	// speed test 4 goes here
+	for (i = 0; i < times_to_run; i++)
+	{
+		Bitmap_Tile(the_pattern, 0, 0, the_target_bitmap, 16, 16);
+	}
+		
+	end_ticks = mu_timer_real();
+	test4_ticks = end_ticks - start_ticks;
+	
+	printf("\nSpeed results: 1st: %li ticks; 2nd: %li ticks; 3rd: %li ticks 4th: %li ticks\n", test1_ticks, test2_ticks, test3_ticks, test4_ticks);
+	DEBUG_OUT(("Speed results: 1st: %li ticks; 2nd: %li ticks; 3rd: %li ticks; 4th: %li ticks", test1_ticks, test2_ticks, test3_ticks, test4_ticks));
 }
 
 
