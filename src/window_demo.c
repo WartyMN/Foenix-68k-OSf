@@ -313,18 +313,19 @@ void RunDemo(void)
 	NewWinTemplate*		the_win_template;
 	static char*		the_win_title = "My New Window";
 	
+	ShowDescription("Welcome to the A2560 Window Library Demo!");	
+	WaitForUser();
+	
 	DEBUG_OUT(("%s %d: Setting graphics mode...", __func__, __LINE__));
 
-	Sys_SetGraphicMode(global_system, PARAM_SPRITES_OFF, PARAM_BITMAP_ON, PARAM_TILES_OFF, PARAM_TEXT_OVERLAY_ON, PARAM_TEXT_ON);
+	Sys_SetGraphicMode(global_system, PARAM_SPRITES_OFF, PARAM_BITMAP_ON, PARAM_TILES_OFF, PARAM_TEXT_OVERLAY_OFF, PARAM_TEXT_OFF);
 	
 	if ( (the_win_template = Window_GetNewWinTemplate(the_win_title)) == NULL)
 	{
 		LOG_ERR(("%s %d: Could not get a new window template", __func__ , __LINE__));
-printf("Could not get a new window template \n");
 		return;
 	}	
 	// note: all the default values are fine for us in this case.
-printf("got new window template \n");
 	
 	DEBUG_OUT(("%s %d: x=%i, y=%i, width=%i, title='%s'", __func__, __LINE__, the_win_template->x_, the_win_template->y_, the_win_template->width_, the_win_template->title_));
 	
@@ -332,9 +333,7 @@ printf("got new window template \n");
 	{
 		DEBUG_OUT(("%s %d: Couldn't instantiate a window", __func__, __LINE__));
 		return;
-printf("Couldn't instantiate a window \n");
 	}
-printf("instantiated window \n");
 
 	// say hi
 	Window_SetPenXY(the_window, 5, 5);
@@ -342,7 +341,7 @@ printf("instantiated window \n");
 	if (Window_DrawString(the_window, (char*)"Hello, World", GEN_NO_STRLEN_CAP) == false)
 	{
 		// oh, no! you should handle this.
-printf("Could do Window_DrawString \n");
+		printf("Could not do Window_DrawString \n");
 	}
 	
 

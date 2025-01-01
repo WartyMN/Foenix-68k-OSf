@@ -1164,6 +1164,7 @@ bool Window_BlitClipRects(Window* the_window)
 	
 	if (the_window->clip_count_ == 0)
 	{
+		DEBUG_OUT(("%s %d: the_window->clip_count_ == 0 (not error condition)", __func__, __LINE__));
 		return true; // not an error condition
 	}
 	

@@ -609,7 +609,7 @@ void RunDemo(void);
 Font* Demo_Font_LoadFontData(void);
 Font* Demo_Font_LoadProFont9FontData(void);
 void Demo_Font_ShowChars(Bitmap* the_bitmap, int16_t x1, int16_t y);
-void Demo_Font_DrawString(Bitmap* the_bitmap, int16_t y);
+void Demo_Font_DrawString(Bitmap* the_bitmap, int16_t y, uint8_t fore_color);
 void Demo_Font_DrawStringInBox1(Bitmap* the_bitmap);
 
 
@@ -624,6 +624,7 @@ void WaitForUser(void)
 	Text_DrawStringAtXY(global_system->screen_[ID_CHANNEL_B], 1, 4, (char*)"Press any key to continue", FG_COLOR_BRIGHT_YELLOW, 0);
 	
 	General_GetChar();
+	//General_DelaySeconds(3);
 	
 // 	Bitmap_FillMemory(Sys_GetScreenBitmap(global_system, back_layer), 0xbb);
 	Text_FillCharMem(global_system->screen_[ID_CHANNEL_B], ' ');
@@ -859,7 +860,7 @@ void Demo_Font_ShowChars(Bitmap* the_bitmap, int16_t x1, int16_t y)
 }
 
 
-void Demo_Font_DrawString(Bitmap* the_bitmap, int16_t y)
+void Demo_Font_DrawString(Bitmap* the_bitmap, int16_t y, uint8_t fore_color)
 {
 	Font*			the_font;
 	int16_t			x;
@@ -882,7 +883,7 @@ void Demo_Font_DrawString(Bitmap* the_bitmap, int16_t y)
 
 	// draw at upper right, in too narrow a space, in light blue
 	x = 450;
-	Bitmap_SetColor(the_bitmap, SYS_COLOR_BLUE1);
+	Bitmap_SetColor(the_bitmap, fore_color);
 	
 	// draw copy of string down right edge of screen to test fit
 	for (; y < the_bitmap->height_; y += row_height)
@@ -967,7 +968,7 @@ void RunDemo(void)
 		x1 = 31;
 		y = 150;
 		Demo_Font_ShowChars(the_bitmap, x1, y);
-		Demo_Font_DrawString(the_bitmap, y);
+		Demo_Font_DrawString(the_bitmap, y, SYS_COLOR_BLUE1);
 		Font_Destroy(&the_font);
 
 		// test out a second font
@@ -980,7 +981,7 @@ void RunDemo(void)
 			x1 = 100;
 			y = 200;
 			Demo_Font_ShowChars(the_bitmap, x1, y);
-			Demo_Font_DrawString(the_bitmap, y + 50);
+			Demo_Font_DrawString(the_bitmap, y + 50, SYS_COLOR_RED2);
 			Demo_Font_DrawStringInBox1(the_bitmap);
 			Font_Destroy(&the_other_font);
 		}

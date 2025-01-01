@@ -392,6 +392,7 @@ void WaitForUser(void)
 	Text_DrawStringAtXY(global_system->screen_[ID_CHANNEL_B], 1, DESCRIPTION_START_Y_LINE + DESCRIPTION_NUM_LINES, (char*)"Press any key to continue", FG_COLOR_BRIGHT_YELLOW, BG_COLOR_BLUE);
 	
 	General_GetChar();
+// 	General_DelaySeconds(2);
 	
 	Text_FillCharMem(global_system->screen_[ID_CHANNEL_B], ' ');
 	Text_FillAttrMem(global_system->screen_[ID_CHANNEL_B], 0);
@@ -1395,16 +1396,16 @@ void RunDemo(void)
 	//Sys_SetModeGraphics(global_system);
  	//Sys_SetModeText(global_system, true);
 	
-	//ShowWhatYouWantMessage();
+	ShowWhatYouWantMessage();
 	
-	//OpenMultipleWindows();
+	OpenMultipleWindows();
 	ShowDescription("This is a demo of various system functionality. When you see this text-mode message overlaid on the screen, click any key to proceed to the next step.");	
 	WaitForUser();
 
 	
 	Open2Windows();
 
-	//OpenMultipleWindows();
+	OpenMultipleWindows();
 
 	OpenTinyWindow();
 

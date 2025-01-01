@@ -388,6 +388,12 @@ bool Font_DrawString(Bitmap* the_bitmap, char* the_string, int16_t max_chars)
 	
 	num_chars = strlen(the_string);
 	
+	if (num_chars == 0)
+	{
+		DEBUG_OUT(("%s %d: the string was empty", __func__, __LINE__));
+		return true;
+	}
+	
 	if (num_chars > max_chars && max_chars != -1)
 	{
 		num_chars = max_chars;
@@ -632,7 +638,7 @@ int16_t Font_MeasureStringWidth(Font* the_font, char* the_string, int16_t num_ch
 
 	if (num_chars == 0)
 	{
-		return -1;
+		return 0;
 	}
 	
 	// num_chars will be GEN_NO_STRLEN_CAP (-1) if the calling method wants us to display the entire string. 
