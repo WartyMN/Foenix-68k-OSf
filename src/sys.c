@@ -453,6 +453,7 @@ bool Sys_DetectScreenSize(Screen* the_screen)
 	//v = (unsigned char*)the_screen->vicky_;
 	the_vicky_value = *the_screen->vicky_;
 	the_video_mode_bits = (the_vicky_value >> 8) & 0xff;
+	DEBUG_OUT(("%s %d: 32bit vicky value=%x, video mode bits before vid flag=%x", __func__, __LINE__, the_vicky_value, the_video_mode_bits));
 	the_video_mode_bits &= VICKY_AB_RES_FLAG_MASK_8BIT;	// further mask down to just the 2 bits relevant for detecting screen resolution
 	DEBUG_OUT(("%s %d: 32bit vicky value=%x, video mode bits=%x", __func__, __LINE__, the_vicky_value, the_video_mode_bits));
 	

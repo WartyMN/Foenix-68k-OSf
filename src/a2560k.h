@@ -507,7 +507,7 @@
 #define VICKY_IIIA_RES_800X600_FLAGS	0x00	// 0b00000000
 #define VICKY_IIIA_RES_1024X768_FLAGS	0x08	// 0b00000100
 
-#define VICKY_AB_RES_FLAG_MASK_8BIT		0b00000011	// when masking 2nd byte of VICKY, these are the bits related to resolution.
+#define VICKY_AB_RES_FLAG_MASK_8BIT		0x03	// 0b00000011	// when masking 2nd byte of VICKY, these are the bits related to resolution.
 #define VICKY_AB_RES_FLAG_MASK_32BIT	0x00000300	// when masking 2nd byte of VICKY, these are the bits related to resolution.
 
 

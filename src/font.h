@@ -111,7 +111,7 @@ struct Font {
 //! NOTE: this allocates new memory for the font, and copies the font data to it from the passed buffer. It is not dependent on the data in the buffer after returning.
 //! @param	the_data: Must contain a valid Mac 'FONT' resource data hunk. 
 //! @param	data_size: Count of all bytes in the data buffer, including the font record and following font tables.
-Font* Font_New(unsigned char* the_data, uint16_t data_size);
+Font* Font_New(uint8_t* the_data, uint16_t data_size);
 
 // destructor
 // frees all allocated memory associated with the passed object, and the object itself

@@ -212,7 +212,7 @@ extern System*			global_system;
 			
 			if (uart_in_buff_is_empty == true)
 			{
-				printf(" in buff was still full after all tries \n");
+				//printf(" in buff was still full after all tries \n");
 				goto error;
 			}
 			
@@ -221,7 +221,7 @@ extern System*			global_system;
 			return true;
 			
 			error:
-				printf(" serial send hit error condition \n");
+				//printf(" serial send hit error condition \n");
 				return false;
 		}
 		
@@ -233,7 +233,8 @@ extern System*			global_system;
 			uint16_t	i;
 			uint8_t		the_byte;
 			
-printf("serial debug trying to send buffer of size %u: '%s' \n", buffer_size, the_buffer);
+			//printf("serial debug trying to send buffer of size %u: '%s' \n", buffer_size, the_buffer);
+			printf("'%s' \n", the_buffer);
 			if (buffer_size > 256)
 			{
 				buffer_size = 256;

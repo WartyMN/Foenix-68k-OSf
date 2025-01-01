@@ -23,6 +23,7 @@
 // C includes
 #include <stdbool.h>
 #include <stdarg.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -98,13 +99,13 @@ uint8_t Font_GetCharWidth(Font* the_font, unsigned char the_char)
 //! Get the total height, in pixels, of one line of text, including any leading
 uint8_t Font_GetRowHeight(Font* the_font)
 {
-	return the_font->leading + the_font->fRectHeight;
+	return (uint8_t)(the_font->leading + the_font->fRectHeight);
 }
 
 //! Get the width of characters, in pixels, for fixed width fonts (all fonts will report one)
 uint8_t Font_GetFixedWidth(Font* the_font)
 {
-	return the_font->leading + the_font->widMax;
+	return (uint8_t)(the_font->leading + the_font->widMax);
 }
 
 
@@ -143,7 +144,7 @@ void Font_Print(Font* the_font)
 //! NOTE: this allocates new memory for the font, and copies the font data to it from the passed buffer. It is not dependent on the data in the buffer after returning.
 //! @param	the_data: Must contain a valid Mac 'FONT' resource data hunk. 
 //! @param	data_size: Count of all bytes in the data buffer, including the font record and following font tables.
-Font* Font_New(unsigned char* the_data, uint16_t data_size)
+Font* Font_New(uint8_t* the_data, uint16_t data_size)
 {
 	Font*			the_font;
 
@@ -154,6 +155,7 @@ Font* Font_New(unsigned char* the_data, uint16_t data_size)
 	bool			has_height_table;
 	uint16_t		write_index = 0;
 	uint16_t		write_len;
+	uint8_t*		copy_ptr_8b;
 
 	// LOGIC:
 	//   the font data will contain 26 bytes of font record, followed by data
@@ -185,7 +187,7 @@ Font* Font_New(unsigned char* the_data, uint16_t data_size)
 	memcpy(the_font, the_data, write_len);
 	the_data += write_len;
 
-	DEBUG_OUT(("%s %d: the_font=%p", __func__, __LINE__, the_font));
+	//DEBUG_OUT(("%s %d: the_font=%p", __func__, __LINE__, the_font));
 	
 	// set up font data tables
 
@@ -199,7 +201,7 @@ Font* Font_New(unsigned char* the_data, uint16_t data_size)
 
 
 	// font image table -- holds the pixels for each glyph, packed into 16 bit ints
-	image_table_count = the_font->rowWords * the_font->fRectHeight;
+	image_table_count = (uint16_t)the_font->rowWords * (uint16_t)the_font->fRectHeight;
 	write_len = image_table_count * sizeof(uint16_t);
 	//DEBUG_OUT(("%s %d: rowWords=%u, fRectHeight=%u, image_table_count=%u", __func__, __LINE__, the_font->rowWords, the_font->fRectHeight, image_table_count));
 
@@ -210,29 +212,37 @@ Font* Font_New(unsigned char* the_data, uint16_t data_size)
 	}
 	LOG_ALLOC(("%s %d:	__ALLOC__	the_font->image_table_	%p	size	%i", __func__ , __LINE__, the_font->image_table_, image_table_count * sizeof(uint16_t)));
 
-	memcpy((char*)the_font->image_table_, (char*)the_data, write_len);
+	// when doing memcpy with Calypsi, compared to VBCC, this failed. I think calypsi advanced the image table pointer by 1 for each byte from data
+	//  due to difference in pointer size. makes sense. worked around it by using an 8 bit pointer for the copy operations in this function.
+
+	//memcpy((char*)the_font->image_table_, (char*)the_data, write_len);
+	//the_data += write_len;
+	copy_ptr_8b = (uint8_t*)the_font->image_table_;
+	memcpy(copy_ptr_8b, the_data, write_len);
 	the_data += write_len;
 
-
 	// location table -- holds offsets to each glyph, in BITS, from the start of the image table
-	loc_table_count = the_font->lastChar - the_font->firstChar + 3;
+	loc_table_count = ((uint16_t)the_font->lastChar - (uint16_t)the_font->firstChar) + 3;
 	write_len = loc_table_count * sizeof(uint16_t);
 
 	if ( (the_font->loc_table_ = (uint16_t*)calloc(loc_table_count, sizeof(uint16_t)) ) == NULL)
 	{
-		LOG_ERR(("%s %d: could not allocate memory to create new font location data", __func__ , __LINE__));
+		LOG_ERR(("%s %d: could not allocate memory (%u) to create new font location data", __func__ , __LINE__, loc_table_count * sizeof(uint16_t)));
 		goto error;
 	}
 	LOG_ALLOC(("%s %d:	__ALLOC__	the_font->loc_table_	%p	size	%i", __func__ , __LINE__, the_font->loc_table_, loc_table_count * sizeof(uint16_t)));
 
-	memcpy((char*)the_font->loc_table_, (char*)the_data, write_len);
-	the_data += write_len;
+// 	memcpy((char*)the_font->loc_table_, (char*)the_data, write_len);
+// 	the_data += write_len;
 
+	copy_ptr_8b = (uint8_t*)the_font->loc_table_;
+	memcpy(copy_ptr_8b, the_data, write_len);
+	the_data += write_len;
 
 	// width/offset table -- holds the horizontal offset to first pixel and total render width	
 	//   the low byte will be the h offset (eg, 1, if you need to start drawing 1 pixel to the right of the pen location)
 	//   the high byte will contain the total width needed to render the character (including any whitespace to left or right of pixels)
-	width_table_count = the_font->lastChar - the_font->firstChar + 3;
+	width_table_count = loc_table_count; // same, no need to recalculate
 	write_len = width_table_count * sizeof(uint16_t);
 
 	if ( (the_font->width_table_ = (uint16_t*)calloc(width_table_count, sizeof(uint16_t)) ) == NULL)
@@ -242,22 +252,26 @@ Font* Font_New(unsigned char* the_data, uint16_t data_size)
 	}
 	LOG_ALLOC(("%s %d:	__ALLOC__	the_font->width_table_	%p	size	%i", __func__ , __LINE__, the_font->width_table_, width_table_count * sizeof(uint16_t)));
 
-	memcpy((char*)the_font->width_table_, (char*)the_data, write_len);
-	the_data +=write_len;
+// 	memcpy((char*)the_font->width_table_, (char*)the_data, write_len);
+// 	the_data +=write_len;
+	copy_ptr_8b = (uint8_t*)the_font->width_table_;
+	memcpy(copy_ptr_8b, the_data, write_len);
+	the_data += write_len;
 
 
 	// get the optional height table, if any - this can be used to optimize drawing speed
 	//   the low byte will be the v offset from top of glyph rect (eg, 3, if the first pixel is in the 4th row down)
 	//   the high byte will contain the total rows of visible pixels (eg, 3 for say a comma, but 9 for a capital letter)
 
-	has_height_table = (bool)((the_font->fontType >> 0) & 0x01);
-// 	DEBUG_OUT(("%s %d: has_height_table=%u, has_detailed_width_table=%u", __func__, __LINE__, has_height_table, (bool)((the_font->fontType >> 1) & 0x01)));	
+	has_height_table = (bool)((the_font->fontType & 0xFF) & 0x01);
+	//DEBUG_OUT(("%s %d: type=%x/%i (lsb=%x), has_height_table=%u, has_detailed_width_table=%u", __func__, __LINE__, the_font->fontType, the_font->fontType, the_font->fontType & 0xFF, has_height_table, (bool)((the_font->fontType & 0xFF) & 0x01)));	
+	//DEBUG_OUT(("%s %d: first char=%i/%x, last=%i/%x", __func__, __LINE__, the_font->firstChar, the_font->firstChar, the_font->lastChar, the_font->lastChar));	
 	
 	if (has_height_table)
 	{
 		//DEBUG_OUT(("%s %d: this font has the optional height table", __func__, __LINE__));	
 	
-		height_table_count = the_font->lastChar - the_font->firstChar + 3;
+		height_table_count = loc_table_count; // same, no need to recalculate
 		write_len = height_table_count * sizeof(uint16_t);
 
 		if ( (the_font->height_table_ = (uint16_t*)calloc(height_table_count, sizeof(uint16_t)) ) == NULL)
@@ -268,6 +282,8 @@ Font* Font_New(unsigned char* the_data, uint16_t data_size)
 		LOG_ALLOC(("%s %d:	__ALLOC__	the_font->height_table_	%p	size	%i", __func__ , __LINE__, the_font->height_table_, height_table_count * sizeof(uint16_t)));
 
 		memcpy((char*)the_font->height_table_, (char*)the_data, write_len);
+		copy_ptr_8b = (uint8_t*)the_font->height_table_;
+		memcpy(copy_ptr_8b, the_data, write_len);
 	}
 	else
 	{
@@ -676,7 +692,6 @@ int16_t Font_DrawChar(Bitmap* the_bitmap, unsigned char the_char, Font* the_font
 	uint16_t*		start_read_addr;
 	int8_t			h_offset_value;			//!< the horizontal offset from pen position before the first pixel should be drawn
 	int8_t			width_value;			//!< the total width of the character including any whitespace to left/right
-	uint8_t			this_bit;
 	uint8_t			the_color;				// shortcut to bitmap->color_
 	uint32_t		start_write_addr_int;
 	uint8_t			first_row;				// if no height table available, this is 0. otherwise it's first row to start drawing.
@@ -708,10 +723,11 @@ int16_t Font_DrawChar(Bitmap* the_bitmap, unsigned char the_char, Font* the_font
 	//     Characters that are not in the font (missing/-1 glyphs) will have 0 for height/offset. 
 	//   If no height table present, we read/write through every row in the Font
 	
-	//DEBUG_OUT(("%s %d: the_font->fontType=%u, (the_font->fontType >> 0) & 0x01)=%u", __func__, __LINE__, the_font->fontType, (the_font->fontType >> 0) & 0x01));
+	//DEBUG_OUT(("%s %d: the_font->fontType=%u, (the_font->fontType & 0xFF) & 0x01)=%u", __func__, __LINE__, the_font->fontType, (the_font->fontType & 0xFF) & 0x01));
 	
-	if ( ((the_font->fontType >> 0) & 0x01) )
+	if ( ((the_font->fontType & 0xFF) & 0x01) )
 	{		
+
 		v_offset_height = the_font->height_table_[the_char];
 		
 		//DEBUG_OUT(("%s %d: v_offset_height=%u", __func__, __LINE__, v_offset_height));
@@ -729,9 +745,11 @@ int16_t Font_DrawChar(Bitmap* the_bitmap, unsigned char the_char, Font* the_font
 	{
 		first_row = 0;
 		max_row = the_font->fRectHeight;
+		v_offset_height = 0;
 	}
 	
 	//DEBUG_OUT(("%s %d: glyph char=%u, height/offset value=%i, first_row=%i, max_row=%i", __func__, __LINE__, the_char, v_offset_height, first_row, max_row));
+	//DEBUG_OUT(("%s %d: fRectHeight=%x/%i", __func__, __LINE__, the_font->fRectHeight, the_font->fRectHeight));
 	
 	//   the low byte will be the v offset from top of glyph rect (eg, 3, if the first pixel is in the 4th row down)
 	//   the high byte will contain the total rows of visible pixels (eg, 3 for say a comma, but 9 for a capital letter)
@@ -753,7 +771,7 @@ int16_t Font_DrawChar(Bitmap* the_bitmap, unsigned char the_char, Font* the_font
 	if (offset_width_value == -1)
 	{
 		// Comment out the line below causes the font data to be read in somewhat wrong. it's not clear to me why having the debug line should do anything. 
-		DEBUG_OUT(("%s %d: offset/width table says this char (%u) does not exist in the font", __func__, __LINE__, the_char));
+		//DEBUG_OUT(("%s %d: offset/width table says this char (%u) does not exist in the font, switching to last char in font (%u)", __func__, __LINE__, the_char, the_font->lastChar + 1));
 		
 		// switch to the "missing glyph" character, which is the last one in the font.
 		the_char = the_font->lastChar + 1;
@@ -771,22 +789,19 @@ int16_t Font_DrawChar(Bitmap* the_bitmap, unsigned char the_char, Font* the_font
 	loc_offset = the_font->loc_table_[the_char];
 	next_loc_offset = the_font->loc_table_[next_char];
 	pixel_only_width = next_loc_offset - loc_offset;
-	//DEBUG_OUT(("%s %d: loc_offset=%i, next_loc_offset=%i, pxwidth=%i", __func__, __LINE__, loc_offset, next_loc_offset, pixel_only_width));
+	//DEBUG_OUT(("%s %d: loc_offset=%i, next_loc_offset=%i, pixel_only_width=%i", __func__, __LINE__, loc_offset, next_loc_offset, pixel_only_width));
 	//DEBUG_OUT(("%s %d: Wid/offset=%x, width_value=%x, h_offset_value=%x", __func__, __LINE__, offset_width_value, width_value, h_offset_value));
 	
-	// the following debug line, if not included in Calypsi 68k builds, has the effect of having width_value=0, which causes x to not advance after drawing this glyph
+	// MB 2022: the following debug line, if not included in Calypsi 68k builds, has the effect of having width_value=0, which causes x to not advance after drawing this glyph
 
-	#if !defined(__VBCC__) && !defined(_C256_FMX_)
-		//DEBUG_OUT(("%s %d: the_char=%u, next_char=%u, loc_offset=%i, next_loc_offset=%i", __func__, __LINE__, the_char, next_char, loc_offset, next_loc_offset));
-		DEBUG_OUT(("%s %d: pxwidth=%i, Wid/offset=%i, width_value=%i, h_offset_value=%i", __func__, __LINE__, pixel_only_width, offset_width_value, width_value, h_offset_value));
-	#endif
+	//DEBUG_OUT(("%s %d: pxwidth=%i, Wid/offset=%i, width_value=%i, h_offset_value=%i", __func__, __LINE__, pixel_only_width, offset_width_value, width_value, h_offset_value));
 	
 	// for A in Chicago, I get "227". this is apparently the BIT offset from the start of the image data table. 
 	// so 227/16=14.1875=image_table_[13] + 3 bits. 
 	
-	image_offset_index = loc_offset / 16;
-	image_offset_index_rem = loc_offset % 16;
-	//DEBUG_OUT(("%s %d: loc_offset=%i, image_offset_index=%i, image_offset_index_rem=%i", __func__, __LINE__, loc_offset, image_offset_index, image_offset_index_rem));
+	image_offset_index = loc_offset / 16;		// word # within the bitmap table to start reading. 
+	image_offset_index_rem = loc_offset % 16;	// # of bits within the first word until the bits for this glyph start
+	//DEBUG_OUT(("%s %d: loc_offset=%x, image_offset_index=%i, image_offset_index_rem=%i", __func__, __LINE__, loc_offset, image_offset_index, image_offset_index_rem));
 
 	the_color = Bitmap_GetColor(the_bitmap);
 	
@@ -818,33 +833,39 @@ int16_t Font_DrawChar(Bitmap* the_bitmap, unsigned char the_char, Font* the_font
 			write_addr_int += h_offset_value;
 			
 			pixels_moved = 0;
-
+			
 			do
 			{
-				int16_t	i;
+				int16_t		i;
+				uint16_t	the_word;
+				bool		this_bit;
+				
+				the_word = *read_addr;
 				
 				for (i = 15; i >= 0 && pixels_written < pixel_only_width; i--)
 				{
-					//DEBUG_OUT(("font_data=%u, bit=%u, i=%i, row=%i", *font_data, (unsigned char)((*font_data >> i) & 0x01), i, row));
-			
-					if (pixels_moved >= image_offset_index_rem)
-					{
-						this_bit = (unsigned char)((*read_addr >> i) & 0x01);
+					this_bit = (bool)((the_word >> i) & 0x01);
 					
+					//DEBUG_OUT(("wd=%x, i=%i, row=%i, bit=%i px written=%u px moved=%u", the_word, i, row, this_bit, pixels_written, pixels_moved));
+					
+					if ( (pixels_moved >= image_offset_index_rem) )
+					{
 						if (this_bit)
 						{
-							*(unsigned char*)write_addr_int = the_color;
+							*(uint8_t*)write_addr_int = the_color;
 						}
+						
+						//DEBUG_OUT(("read_addr=%p, wd=%x, bit=%u, i=%i, row=%i", read_addr, *read_addr, this_bit, i, row));
 					
 						write_addr_int++;
 						pixels_written++;
 					}
-			
+					
 					pixels_moved++;
 				}
 			
 				read_addr++; // move to next word in the font data
-			
+				
 			} while (pixels_written < pixel_only_width);
 		}		
 		

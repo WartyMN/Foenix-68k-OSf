@@ -840,6 +840,7 @@ void Demo_Font_ShowChars(Bitmap* the_bitmap, int16_t x1, int16_t y)
 	Bitmap_SetXY(the_bitmap, x1, y);
 	Bitmap_SetColor(the_bitmap, SYS_COLOR_RED2);
 	
+	//for (i=65; i < 70; i++)
 	//for (i=17; i < 18; i++)
 	for (; i < the_font->lastChar; i++)
 	{
@@ -865,6 +866,7 @@ void Demo_Font_DrawString(Bitmap* the_bitmap, int16_t y)
 	uint8_t			row_height;
 	char*			string1 = (char*)"March 17, 2022: hiya world!";
 	char*			string2 = (char*)"This string is too long to fit";
+	char*			string3 = (char*)"January 1, 2025: Heya from a real Foenix A2560K!";
 	
 	ShowDescription("Font_DrawString -> draw as much of a string as will fit at the current pen position");	
 
@@ -894,6 +896,13 @@ void Demo_Font_DrawString(Bitmap* the_bitmap, int16_t y)
 		x += 20;
 	}
 	
+	// draw at a safe spot, the later welcome message
+	Bitmap_SetXY(the_bitmap, 50, 400);
+
+	if (Font_DrawString(the_bitmap, string3, GEN_NO_STRLEN_CAP) == false)
+	{
+	}
+
  	WaitForUser();
 }
 
@@ -955,10 +964,10 @@ void RunDemo(void)
 		
 		Bitmap_SetFont(the_bitmap, the_font);
 		
-		x1 = 25;
+		x1 = 31;
 		y = 150;
 		Demo_Font_ShowChars(the_bitmap, x1, y);
-// 		Demo_Font_DrawString(the_bitmap, y);
+		Demo_Font_DrawString(the_bitmap, y);
 		Font_Destroy(&the_font);
 
 		// test out a second font

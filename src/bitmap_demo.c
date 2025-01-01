@@ -355,7 +355,7 @@ void Demo_Bitmap_DrawRoundBox(void)
 	//Bitmap_DrawRoundBox(Sys_GetScreenBitmap(global_system, back_layer), x, y, width, height, radius, color, PARAM_DO_FILL);
 
 	Bitmap_DrawRoundBox(Sys_GetScreenBitmap(global_system, back_layer), x, y, width, height, radius, 0x01, PARAM_DO_NOT_FILL);
-	Text_DrawStringAtXY(global_system->screen_[ID_CHANNEL_B], (x)/8-2, y/8-1, (char*)"Cancel", FG_COLOR_BLACK, BG_COLOR_BLACK);
+	Text_DrawStringAtXY(global_system->screen_[ID_CHANNEL_B], (x)/8+1, y/8-0, (char*)"Cancel", FG_COLOR_BLACK, BG_COLOR_BLACK);
 
 	WaitForUser();
 }
