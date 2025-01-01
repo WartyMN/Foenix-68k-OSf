@@ -2,6 +2,8 @@ VPATH = src
 DEPDIR := .deps
 TARGET_LIB = lib_a2560k_68040
 CALYPSI_INSTALL = /usr/local/Homebrew/lib/calypsi-68000-5.7.1
+BUILD_PGZ = build_pgz
+BUILD_LST = build_lst
 
 # debug logging levels: 1=error, 2=warn, 3=info, 4=debug general, 5=allocations
 DEBUG_DEF_1=LOG_LEVEL_1
@@ -61,32 +63,32 @@ lib:	$(LIB_OBJS)
 
 tests:	$(TEST_OBJS)
 	@echo "Building tests..."
-	ln68k -o test_general.pgz obj/general_test.o a2560k_osf.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=test_general.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=1000000 --stack-size=30000  
-	ln68k -o test_sys.pgz obj/sys_test.o a2560k_osf.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=test_sys.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=1000000 --stack-size=30000  
-	ln68k -o test_font.pgz obj/font_test.o a2560k_osf.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=test_font.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=1000000 --stack-size=30000  
-	ln68k -o test_window.pgz obj/window_test.o a2560k_osf.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=test_window.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=1000000 --stack-size=30000  
-	ln68k -o test_bitmap.pgz obj/bitmap_test.o a2560k_osf.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=test_bitmap.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=1000000 --stack-size=30000  
-	ln68k -o test_text.pgz obj/text_test.o a2560k_osf.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=test_text.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=1000000 --stack-size=30000 
+	ln68k -o $(BUILD_PGZ)/test_general.pgz obj/general_test.o a2560k_osf.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=$(BUILD_LST)/test_general.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=1000000 --stack-size=30000  
+	ln68k -o $(BUILD_PGZ)/test_sys.pgz obj/sys_test.o a2560k_osf.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=$(BUILD_LST)/test_sys.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=1000000 --stack-size=30000  
+	ln68k -o $(BUILD_PGZ)/test_font.pgz obj/font_test.o a2560k_osf.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=$(BUILD_LST)/test_font.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=1000000 --stack-size=30000  
+	ln68k -o $(BUILD_PGZ)/test_window.pgz obj/window_test.o a2560k_osf.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=$(BUILD_LST)/test_window.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=1000000 --stack-size=30000  
+	ln68k -o $(BUILD_PGZ)/test_bitmap.pgz obj/bitmap_test.o a2560k_osf.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=$(BUILD_LST)/test_bitmap.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=1000000 --stack-size=30000  
+	ln68k -o $(BUILD_PGZ)/test_text.pgz obj/text_test.o a2560k_osf.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=$(BUILD_LST)/test_text.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=1000000 --stack-size=30000 
 
 demos:	$(DEMO_OBJS)
 	@echo "Building demos..."
-	ln68k -o demo_sys.pgz obj/sys_demo.o a2560k_osf.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=demo_sys.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=1000000 --stack-size=30000 
-	ln68k -o demo_font.pgz obj/font_demo.o a2560k_osf.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=demo_font.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=1000000 --stack-size=30000 
-	ln68k -o demo_window.pgz obj/window_demo.o a2560k_osf.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=demo_window.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=1000000 --stack-size=30000 
-	ln68k -o demo_bitmap.pgz obj/bitmap_demo.o a2560k_osf.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=demo_bitmap.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=1000000 --stack-size=30000 
-	ln68k -o demo_text.pgz obj/text_demo.o a2560k_osf.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=demo_text.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=1000000 --stack-size=30000 
+	ln68k -o $(BUILD_PGZ)/demo_sys.pgz obj/sys_demo.o a2560k_osf.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=$(BUILD_LST)/demo_sys.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=1000000 --stack-size=30000 
+	ln68k -o $(BUILD_PGZ)/demo_font.pgz obj/font_demo.o a2560k_osf.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=$(BUILD_LST)/demo_font.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=1000000 --stack-size=30000 
+	ln68k -o $(BUILD_PGZ)/demo_window.pgz obj/window_demo.o a2560k_osf.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=$(BUILD_LST)/demo_window.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=1000000 --stack-size=30000 
+	ln68k -o $(BUILD_PGZ)/demo_bitmap.pgz obj/bitmap_demo.o a2560k_osf.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=$(BUILD_LST)/demo_bitmap.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=1000000 --stack-size=30000 
+	ln68k -o $(BUILD_PGZ)/demo_text.pgz obj/text_demo.o a2560k_osf.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=$(BUILD_LST)/demo_text.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=1000000 --stack-size=30000 
 
 
 
 osf_debug.elf: $(OBJS_DEBUG)
-	ln68k -o $@ $^ a2560k_osf.scm  --list-file=osf-debug.lst --cross-reference  --semi-hosted  --rtattr cstartup=Foenix_user --rtattr stubs=foenix --stack-size=8000 --sstack-size=800
+	ln68k -o $@ $^ a2560k_osf.scm  --list-file=$(BUILD_LST)/osf-debug.lst --cross-reference  --semi-hosted  --rtattr cstartup=Foenix_user --rtattr stubs=foenix --stack-size=8000 --sstack-size=800
 
 osf.pgz:  $(OBJS)
 #	ln68k -o $@ $^ a2560k_osf.scm --output-format=pgz --list-file=osf-pgz.lst --cross-reference --rtattr cstartup=Foenix_user
-	ln68k -o osf.pgz obj/main.o a2560k_osf.scm a2560-68020-lc-ld.a $(TARGET_LIB)/a2560_sys.a --output-format=pgz --list-file=osf-pgz.lst --cross-reference --rtattr cstartup=Foenix_user 
+	ln68k -o $(BUILD_PGZ)/osf.pgz obj/main.o a2560k_osf.scm a2560-68020-lc-ld.a $(TARGET_LIB)/a2560_sys.a --output-format=pgz --list-file=$(BUILD_LST)/osf-pgz.lst --cross-reference --rtattr cstartup=Foenix_user 
 	
 osf.hex:  $(OBJS)
-	ln68k -o $@ $^ a2560k_osf.scm --output-format=intel-hex --list-file=osf-hex.lst --cross-reference --rtattr cstartup=Foenix_morfe --stack-size=8000
+	ln68k -o $@ $^ a2560k_osf.scm --output-format=intel-hex --list-file=$(BUILD_LST)/osf-hex.lst --cross-reference --rtattr cstartup=Foenix_morfe --stack-size=8000
 
 clean:
 	-rm $(DEPFILES)
@@ -94,7 +96,9 @@ clean:
 	-rm $(DEMO_OBJS) obj/*.lst obj/*.o
 	-rm $(TEST_OBJS) obj/*.lst obj/*.o
 	-rm $(OBJS) $(OBJS:%.o=%.lst) $(OBJS_DEBUG) $(OBJS_DEBUG:%.o=%.lst)
-	-rm osf-debug.elf osf.pgz osf-debug.lst osf-Foenix.lst
+	-rm $(BUILD_PGZ)/*.pgz
+	-rm $(BUILD_LST)/*.lst
+	-rm osf-debug.elf osf-debug.lst osf-Foenix.lst
 
 $(DEPDIR): ; @mkdir -p $@
 
