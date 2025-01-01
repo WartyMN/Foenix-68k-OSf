@@ -2806,7 +2806,7 @@ bool Theme_CopyCLUTtoVicky(Theme* the_theme)
 	
 	the_screen = Sys_GetScreen(global_system, ID_CHANNEL_B);
 	
-	dest = (char*)P32(the_screen->vicky_ + CLUT0_OFFSET_L);
+	dest = P8(the_screen->vicky_ + CLUT0_OFFSET);
 	
 	if (the_theme == NULL)
 	{

@@ -94,24 +94,24 @@
 
 	#define BORDER_X_MASK				0xFFFF00FF	//!> the mask for the Border control register (0x0004) long, for the X border
 	#define BORDER_Y_MASK				0xFF00FFFF	//!> the mask for the Border control register (0x0004) long, for the Y border
-	#define BORDER_CTRL_OFFSET_L		0x01		//!> the (long) offset from the VICKY control register to the border control register		
-	#define BORDER_COLOR_OFFSET_L		0x02		//!> the (long) offset from the VICKY control register to the border color register		
-	#define BACKGROUND_COLOR_OFFSET_L	0x03		//!> the (long) offset from the VICKY control register to the background color register		
-	#define CURSOR_CTRL_OFFSET_L		0x04		//!> the (long) offset from the VICKY control register to the cursor control register		
-	#define CURSOR_POS_OFFSET_L			0x04		//!> the (long) offset from the VICKY control register to the cursor position register		
-	#define LN_INTERRUPT_01_OFFSET_L	0x05		//!> the (long) offset from the VICKY control register to the line interrupts 0 and 1 registers		
-	#define BITMAP_L0_CTRL_L			0x40		//!> the (long) offset from the VICKY control register to the bitmap layer0 control register (foreground layer)		
-	#define BITMAP_L0_VRAM_ADDR_OFFSET_L	0x41		//!> the (long) offset from the VICKY control register to the bitmap layer0 VRAM address pointer)		
-	#define BITMAP_L1_CTRL_L			0x42		//!> the (long) offset from the VICKY control register to the bitmap layer1 control register (background layer)		
-	#define BITMAP_L1_VRAM_ADDR_OFFSET_L	0x43		//!> the (long) offset from the VICKY control register to the bitmap layer1 VRAM address pointer)		
-	#define CLUT0_OFFSET_L				0x800		//!> the (long) offset from the VICKY control register to the first CLUT RAM space
-	#define CLUT1_OFFSET_L				0x900		//!> the (long) offset from the VICKY control register to the 2nd CLUT RAM space
-	#define CLUT2_OFFSET_L				0xA00		//!> the (long) offset from the VICKY control register to the 3rd CLUT RAM space
-	#define CLUT3_OFFSET_L				0xB00		//!> the (long) offset from the VICKY control register to the 4th CLUT RAM space
-	#define CLUT4_OFFSET_L				0xC00		//!> the (long) offset from the VICKY control register to the 5th CLUT RAM space
-	#define CLUT5_OFFSET_L				0xD00		//!> the (long) offset from the VICKY control register to the 6th CLUT RAM space
-	#define CLUT6_OFFSET_L				0xE00		//!> the (long) offset from the VICKY control register to the 7th CLUT RAM space
-	#define CLUT7_OFFSET_L				0xF00		//!> the (long) offset from the VICKY control register to the 8th CLUT RAM space
+	#define BORDER_CTRL_OFFSET_L		0x01		//!> the offset from the VICKY control register to the border control register		
+	#define BORDER_COLOR_OFFSET_L		0x02		//!> the offset from the VICKY control register to the border color register		
+	#define BACKGROUND_COLOR_OFFSET_L	0x03		//!> the offset from the VICKY control register to the background color register		
+	#define CURSOR_CTRL_OFFSET_L		0x04		//!> the offset from the VICKY control register to the cursor control register		
+	#define CURSOR_POS_OFFSET_L			0x04		//!> the offset from the VICKY control register to the cursor position register		
+	#define LN_INTERRUPT_01_OFFSET_L	0x05		//!> the offset from the VICKY control register to the line interrupts 0 and 1 registers		
+	#define BITMAP_L0_CTRL_L			0x40		//!> the offset from the VICKY control register to the bitmap layer0 control register (foreground layer)		
+	#define BITMAP_L0_VRAM_ADDR_OFFSET_L	0x41		//!> the offset from the VICKY control register to the bitmap layer0 VRAM address pointer)		
+	#define BITMAP_L1_CTRL_L			0x42		//!> the offset from the VICKY control register to the bitmap layer1 control register (background layer)		
+	#define BITMAP_L1_VRAM_ADDR_OFFSET_L	0x43		//!> the offset from the VICKY control register to the bitmap layer1 VRAM address pointer)		
+	#define CLUT0_OFFSET				8192	// 0x2000			//!> the offset from the VICKY control register to the first CLUT RAM space
+	#define CLUT1_OFFSET				(CLUT0_OFFSET + 1024)		//!> the offset from the VICKY control register to the 2nd CLUT RAM space
+	#define CLUT2_OFFSET				(CLUT1_OFFSET + 1024)		//!> the offset from the VICKY control register to the 3rd CLUT RAM space
+	#define CLUT3_OFFSET				(CLUT2_OFFSET + 1024)		//!> the offset from the VICKY control register to the 4th CLUT RAM space
+	#define CLUT4_OFFSET				(CLUT3_OFFSET + 1024)		//!> the offset from the VICKY control register to the 5th CLUT RAM space
+	#define CLUT5_OFFSET				(CLUT4_OFFSET + 1024)		//!> the offset from the VICKY control register to the 6th CLUT RAM space
+	#define CLUT6_OFFSET				(CLUT5_OFFSET + 1024)		//!> the offset from the VICKY control register to the 7th CLUT RAM space
+	#define CLUT7_OFFSET				(CLUT6_OFFSET + 1024)		//!> the offset from the VICKY control register to the 8th CLUT RAM space
 
 
 	// ** C256 (VICKY II)
@@ -603,13 +603,13 @@
 #define FONT_MEMORY_BANKA_A2560K	(char*)0xfec48000		// chan A
 #define FONT_MEMORY_BANKB_A2560K	(char*)0xfec88000		// chan B
 #define VICKY_IIIB_CLUT0			0xfec82000				// each addition LUT is 400 offset from here
-#define VICKY_IIIB_CLUT1			(VICKY_IIIB_CLUT0 + 0x400)	// each addition LUT is 400 offset from here
-#define VICKY_IIIB_CLUT2			(VICKY_IIIB_CLUT1 + 0x400)	// each addition LUT is 400 offset from here
-#define VICKY_IIIB_CLUT3			(VICKY_IIIB_CLUT2 + 0x400)	// each addition LUT is 400 offset from here
-#define VICKY_IIIB_CLUT4			(VICKY_IIIB_CLUT3 + 0x400)	// each addition LUT is 400 offset from here
-#define VICKY_IIIB_CLUT5			(VICKY_IIIB_CLUT4 + 0x400)	// each addition LUT is 400 offset from here
-#define VICKY_IIIB_CLUT6			(VICKY_IIIB_CLUT5 + 0x400)	// each addition LUT is 400 offset from here
-#define VICKY_IIIB_CLUT7			(VICKY_IIIB_CLUT6 + 0x400)	// each addition LUT is 400 offset from here
+#define VICKY_IIIB_CLUT1			(VICKY_IIIB_CLUT0 + 1024)	// each addition LUT is 400 offset from here
+#define VICKY_IIIB_CLUT2			(VICKY_IIIB_CLUT1 + 1024)	// each addition LUT is 400 offset from here
+#define VICKY_IIIB_CLUT3			(VICKY_IIIB_CLUT2 + 1024)	// each addition LUT is 400 offset from here
+#define VICKY_IIIB_CLUT4			(VICKY_IIIB_CLUT3 + 1024)	// each addition LUT is 400 offset from here
+#define VICKY_IIIB_CLUT5			(VICKY_IIIB_CLUT4 + 1024)	// each addition LUT is 400 offset from here
+#define VICKY_IIIB_CLUT6			(VICKY_IIIB_CLUT5 + 1024)	// each addition LUT is 400 offset from here
+#define VICKY_IIIB_CLUT7			(VICKY_IIIB_CLUT6 + 1024)	// each addition LUT is 400 offset from here
 
 #define default_start_a2560k_vram	0x00011000	// offset against vicky I think though. add to VICKY_B_BASE_ADDRESS? based on doing peek32 in f68. 
 #define BITMAP_CTRL_REG_A2560_0		0xfec80100	//! Bitmap Layer0 Control Register (Foreground Layer)

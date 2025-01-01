@@ -6974,7 +6974,9 @@ bool Startup_CopyCLUTtoVicky(Screen* the_screen)
 	char*		dest;
 	size_t		data_size = 0x400;
 	
-	dest = (char*)P32(the_screen->vicky_ + CLUT0_OFFSET_L);
+	// hardcode CLUT address: only B has graphics, so no place where we woudl need to set a clut for A.
+	//dest = P8(VICKY_IIIB_CLUT0);
+	dest = P8(the_screen->vicky_ + CLUT0_OFFSET);
 	
 	memcpy(dest, (uint8_t*)splash_clut, data_size);
 	
