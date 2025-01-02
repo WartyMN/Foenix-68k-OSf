@@ -1367,8 +1367,8 @@ typedef struct Screen
 	char*			text_ram_;
 	char*			text_attr_ram_;
 	char*			text_font_ram_;		// 2K of memory holding font definitions.
-	char*			text_color_fore_ram_;	// 64b of memory holding foreground color LUTs for text mode, in BGRA order
-	char*			text_color_back_ram_;	// 64b of memory holding background color LUTs for text mode, in BGRA order
+	uint32_t*		text_color_fore_ram_;	// 64b of memory holding foreground color LUTs for text mode, in BGRA order
+	uint32_t*		text_color_back_ram_;	// 64b of memory holding background color LUTs for text mode, in BGRA order
 	int16_t			text_font_height_;	// in text mode, the height in pixels for the fixed width font. Should be either 8 or 16, depending on which Foenix. used for calculating text fit.
 	int16_t			text_font_width_;	// in text mode, the width in pixels for the fixed width font. Unlikely to be other than '8' with Foenix machines. used for calculating text fit.
 // 	char			text_temp_buffer_1_[TEXT_COL_COUNT_FOR_PLOTTING_A2560K * TEXT_ROW_COUNT_FOR_PLOTTING_A2560K + 1];	// todo: replace with pointer, and allocate space on resolution switch. general use temp buffer - do NOT use for real storage - any utility function clobber it

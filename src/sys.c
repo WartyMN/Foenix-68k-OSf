@@ -72,26 +72,26 @@ extern System*			global_system;
 
 // VGA colors, used for both fore- and background colors in Text mode
 // in C256, these are 8 bit values; in A2560s, they are 32 bit values, and endianness matters
-static uint8_t standard_text_color_lut[64] = 
+static uint32_t standard_text_color_lut_buffer[16] = 
 {
-	0x00, 0x00, 0x00, 0x00,
-	0x00, 0xAA, 0x00, 0x00,
-	0x00, 0x00, 0xAA, 0x00,
-	0x00, 0xAA, 0x55, 0x00,
-	0x00, 0x00, 0x00, 0xAA,
-	0x00, 0xAA, 0x00, 0xAA,
-	0x00, 0x00, 0xAA, 0xAA,
-	0x00, 0xAA, 0xAA, 0xAA,
-	0x00, 0x55, 0x55, 0x55,
-	0x00, 0xFF, 0x55, 0x55,
-	0x00, 0x55, 0xFF, 0x55,
-	0x00, 0xFF, 0xFF, 0x55,
-	0x00, 0x55, 0x55, 0xFF,
-	0x00, 0xFF, 0x55, 0xFF,
-	0x00, 0x55, 0xFF, 0xFF,
-	0x00, 0xFF, 0xFF, 0xFF,			
+	0x00000000,
+	0x00AA0000,
+	0x0000AA00,
+	0x00AA5500,
+	0x000000AA,
+	0x00AA00AA,
+	0x0000AAAA,
+	0x00AAAAAA,
+	0x00555555,
+	0x00FF5555,
+	0x0055FF55,
+	0x00FFFF55,
+	0x005555FF,
+	0x00FF55FF,
+	0x0055FFFF,
+	0x00FFFFFF,			
 };
-
+static uint32_t*	standard_text_color_lut = standard_text_color_lut_buffer;
 
 /*****************************************************************************/
 /*                       Private Function Prototypes                         */
@@ -329,38 +329,21 @@ bool Sys_AutoConfigure(System* the_system)
 	int16_t				i;
 
 	// TEMP until bug fix for calypsi on switch below
-	if (the_system->model_number_ == MACHINE_C256FMX)
-	{
-		DEBUG_OUT(("%s %d: Configuring screen for single-screen Foenix", __func__, __LINE__));
-		the_system->screen_[ID_CHANNEL_A]->vicky_ = P32(VICKY_C256);
-		the_system->screen_[ID_CHANNEL_A]->text_ram_ = TEXT_RAM_C256;
-		the_system->screen_[ID_CHANNEL_A]->text_attr_ram_ = TEXT_ATTR_C256;
-		the_system->screen_[ID_CHANNEL_A]->text_font_ram_ = FONT_MEMORY_BANK_C256;
-		the_system->screen_[ID_CHANNEL_A]->text_color_fore_ram_ = (char*)TEXT_FORE_LUT_C256;
-		the_system->screen_[ID_CHANNEL_A]->text_color_back_ram_ = (char*)TEXT_BACK_LUT_C256;
-
-		the_system->screen_[ID_CHANNEL_B]->vicky_ = P32(VICKY_C256);
-		the_system->screen_[ID_CHANNEL_B]->text_ram_ = TEXT_RAM_C256;
-		the_system->screen_[ID_CHANNEL_B]->text_attr_ram_ = TEXT_ATTR_C256;
-		the_system->screen_[ID_CHANNEL_B]->text_font_ram_ = FONT_MEMORY_BANK_C256;
-		the_system->screen_[ID_CHANNEL_B]->text_color_fore_ram_ = (char*)TEXT_FORE_LUT_C256;
-		the_system->screen_[ID_CHANNEL_B]->text_color_back_ram_ = (char*)TEXT_BACK_LUT_C256;
-	}
-	else if (the_system->model_number_ == MACHINE_A2560U_PLUS || the_system->model_number_ == MACHINE_A2560M)
+	if (the_system->model_number_ == MACHINE_A2560U_PLUS || the_system->model_number_ == MACHINE_A2560M)
 	{
 		the_system->screen_[ID_CHANNEL_A]->vicky_ = P32(VICKY_A2560U);
 		the_system->screen_[ID_CHANNEL_A]->text_ram_ = TEXT_RAM_A2560U;
 		the_system->screen_[ID_CHANNEL_A]->text_attr_ram_ = TEXT_ATTR_A2560U;
 		the_system->screen_[ID_CHANNEL_A]->text_font_ram_ = FONT_MEMORY_BANK_A2560U;
-		the_system->screen_[ID_CHANNEL_A]->text_color_fore_ram_ = (char*)TEXT_FORE_LUT_A2560U;
-		the_system->screen_[ID_CHANNEL_A]->text_color_back_ram_ = (char*)TEXT_BACK_LUT_A2560U;
+		the_system->screen_[ID_CHANNEL_A]->text_color_fore_ram_ = (uint32_t*)TEXT_FORE_LUT_A2560U;
+		the_system->screen_[ID_CHANNEL_A]->text_color_back_ram_ = (uint32_t*)TEXT_BACK_LUT_A2560U;
 
 		the_system->screen_[ID_CHANNEL_B]->vicky_ = P32(VICKY_A2560U);
 		the_system->screen_[ID_CHANNEL_B]->text_ram_ = TEXT_RAM_A2560U;
 		the_system->screen_[ID_CHANNEL_B]->text_attr_ram_ = TEXT_ATTR_A2560U;
 		the_system->screen_[ID_CHANNEL_B]->text_font_ram_ = FONT_MEMORY_BANK_A2560U;
-		the_system->screen_[ID_CHANNEL_B]->text_color_fore_ram_ = (char*)TEXT_FORE_LUT_A2560U;
-		the_system->screen_[ID_CHANNEL_B]->text_color_back_ram_ = (char*)TEXT_BACK_LUT_A2560U;
+		the_system->screen_[ID_CHANNEL_B]->text_color_fore_ram_ = (uint32_t*)TEXT_FORE_LUT_A2560U;
+		the_system->screen_[ID_CHANNEL_B]->text_color_back_ram_ = (uint32_t*)TEXT_BACK_LUT_A2560U;
 	}
 	else if (the_system->model_number_ == MACHINE_A2560X || 
 			the_system->model_number_ == MACHINE_A2560K ||
@@ -373,15 +356,15 @@ bool Sys_AutoConfigure(System* the_system)
 		the_system->screen_[ID_CHANNEL_A]->text_ram_ = TEXTA_RAM_A2560K;
 		the_system->screen_[ID_CHANNEL_A]->text_attr_ram_ = TEXTA_ATTR_A2560K;
 		the_system->screen_[ID_CHANNEL_A]->text_font_ram_ = FONT_MEMORY_BANKA_A2560K;
-		the_system->screen_[ID_CHANNEL_A]->text_color_fore_ram_ = (char*)TEXTA_FORE_LUT_A2560K;
-		the_system->screen_[ID_CHANNEL_A]->text_color_back_ram_ = (char*)TEXTA_BACK_LUT_A2560K;
+		the_system->screen_[ID_CHANNEL_A]->text_color_fore_ram_ = (uint32_t*)TEXTA_FORE_LUT_A2560K;
+		the_system->screen_[ID_CHANNEL_A]->text_color_back_ram_ = (uint32_t*)TEXTA_BACK_LUT_A2560K;
 
 		the_system->screen_[ID_CHANNEL_B]->vicky_ = P32(VICKY_B_BASE_ADDRESS);
 		the_system->screen_[ID_CHANNEL_B]->text_ram_ = TEXTB_RAM_A2560K;
 		the_system->screen_[ID_CHANNEL_B]->text_attr_ram_ = TEXTB_ATTR_A2560K;
 		the_system->screen_[ID_CHANNEL_B]->text_font_ram_ = FONT_MEMORY_BANKB_A2560K;
-		the_system->screen_[ID_CHANNEL_B]->text_color_fore_ram_ = (char*)TEXTB_FORE_LUT_A2560K;
-		the_system->screen_[ID_CHANNEL_B]->text_color_back_ram_ = (char*)TEXTB_BACK_LUT_A2560K;
+		the_system->screen_[ID_CHANNEL_B]->text_color_fore_ram_ = (uint32_t*)TEXTB_FORE_LUT_A2560K;
+		the_system->screen_[ID_CHANNEL_B]->text_color_back_ram_ = (uint32_t*)TEXTB_BACK_LUT_A2560K;
 	}
 	else
 	{
@@ -405,19 +388,13 @@ bool Sys_AutoConfigure(System* the_system)
 			return false;
 		}
 
-// MB 2025: this is deadly. the 2 memcpys. have not explored why yet. 
-		// set standard color LUTs for text mode
-// printf("about to copy text fore lut for screen %u... \n", i);
-// printf("the_system->screen_[i]->text_color_fore_ram_ = %p... \n", the_system->screen_[i]->text_color_fore_ram_);
-// General_DelaySeconds(2);
-// 		memcpy(the_system->screen_[i]->text_color_fore_ram_, &standard_text_color_lut, 64);
-// printf("copied text fore lut for screen %u... \n", i);
-// printf("the_system->screen_[i]->text_color_back_ram_ = %p... \n", the_system->screen_[i]->text_color_back_ram_);
-// General_DelaySeconds(3);
-// 		memcpy(the_system->screen_[i]->text_color_back_ram_, &standard_text_color_lut, 64);
-// printf("copied text back lut for screen %u... \n", i);
-// General_DelayTicks(10);
-	
+		// note: can't use memcpy with the VICKY 32 bit values, as memcpy writes byte by byte, and VICKY only accepts 32 bit writes (for given locations anyway)
+		for (uint8_t j=0; j < 16; j++)
+		{
+			the_system->screen_[i]->text_color_fore_ram_[j] = standard_text_color_lut[j];
+			the_system->screen_[i]->text_color_back_ram_[j] = standard_text_color_lut[j];
+		}
+
 		DEBUG_OUT(("%s %d: This screen (id=%i: %i x %i, with %i x %i text (%i x %i visible)", __func__, __LINE__, 
 			the_system->screen_[i]->id_,
 			the_system->screen_[i]->width_, 
