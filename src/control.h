@@ -130,9 +130,9 @@ typedef enum v_align_type
 //! This structure describes an instantiated control on a window.
 struct Control
 {
-	uint16_t				id_;							//! used to identify the control in the control list, etc. 
+	int16_t					group_id_;							//! group number, if this control is part of a group of controls. -1 (no group) is default. Typical use case: radio buttons.
+	int16_t					id_;							//! used to identify the control in the control list, etc. 
 	control_type			type_;							//! button vs checkbox vs radio button, etc. 
-	int8_t					group_;							//! group number, if this control is part of a group of controls. -1 (no group) is default. Typical use case: radio buttons.
 	Control*				next_;							//! next control in the list
 	Window*					parent_win_;					//! parent window
 	Rectangle*				parent_rect_;					//! parent rectangle (the window segment it belongs to: titlebar, contentarea, iconbar
@@ -153,7 +153,7 @@ struct Control
 	int16_t					max_;							//! maximum allowed value
 	Bitmap*					image_[2][2];					//! 4 image state bitmaps: [active yes/no][pushed down yes/no]
 	char*					caption_;						//! optional string to draw centered horizontally and vertically on the control. Typical use cases include buttons and labels.
-	uint16_t				avail_text_width_;				//! number of pixels available for writing text. For flexible width buttons, etc., this excludes the left/right segments. 
+	int16_t					avail_text_width_;				//! number of pixels available for writing text. For flexible width buttons, etc., this excludes the left/right segments. 
 // 	char*					hover_text_;					//! optional string to show in help/hover-text situations
 };
 
@@ -174,16 +174,18 @@ struct Control
 
 // constructor
 //! Allocate a Control object
-//! @param	the_template: reference to a valid, populated ControlTemplate object. The created control will take most of its properties from this template.
-//! @param	the_window: reference to a valid Window object. The newly-created control will not be added to the window's list of controls, but the control will remember this window as its parent
-//! @param	the_parent_rect: Reference to rect object that the control will position itself relative to. This rect must remain valid throughout the life of the control.
-//! @param	the_id: the unique ID (within the specified window) to be assigned to the control. WARNING: assigning multiple controls the same ID will result in undefined behavior.
-//! @param	group_id: 1 byte group ID value to be assigned to the control. Pass CONTROL_NO_GROUP if the control is not to be part of a group.
-//! @return:	Returns a new Control object that has been localized to the passed parent rect. Returns NULL on any error condition.
-Control* Control_New(ControlTemplate* the_template, Window* the_window, Rectangle* the_parent_rect, uint16_t the_id, int8_t the_group);
+//! @param	the_template -- reference to a valid, populated ControlTemplate object. The created control will take most of its properties from this template.
+//! @param	the_window -- reference to a valid Window object. The newly-created control will not be added to the window's list of controls, but the control will remember this window as its parent
+//! @param	the_parent_rect -- Reference to rect object that the control will position itself relative to. This rect must remain valid throughout the life of the control.
+//! @param	control_id -- the unique ID (within the specified window) to be assigned to the control. WARNING: assigning multiple controls the same ID will result in undefined behavior.
+//! @param	group_id -- group ID value to be assigned to the control. Pass CONTROL_NO_GROUP if the control is not to be part of a group.
+//! @return	Returns a new Control object that has been localized to the passed parent rect. Returns NULL on any error condition.
+Control* Control_New(ControlTemplate* the_template, Window* the_window, Rectangle* the_parent_rect, int16_t control_id, int16_t group_id);
 
 // destructor
 // frees all allocated memory associated with the passed object, and the object itself
+//! @param	the_control -- pointer to the pointer for the Control object to be destroyed
+//! @return	Returns false if the pointer to the passed control was NULL
 bool Control_Destroy(Control** the_control);
 
 
@@ -217,21 +219,25 @@ bool Control_Destroy(Control** the_control);
 
 
 //! Get the ID of the control
-//! @return	Returns the ID, or -1 in any error condition
-uint16_t Control_GetID(Control* the_control);
+//! @param	the_control -- a valid Control object
+//! @return	Returns the ID of the passed control, or -1 in any error condition
+int16_t Control_GetID(Control* the_control);
 
 //! Get the control type
-//! @return	Returns CONTROL_TYPE_ERROR (-1) on any error, or the control_type value
+//! @param	the_control -- a valid Control object
+//! @return	Returns the control_type value of the passed control, or CONTROL_TYPE_ERROR (-1) on any error
 control_type Control_GetType(Control* the_control);
 
 //! Get the pressed/not pressed state
+//! @param	the_control -- a valid Control object
 //! @return	Returns true if control is pressed (down), false if up
 bool Control_GetPressed(Control* the_control);
 
 int8_t Control_GetGroup(Control* the_control);
 
 //! Get the next control in the chain
-//! @return	Returns NULL on any error, or if this is the last control in the chain
+//! @param	the_control -- a valid Control object
+//! @return	Returns the control object linked as the next control of the passed control. Returns NULL if there is no next control, or if the next control is itself NULL, or on any error. The last control in a chain will return NULL.
 Control* Control_GetNextControl(Control* the_control);
 
 Window* Control_GetParent(Control* the_control);
@@ -249,19 +255,31 @@ char* Control_GetCaption(Control* the_control);
 
 bool Control_SetID(Control* the_control, uint16_t the_new_id);
 bool Control_SetType(Control* the_control, control_type the_type);
-bool Control_SetGroup(Control* the_control, int8_t the_group_id);
+bool Control_SetGroup(Control* the_control, int16_t the_group_id);
+
+//! Links the control to the next control passed
+//! @param	the_control -- a valid Control object
+//! @param	the_next_control -- a valid Control object to be set as the next control from the_control. Can be NULL.
+//! @return	Returns false on any error
 bool Control_SetNextControl(Control* the_control, Control* the_next_control);
+
 bool Control_SetParent(Control* the_control, Window* the_window);
 bool Control_SetRect(Control* the_control, Rectangle the_rect);
 
 //! Set the control's active/inactive state
+//! @param	the_control -- a valid Control object
+//! @param	is_active -- set to true to set control to active, false to set to inactive
 void Control_SetActive(Control* the_control, bool is_active);
 
 //! Set the control's pressed/unpressed state
+//! @param	the_control -- a valid Control object
+//! @param	is_pressed -- set to true to set control state to pressed, false to set to not-pressed
 void Control_SetPressed(Control* the_control, bool is_pressed);
 
 //! Mark the specified control is invalidated or validated
 //! Note: Marking a control as invalidated causes it to be added to the parent window's list of rects to be reblitted to the screen in next render pass
+//! @param	the_control -- a valid Control object
+//! @param	invalidated -- set to true to set control state to invalidated (will need redraw), false to set to not-invalidated
 void Control_MarkInvalidated(Control* the_control, bool invalidated);
 
 bool Control_SetEnabled(Control* the_control, bool is_enabled);
@@ -275,17 +293,22 @@ bool Control_SetCaption(Control* the_control, char* the_text);
 
 //! Set or uppdate the control's position and/or size as appropriate to the control's parent rect
 //! Call when parent window size has changed, when control is first created, etc.
+//! @param	the_control -- a valid Control object
 void Control_AlignToParentRect(Control* the_control);
 
 
 
 //! Compare the control's right-edge coordinate to the passed value
 //! If the control is more to the right than the passed value, the passed value is updated with the control's right edge
+//! @param	the_control -- a valid Control object
+//! @param	x -- a pointer to a bitmap horizontal position. May be changed by the function.
 //! @return	Returns true if the control is further to the right than the passed value.
 bool Control_IsRighter(Control* the_control, int16_t* x);
 
 //! Compare the control's left-edge coordinate to the passed value
 //! If the control is more to the left than the passed value, the passed value is updated with the control's left edge
+//! @param	the_control -- a valid Control object
+//! @param	x -- a pointer to a bitmap horizontal position. May be changed by the function.
 //! @return	Returns true if the control is further to the left than the passed value.
 bool Control_IsLefter(Control* the_control, int16_t* x);
 
@@ -301,11 +324,20 @@ bool Control_IsLefter(Control* the_control, int16_t* x);
 //! Updates the passed control with new theme info from the passed control template
 //! Call this when the theme has been changed
 //! It allows existing controls to be updated in place, without having to free them and create new theme controls
+//! @param	the_control -- a valid Control object
+//! @param	ControlTemplate -- a valid Control Template object to update the Control object from.
+//! @return	Returns false on any error
 bool Control_UpdateFromTemplate(Control* the_control, ControlTemplate* the_template);
+
 
 
 // **** Render functions *****
 
+//! Blits the control to the control's parent window if the control is visible, and if it is listed as invalidated
+//! Controls that are visible but not invalidated do not need redrawing.
+//! Also draws the caption of the control, if it has one.
+//! Marks control as no longer invalidated.
+//! @param	the_control -- a valid Control object
 void Control_Render(Control* the_control);
 
 

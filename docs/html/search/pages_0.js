@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['foenix_20a2560_20foenix_20retro_20os_3a_20fr_2fos_0',['Foenix A2560 Foenix Retro OS: fr/OS',['../index.html',1,'']]]
+  ['foenix_2068k_20retro_20os_3a_20os_2ff_0',['Foenix 68K Retro OS: OS/f',['../index.html',1,'']]]
 ];

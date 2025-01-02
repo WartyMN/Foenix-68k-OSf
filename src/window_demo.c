@@ -79,6 +79,7 @@ void WaitForUser(void)
 	Text_DrawStringAtXY(global_system->screen_[ID_CHANNEL_B], 1, 4, (char*)"Press any key to continue", FG_COLOR_BRIGHT_YELLOW, 0);
 	
 	General_GetChar();
+// 	General_DelaySeconds(3);
 	
 // 	Bitmap_FillMemory(global_system->screen_[ID_CHANNEL_B], 0xbb);
 // 	Text_FillCharMem(global_system->screen_[ID_CHANNEL_B], ' ');
@@ -145,7 +146,7 @@ void SwitchThemes(Window* the_window)
 		// chromatic
 		for (i=1; i<(256-41); i++)
 		{
-			Bitmap_FillBox(the_window->bitmap_, x, y, 2, height, i);
+			Bitmap_FillBox(the_window->bitmap_, x, y, 2, height, (uint8_t)i);
 			x += 2;
 		
 			if (i % 36 == 0)
@@ -161,7 +162,7 @@ void SwitchThemes(Window* the_window)
 
 		for (; i<256; i++)
 		{
-			Bitmap_FillBox(the_window->bitmap_, x, y, 2, height, i);
+			Bitmap_FillBox(the_window->bitmap_, x, y, 2, height, (uint8_t)i);
 			x += 2;
 		}
 	}
@@ -216,18 +217,17 @@ void AddControls(Window* the_window)
 	Theme*				the_theme;
 	Control*			button_1;
 	Control*			button_2;
-	//Control*			button_3;
+	Control*			button_3;
 	Control*			button_4;
 	int16_t				x_offset;
 	int16_t				y_offset;
 	int16_t				width;
 	int16_t				height;
+	int16_t				group_id;
+	int16_t				the_id;
 	static char*		caption_1 = "Active";
 	static char*		caption_2 = "Active - pushed";
-	static char*		caption_3 = "Inactive";
 	static char*		caption_4 = "4th state - selected button?";
-	uint16_t			the_id;
-	uint16_t			group_id;
 	
 	if ( (the_theme = Sys_GetTheme(global_system)) == NULL)
 	{
@@ -250,6 +250,13 @@ void AddControls(Window* the_window)
 	// first way of adding a control is to call Window_AddNewControl(), and supply all the information at once. 
 	button_1 = Window_AddNewControl(the_window, TEXT_BUTTON, width, height, x_offset, y_offset, H_ALIGN_LEFT, V_ALIGN_TOP, caption_1, the_id++, group_id);
 	Control_SetPressed(button_1, CONTROL_NOT_PRESSED);
+
+	// copies of this one, for rendering comparisons.
+	button_3 = Window_AddNewControl(the_window, TEXT_BUTTON, width, height, x_offset+100, y_offset, H_ALIGN_LEFT, V_ALIGN_TOP, caption_1, the_id++, group_id);
+	Control_SetPressed(button_3, CONTROL_NOT_PRESSED);
+	button_4 = Window_AddNewControl(the_window, TEXT_BUTTON, width, height, x_offset, y_offset-50, H_ALIGN_LEFT, V_ALIGN_TOP, caption_1, the_id++, group_id);
+	Control_SetPressed(button_4, CONTROL_NOT_PRESSED);
+
 	
 	// for user docs:
 	// 2nd way of adding a control is to call get a control template first, then call Window_AddNewControlFromTemplate()
@@ -356,7 +363,7 @@ void RunDemo(void)
 		// chromatic
 		for (i=1; i<(256-41); i++)
 		{
-			Bitmap_FillBox(the_window->bitmap_, x, y, 2, height, i);
+			Bitmap_FillBox(the_window->bitmap_, x, y, 2, height, (uint8_t)i);
 			x += 2;
 		
 			if (i % 36 == 0)
@@ -372,7 +379,7 @@ void RunDemo(void)
 
 		for (; i<256; i++)
 		{
-			Bitmap_FillBox(the_window->bitmap_, x, y, 2, height, i);
+			Bitmap_FillBox(the_window->bitmap_, x, y, 2, height, (uint8_t)i);
 			x += 2;
 		}
 	}

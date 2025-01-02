@@ -58,11 +58,22 @@ System*			global_system;
 /*                       Private Function Prototypes                         */
 /*****************************************************************************/
 
+// handler for the hello world window
+void HelloWindowEventHandler(EventRecord* the_event);
 
 
 /*****************************************************************************/
 /*                       Private Function Definitions                        */
 /*****************************************************************************/
+
+// handler for the hello world window
+void HelloWindowEventHandler(EventRecord* the_event)
+{
+	DEBUG_OUT(("%s %d: event received!", __func__, __LINE__));
+	
+	return;
+}
+
 
 
 
@@ -123,8 +134,87 @@ MU_TEST(test_speed_1)
 }
 
 
+// test for memory corruption byu comparing known values for bitmap images to actual ram (not VRAM, can't test that) 
+MU_TEST(unit_test_1)
+{
+	Window*				the_window;
+	NewWinTemplate*		the_win_template;
+	static char*		the_win_title = "My New Window";
+	
+	if ( (the_win_template = Window_GetNewWinTemplate(the_win_title)) == NULL)
+	{
+		LOG_ERR(("%s %d: Could not get a new window template", __func__ , __LINE__));
+		return;
+	}	
+	// note: all the default values are fine for us in this case.
+	
+	DEBUG_OUT(("%s %d: x=%i, y=%i, width=%i, title='%s'", __func__, __LINE__, the_win_template->x_, the_win_template->y_, the_win_template->width_, the_win_template->title_));
+	
+	if ( (the_window = Window_New(the_win_template, &HelloWindowEventHandler)) == NULL)
+	{
+		DEBUG_OUT(("%s %d: Couldn't instantiate a window", __func__, __LINE__));
+		return;
+	}
 
-	// speed tests
+	// say hi
+	Window_SetPenXY(the_window, 5, 5);
+
+	if (Window_DrawString(the_window, (char*)"Hello, World", GEN_NO_STRLEN_CAP) == false)
+	{
+		// oh, no! you should handle this.
+		printf("Could not do Window_DrawString \n");
+	}
+	
+
+	// draw some stuff in the window we created
+	{
+		// draw some color blocks
+		int16_t i;
+		int16_t x = 1;
+		int16_t y = the_window->content_rect_.MinY + 50;
+		int16_t height = 16;
+	
+		// chromatic
+		for (i=1; i<(256-41); i++)
+		{
+			Bitmap_FillBox(the_window->bitmap_, x, y, 2, height, i);
+			x += 2;
+		
+			if (i % 36 == 0)
+			{
+				x = 1;
+				y += height;
+			}
+		}
+
+		// reds > greens > blues > grays
+		x = 1;
+		y += height;
+
+		for (; i<256; i++)
+		{
+			Bitmap_FillBox(the_window->bitmap_, x, y, 2, height, i);
+			x += 2;
+		}
+	}
+
+	// declare the window to be visible
+	Window_SetVisible(the_window, true);
+	
+	
+// 	// Failure: could not alloc space for screen buffer 1
+// 	mu_check( (buffer1 = (char*)calloc(global_system->screen_[ID_CHANNEL_A]->text_mem_cols_ * global_system->screen_[ID_CHANNEL_A]->text_mem_rows_, sizeof(char)) ) != NULL );
+//  	// Failure: could not alloc space for screen buffer 2
+// 	mu_check( (buffer2 = (char*)calloc(global_system->screen_[ID_CHANNEL_A]->text_mem_cols_ * global_system->screen_[ID_CHANNEL_A]->text_mem_rows_, sizeof(char)) ) != NULL );
+
+	
+	Window_Destroy(&the_window);
+}
+
+
+
+
+// speed tests
 MU_TEST_SUITE(test_suite_speed)
 {	
 	MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
@@ -138,7 +228,7 @@ MU_TEST_SUITE(test_suite_units)
 {	
 	MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 	
-// 	MU_RUN_TEST(font_replace_test);
+// 	MU_RUN_TEST(unit_test_1);
 }
 
 

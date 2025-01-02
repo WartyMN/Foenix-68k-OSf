@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['theme_0',['Theme',['../struct_theme.html',1,'']]]
+  ['window_0',['Window',['../struct_window.html',1,'']]]
 ];

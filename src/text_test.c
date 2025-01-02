@@ -120,7 +120,6 @@ bool keyboard_test(void)
 	int16_t					bytes_read = 0;
 	int16_t					the_channel_id;
 	bool					stop = false;
-	int16_t					y = 30;
 	
  	// open keyboard console for reading. Console is on device 0 and 1. 
  	//the_channel_id = sys_chan_open(the_device_id, (unsigned char*)"", 1);	

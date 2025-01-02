@@ -826,7 +826,7 @@ void Demo_Font_ShowChars(Bitmap* the_bitmap, int16_t x1, int16_t y)
 {
 	Font*		the_font;
 	int16_t		x2;
-	uint16_t	i;
+	uint8_t		i;
 	int16_t		pix_written;
 	
 	
@@ -864,7 +864,7 @@ void Demo_Font_DrawString(Bitmap* the_bitmap, int16_t y, uint8_t fore_color)
 {
 	Font*			the_font;
 	int16_t			x;
-	uint8_t			row_height;
+	int16_t			row_height;
 	char*			string1 = (char*)"March 17, 2022: hiya world!";
 	char*			string2 = (char*)"This string is too long to fit";
 	char*			string3 = (char*)"January 1, 2025: Heya from a real Foenix A2560K!";
@@ -915,7 +915,7 @@ void Demo_Font_DrawStringInBox1(Bitmap* the_bitmap)
 	int16_t			width;
 	int16_t			height;
 	char*			the_message;
-	int32_t			num_chars;
+	int16_t			num_chars;
 	char			wrap_buffer[2048];
 	char*			the_wrap_buffer = wrap_buffer;
 	int16_t			margin = 4;

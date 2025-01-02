@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['ndescent_0',['nDescent',['../struct_font.html#a2ee25934720e1794f2c21c63b1ec25ae',1,'Font']]],
-  ['next_5f_1',['next_',['../struct_control.html#aaa7af82b408616fc572bbea7ef7d5d10',1,'Control']]]
+  ['outline_5fcolor_5f_0',['outline_color_',['../struct_theme.html#a8228b33d9ed62a4f41d6b8a0daafe86d',1,'Theme']]],
+  ['owtloc_1',['owTLoc',['../struct_font.html#a9e792b420929baa2d0547920a16fd9a1',1,'Font']]]
 ];

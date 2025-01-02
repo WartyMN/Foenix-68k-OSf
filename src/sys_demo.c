@@ -605,10 +605,10 @@ void AddControls(Window* the_window)
 	int16_t				y_offset;
 	int16_t				width;
 	int16_t				height;
+	int16_t				the_id;
+	int16_t				group_id;
 	char				caption_buff[CONTROL_MAX_CAPTION_SIZE];
 	char*				caption = caption_buff;
-	uint16_t			the_id;
-	uint16_t			group_id;
 	int16_t				i;
 	
 	if ( (the_theme = Sys_GetTheme(global_system)) == NULL)
@@ -860,7 +860,6 @@ void TestWindowEvents(void)
 	int16_t	win1_x = win_orig_x + (max_width + 12);
 	int16_t	win1_y = win_orig_y;
 	int16_t win1_x_dist = -70; // for drag, amount to move the window
-	int16_t win1_y_dist = 4;
 	int16_t drag_zone_offset = 2; // distance from edge of window to click when drag-resizing
 	int16_t drag_resize_amt = 60; // distance to drag resize the window by
 	int16_t	tinywin_x = 10;
@@ -1084,7 +1083,7 @@ void SharedEventHandler(EventRecord* the_event)
 	//   simulate having interrupts working, and doing an event loop
 	//   because no interrupts (of mine) are working, will fake that. 
 	
-	bool				exit_app = false;
+// 	bool				exit_app = false;
 	
 	Window*				the_window;
 	static Rectangle	the_rect;
@@ -1290,7 +1289,7 @@ void SharedEventHandler(EventRecord* the_event)
 				DEBUG_OUT(("%s %d: controlClicked event: %c", __func__, __LINE__, the_event->code_));
 				
 				Control*			the_control;
-				uint16_t			the_control_id;
+				int16_t				the_control_id;
 				
 				the_control = the_event->control_;
 				the_control_id = Control_GetID(the_event->control_);

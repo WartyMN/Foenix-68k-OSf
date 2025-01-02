@@ -84,7 +84,7 @@ static int16_t Window_CalculateTitleSpace(Window* the_window);
 // **** Private CONTROL management functions *****
 
 //! Get the first, or root, control object for the window
-//! @param	the_window: reference to a valid Window object.
+//! @param	the_window -- reference to a valid Window object.
 //! @return:	Returns a control pointer, or NULL on any error, or if there is no root control
 Control* Window_GetRootControl(Window* the_window);
 
@@ -107,7 +107,7 @@ static void Window_DrawControls(Window* the_window, bool force_redraw);
 static void Window_DrawTitlebar(Window* the_window);
 
 //! Draws the title text into the titlebar using the active theme's system font
-//! @param	the_window: a valid pointer to a Window
+//! @param	the_window -- a valid pointer to a Window
 static void Window_DrawTitle(Window* the_window);
 
 
@@ -436,7 +436,6 @@ static int16_t Window_CalculateTitleSpace(Window* the_window)
 	Theme*		the_theme;
 	Control*	the_control = NULL;
 	int16_t		lowest_left = -1;
-	int16_t		lowest_right = -1;
 	int16_t		this_left;
 	
 	if (the_window == NULL)
@@ -516,7 +515,7 @@ error:
 
 
 //! Get the first, or root, control object for the window
-//! @param	the_window: reference to a valid Window object.
+//! @param	the_window -- reference to a valid Window object.
 //! @return:	Returns a control pointer, or NULL on any error, or if there is no root control
 Control* Window_GetRootControl(Window* the_window)
 {
@@ -688,7 +687,7 @@ static void Window_DrawTitlebar(Window* the_window)
 
 
 //! Draws the title text into the titlebar using the active theme's system font
-//! @param	the_window: a valid pointer to a Window
+//! @param	the_window -- a valid pointer to a Window
 static void Window_DrawTitle(Window* the_window)
 {
 	Theme*		the_theme;
@@ -823,11 +822,11 @@ void Window_PrintBrief(void* the_payload)
 //! the_win_template->min_height_: cannot be smaller than WIN_DEFAULT_MIN_HEIGHT
 //! the_win_template->max_width_: cannot be smaller than WIN_DEFAULT_MIN_WIDTH
 //! the_win_template->max_height_: cannot be smaller than WIN_DEFAULT_MIN_HEIGHT
-//! @param	the_win_template: a populated new window template whose data will be used to create the new window object
-//! @param	event_handler: pointer to the function that will handle all events for the window. This function will be called when the system detects an event associated with the window.
+//! @param	the_win_template -- a populated new window template whose data will be used to create the new window object
+//! @param	event_handler -- pointer to the function that will handle all events for the window. This function will be called when the system detects an event associated with the window.
 Window* Window_New(NewWinTemplate* the_win_template, void (* event_handler)(EventRecord*))
 {
-	Window*		the_window;
+	Window*		the_window = NULL;
 	Theme*		the_theme;
 	Control*	close_control;
 	Control*	minimize_control;
@@ -1030,7 +1029,7 @@ error:
 //! Allocate and populate a new window template object
 //! Assigns (but does not copy) the passed title string; leaves bitmaps NULL; assigns the pre-defined default value to all other fields
 //! Calling method must free the returned NewWinTemplate pointer after creating a window with it.
-//! @param	the_win_title: pointer to the string that will be assigned to the title_ property. No copy or allocation will take place.
+//! @param	the_win_title -- pointer to the string that will be assigned to the title_ property. No copy or allocation will take place.
 //! @return:	A NewWinTemplate with all values set to default, or NULL on any error condition
 NewWinTemplate* Window_GetNewWinTemplate(char* the_win_title)
 {
@@ -1078,8 +1077,8 @@ error:
 //! Copy the passed rectangle to the window's clip rect collection
 //! If the window already has the maximum allowed number of clip rects, the rectangle will not be added.
 //! NOTE: the incoming rect must be using window-local coordinates, not global. No translation will be performed.
-//! @param	the_window: reference to a valid Window object.
-//! @param	new_rect: reference to the rectangle describing the coordinates to be added to the window as a clipping rect. Coordinates of this rect must be window-local! Coordinates in rect are copied to window storage, so it is safe to free the rect after calling this function.
+//! @param	the_window -- reference to a valid Window object.
+//! @param	new_rect -- reference to the rectangle describing the coordinates to be added to the window as a clipping rect. Coordinates of this rect must be window-local! Coordinates in rect are copied to window storage, so it is safe to free the rect after calling this function.
 //! @return:	Returns true if rect is copied successfully. Returns false on any error, or if the window already had the maximum number of allowed clip rects.
 bool Window_AddClipRect(Window* the_window, Rectangle* new_rect)
 {
@@ -1148,7 +1147,7 @@ error:
 
 //! Blit each clip rect to the screen, and clear all clip rects when done
 //! This is the actual mechanics of rendering the window to the screen
-//! @param	the_window: reference to a valid Window object.
+//! @param	the_window -- reference to a valid Window object.
 //! @return:	Returns true if there are either no clips to blit, or if there are clips and they are blitted successfully. Returns false on any error.
 bool Window_BlitClipRects(Window* the_window)
 {
@@ -1203,8 +1202,8 @@ error:
 
 //! Calculate damage rects, if any, caused by window moving or being resized
 //! NOTE: it is not necessarily an error condition if a given window doesn't end up with damage rects as a result of this operation: if the window rect doesn't intersect the incoming rect, no damage is relevant.
-//! @param	the_window: reference to a valid Window object.
-//! @param	the_old_rect: reference to the rectangle to be checked for overlap with the specified window. Coordinates of this rect must be global!
+//! @param	the_window -- reference to a valid Window object.
+//! @param	the_old_rect -- reference to the rectangle to be checked for overlap with the specified window. Coordinates of this rect must be global!
 //! @return:	Returns true if 1 or more damage rects were created. Returns false on any error condition, or if no damage rects needed to be created.
 bool Window_GenerateDamageRects(Window* the_window, Rectangle* the_old_rect)
 {
@@ -1229,8 +1228,8 @@ error:
 //! Copy the passed rectangle to the window's clip rect collection, translating to local coordinates as it does so
 //! NOTE: the incoming rect is assumed to be using global, not window-local coordinates. Coordinates will be translated to window-local. 
 //! Note: it is safe to pass non-intersecting rects to this function: it will check for non-intersection; will trim copy of clip to just the intersection
-//! @param	the_window: reference to a valid Window object.
-//! @param	damage_rect: reference to the rectangle describing the coordinates to be added to the window as a clipping rect.. Coordinates of this rect must be global!
+//! @param	the_window -- reference to a valid Window object.
+//! @param	damage_rect -- reference to the rectangle describing the coordinates to be added to the window as a clipping rect.. Coordinates of this rect must be global!
 //! @return:	Returns true if the passed rect has any intersection with the window. Returns false if not intersection, or on any error condition.
 bool Window_AcceptDamageRect(Window* the_window, Rectangle* damage_rect)
 {
@@ -1290,9 +1289,9 @@ error:
 
 //! Checks if the passed coordinate is within one of the draggable event zones
 //! Draggable event zones include the title bar, 4 single-direction resize zones on the window edges, and the lower-right traditional resize zone
-//! @param	the_window: reference to a valid Window object.
-//! @param	x: window-local horizontal coordinate
-//! @param	y: window-local vertical coordinate
+//! @param	the_window -- reference to a valid Window object.
+//! @param	x -- window-local horizontal coordinate
+//! @param	y -- window-local vertical coordinate
 //@ return	Returns mouseFree if the coordinates are in anything but a draggable region. Otherwise returns mouseResizeUp, etc., as appropriate.
 MouseMode Window_CheckForDragZone(Window* the_window, int16_t x, int16_t y)
 {
@@ -1354,8 +1353,8 @@ error:
 
 
 //! Sets the passed control as the currently selected control and unselects any previously selected control
-//! @param	the_window: reference to a valid Window object.
-//! @param	the_control: reference to a valid Control object.
+//! @param	the_window -- reference to a valid Window object.
+//! @param	the_control -- reference to a valid Control object.
 //! @return:	Returns false on any error
 bool Window_SetSelectedControl(Window* the_window, Control* the_control)
 {
@@ -1382,8 +1381,8 @@ error:
 
 
 //! Adds the passed control to the window's list of controls
-//! @param	the_window: reference to a valid Window object.
-//! @param	the_control: reference to a valid Control object.
+//! @param	the_window -- reference to a valid Window object.
+//! @param	the_control -- reference to a valid Control object.
 //! @return:	Returns false in any error condition
 bool Window_AddControl(Window* the_window, Control* the_control)
 {
@@ -1421,12 +1420,12 @@ error:
 
 
 //! Instantiate a new control from the passed template, and add it to the window's list of controls
-//! @param	the_window: reference to a valid Window object.
-//! @param	the_template: reference to a valid, populated ControlTemplate object. The created control will take most of its properties from this template.
-//! @param	the_id: the unique ID (within the specified window) to be assigned to the control. WARNING: assigning multiple controls the same ID will result in undefined behavior.
-//! @param	group_id: 1 byte group ID value to be assigned to the control. Pass CONTROL_NO_GROUP if the control is not to be part of a group.
+//! @param	the_window -- reference to a valid Window object.
+//! @param	the_template -- reference to a valid, populated ControlTemplate object. The created control will take most of its properties from this template.
+//! @param	the_id -- the unique ID (within the specified window) to be assigned to the control. WARNING: assigning multiple controls the same ID will result in undefined behavior.
+//! @param	group_id -- 1 byte group ID value to be assigned to the control. Pass CONTROL_NO_GROUP if the control is not to be part of a group.
 //! @return:	Returns a pointer to the new control, or NULL in any error condition
-Control* Window_AddNewControlFromTemplate(Window* the_window, ControlTemplate* the_template, uint16_t the_id, uint16_t group_id)
+Control* Window_AddNewControlFromTemplate(Window* the_window, ControlTemplate* the_template, int16_t the_id, int16_t group_id)
 {
 	Control*			the_control;
 		
@@ -1461,19 +1460,19 @@ error:
 
 
 //! Instantiate a new control of the type specified, and add it to the window's list of controls
-//! @param	the_window: reference to a valid Window object.
-//! @param	the_type: the type of control to be created. See the control_type enum definition.
-//! @param	width: width, in pixels, of the control to be created
-//! @param	height: height, in pixels, of the control to be created
-//! @param	x_offset: horizontal offset, in pixels, from the left or right edge of the control, to the left or right edge of the parent rect, depending on the alignment choice
-//! @param	y_offset: vertical offset, in pixels, from the top or bottom edge of the control, to the top or bottom edge of the parent rect, depending on the alignment choice
-//! @param	the_h_align: horizontal alignment choice; determines if the control is located relative to the right or left edge of the parent rect, or is centered
-//! @param	the_v_align: vertical alignment choice; determines if the control is located relative to the top or bottom edge of the parent rect, or is centered
-//! @param	the_caption: optional string to be used as the caption for the control. Not all controls support captions. The string will be copied to the control's storage, so it is safe to free the string after calling this function.
-//! @param	the_id: the unique ID (within the specified window) to be assigned to the control. WARNING: assigning multiple controls the same ID will result in undefined behavior.
-//! @param	group_id: 1 byte group ID value to be assigned to the control. Pass CONTROL_NO_GROUP if the control is not to be part of a group.
+//! @param	the_window -- reference to a valid Window object.
+//! @param	the_type -- the type of control to be created. See the control_type enum definition.
+//! @param	width -- width, in pixels, of the control to be created
+//! @param	height -- height, in pixels, of the control to be created
+//! @param	x_offset -- horizontal offset, in pixels, from the left or right edge of the control, to the left or right edge of the parent rect, depending on the alignment choice
+//! @param	y_offset -- vertical offset, in pixels, from the top or bottom edge of the control, to the top or bottom edge of the parent rect, depending on the alignment choice
+//! @param	the_h_align -- horizontal alignment choice; determines if the control is located relative to the right or left edge of the parent rect, or is centered
+//! @param	the_v_align -- vertical alignment choice; determines if the control is located relative to the top or bottom edge of the parent rect, or is centered
+//! @param	the_caption -- optional string to be used as the caption for the control. Not all controls support captions. The string will be copied to the control's storage, so it is safe to free the string after calling this function.
+//! @param	the_id -- the unique ID (within the specified window) to be assigned to the control. WARNING: assigning multiple controls the same ID will result in undefined behavior.
+//! @param	group_id -- 1 byte group ID value to be assigned to the control. Pass CONTROL_NO_GROUP if the control is not to be part of a group.
 //! @return:	Returns a pointer to the new control, or NULL in any error condition
-Control* Window_AddNewControl(Window* the_window, control_type the_type, int16_t width, int16_t height, int16_t x_offset, int16_t y_offset, h_align_type the_h_align, v_align_type the_v_align, char* the_caption, uint16_t the_id, uint16_t group_id)
+Control* Window_AddNewControl(Window* the_window, control_type the_type, int16_t width, int16_t height, int16_t x_offset, int16_t y_offset, h_align_type the_h_align, v_align_type the_v_align, char* the_caption, int16_t the_id, int16_t group_id)
 {
 	Theme*				the_theme;
 	Control*			the_control;
@@ -1515,7 +1514,7 @@ error:
 
 //! Invalidate the title bar and the controls in the title bar
 //! Call when switching from inactive to active window, and vice versa, to force controls and title bar to redraw appropriately
-//! @param	the_window: reference to a valid Window object.
+//! @param	the_window -- reference to a valid Window object.
 void Window_InvalidateTitlebar(Window* the_window)
 {
 	int16_t		i;
@@ -1550,7 +1549,7 @@ error:
 
 
 //! Get the control listed as the currently selected control.
-//! @param	the_window: reference to a valid Window object.
+//! @param	the_window -- reference to a valid Window object.
 //! @return:	Returns a control pointer, or NULL on any error, or if there is no selected control currently
 Control* Window_GetSelectedControl(Window* the_window)
 {
@@ -1602,10 +1601,10 @@ error:
 
 //! Return a pointer to the control owned by the window that matches the specified ID
 //! NOTE: Control IDs 0-3 are reserved by the system for standard controls (close, minimize, etc.). Other control IDs are specified by the programmer for each window. Control IDs are not global, they are window-specific.
-//! @param	the_window: reference to a valid Window object.
-//! @param	the_control_id: ID of the control that you want to find
+//! @param	the_window -- reference to a valid Window object.
+//! @param	the_control_id -- ID of the control that you want to find
 //! @return:	Returns a pointer to the control with the ID passed, or NULL if no match found, or on any error condition
-Control* Window_GetControl(Window* the_window, uint16_t the_control_id)
+Control* Window_GetControl(Window* the_window, int16_t the_control_id)
 {
 	Control*	the_control = NULL;
 	
@@ -1637,10 +1636,10 @@ error:
 
 //! Return the ID of the control passed, if the window actually owns that control
 //! NOTE: Control IDs 0-3 are reserved by the system for standard controls (close, minimize, etc.). Other control IDs are specified by the programmer for each window. Control IDs are not global, they are window-specific.
-//! @param	the_window: reference to a valid Window object.
-//! @param	the_control: Pointer to the control whose ID you want to find
+//! @param	the_window -- reference to a valid Window object.
+//! @param	the_control -- Pointer to the control whose ID you want to find
 //! @return:	Returns the ID of the control, or CONTROL_ID_NOT_FOUND if no match found, or CONTROL_ID_ERROR on any error condition
-uint16_t Window_GetControlID(Window* the_window, Control* the_control)
+int16_t Window_GetControlID(Window* the_window, Control* the_control)
 {
 	Control*	this_control = NULL;
 	
@@ -1672,9 +1671,9 @@ error:
 
 //! Find the control, if any, located at the specified local coordinates
 //! Transparency is not taken into account: if the passed coordinate intersects the control's rectangle at any point, it is considered a match
-//! @param	the_window: reference to a valid Window object.
-//! @param	x: window-local horizontal coordinate
-//! @param	y: window-local vertical coordinate
+//! @param	the_window -- reference to a valid Window object.
+//! @param	x -- window-local horizontal coordinate
+//! @param	y -- window-local vertical coordinate
 //! @return:	Returns a pointer to the control at the passed coordinates, or NULL if no match found, or on any error condition
 Control* Window_GetControlAtXY(Window* the_window, int16_t x, int16_t y)
 {
@@ -1721,7 +1720,7 @@ error:
 
 
 //! Draw/re-draw any necessary components, and blit the window (or parts of it, via cliprects) to the screen
-//! @param	the_window: reference to a valid Window object.
+//! @param	the_window -- reference to a valid Window object.
 void Window_Render(Window* the_window)
 {
 	Theme*	the_theme;
@@ -1841,7 +1840,7 @@ error:
 
 
 //! Clears the content area rect by filling it with the theme's backcolor
-//! @param	the_window: reference to a valid Window object.
+//! @param	the_window -- reference to a valid Window object.
 void Window_ClearContent(Window* the_window)
 {
 	Theme*	the_theme;
@@ -1927,8 +1926,8 @@ error:
 
 //! Set the window's visibility flag.
 //! NOTE: This does not immediately cause the window to render. The window will be rendered on the next system rendering pass.
-//! @param	the_window: reference to a valid Window object.
-//! @param	is_visible: set to true if window should be rendered in the next pass, false if not
+//! @param	the_window -- reference to a valid Window object.
+//! @param	is_visible -- set to true if window should be rendered in the next pass, false if not
 void Window_SetVisible(Window* the_window, bool is_visible)
 {
 	if (the_window == NULL)
@@ -1950,8 +1949,8 @@ error:
 //! Set the display order of the window
 //! NOTE: This does not immediately re-render or change the display order visibly.
 //! WARNING: This function is designed to be called by the system only: do not use this
-//! @param	the_window: reference to a valid Window object
-//! @param	the_display_order: the new display order value for the window
+//! @param	the_window -- reference to a valid Window object
+//! @param	the_display_order -- the new display order value for the window
 void Window_SetDisplayOrder(Window* the_window, int8_t the_display_order)
 {
 	if (the_window == NULL)
@@ -1972,8 +1971,8 @@ error:
 
 //! Set the passed window's active flag.
 //! NOTE: This does not immediately cause the window to render as active or inactive, but it does invalidate the title bar so that it re-renders in the next render pass.
-//! @param	the_window: reference to a valid Window object.
-//! @param	is_active: set to true if window is now considered the active window, false if not
+//! @param	the_window -- reference to a valid Window object.
+//! @param	is_active -- set to true if window is now considered the active window, false if not
 void Window_SetActive(Window* the_window, bool is_active)
 {
 	if (the_window == NULL)
@@ -1999,8 +1998,8 @@ error:
 
 //! Set the window's state (maximized, minimized, etc.)
 //! NOTE: This does not immediately cause the window to render in the passed state.
-//! @param	the_window: reference to a valid Window object.
-//! @param	the_state: the new state
+//! @param	the_window -- reference to a valid Window object.
+//! @param	the_state -- the new state
 void Window_SetState(Window* the_window, window_state the_state)
 {
 	if (the_window == NULL)
@@ -2024,11 +2023,11 @@ error:
 
 //! Evaluate potential change to window position or size, and correct if out of allowed limits
 //! Negative value positions will be corrected to 0.
-//! @param	the_window: reference to a valid Window object.
-//! @param	x: Pointer to the proposed new horizontal position. If less than 0, it will be set to 0.
-//! @param	y: Pointer to the proposed new vertical position. If less than 0, it will be set to 0.
-//! @param	width: Pointer to the proposed new width. Will be set to window's minimum or maximum if necessary.
-//! @param	height: Pointer to the proposed new height. Will be set to window's minimum or maximum if necessary.
+//! @param	the_window -- reference to a valid Window object.
+//! @param	x -- Pointer to the proposed new horizontal position. If less than 0, it will be set to 0.
+//! @param	y -- Pointer to the proposed new vertical position. If less than 0, it will be set to 0.
+//! @param	width -- Pointer to the proposed new width. Will be set to window's minimum or maximum if necessary.
+//! @param	height -- Pointer to the proposed new height. Will be set to window's minimum or maximum if necessary.
 void Window_EvaluateWindowChange(Window* the_window, int16_t* x, int16_t* y, int16_t* width, int16_t* height)
 {
 	if (the_window == NULL)
@@ -2072,12 +2071,12 @@ error:
 //! Change position and/or size of window
 //! NOTE: passed x, y will be checked against the window's min/max values
 //! Will also adjust the position of the built-in maximize/minimize/normsize controls
-//! @param	the_window: reference to a valid Window object.
-//! @param	x: The new global horizontal position
-//! @param	y: The new global vertical position
-//! @param	width: The new width
-//! @param	height: The new height
-//! @param	update_norm: if true, the window's normal x/y/width/height properties will be updated to match the passed values. Pass false if setting maximize size, etc.
+//! @param	the_window -- reference to a valid Window object.
+//! @param	x -- The new global horizontal position
+//! @param	y -- The new global vertical position
+//! @param	width -- The new width
+//! @param	height -- The new height
+//! @param	update_norm -- if true, the window's normal x/y/width/height properties will be updated to match the passed values. Pass false if setting maximize size, etc.
 void Window_ChangeWindow(Window* the_window, int16_t x, int16_t y, int16_t width, int16_t height, bool update_norm)
 {
 	bool		width_changed = false;
@@ -2298,7 +2297,7 @@ error:
 //! Get a pointer to the current window title
 //! Note: It is not guaranteed that every window will have a title. Backdrop windows, for example, do not have a title.
 //! Note: the window title is maintained by the window. Do not free the string pointer returned by this function!
-//! @param	the_window: reference to a valid Window object.
+//! @param	the_window -- reference to a valid Window object.
 //! @return:	Returns a pointer to the title string. Returns NULL in any error condition.
 char* Window_GetTitle(Window* the_window)
 {
@@ -2318,7 +2317,7 @@ error:
 
 //! Get the value stored in the user data field of the window.
 //! NOTE: this field is for the exclusive use of application programs. The system will not act on this data in any way: you are free to store whatever 4-byte value you want here.
-//! @param	the_window: reference to a valid Window object.
+//! @param	the_window -- reference to a valid Window object.
 //! @return:	Returns an unsigned 32 bit value. Returns 0 in any error condition.
 uint32_t Window_GetUserData(Window* the_window)
 {
@@ -2337,7 +2336,7 @@ error:
 
 
 //! Get the window's type (normal, backdrop, dialog, etc.)
-//! @param	the_window: reference to a valid Window object.
+//! @param	the_window -- reference to a valid Window object.
 //! @return:	Returns a window_type enum. Returns WIN_UNKNOWN_TYPE in any error condition.
 window_type Window_GetType(Window* the_window)
 {
@@ -2356,7 +2355,7 @@ error:
 
 
 //! Get the window's state (maximized, minimized, etc.)
-//! @param	the_window: reference to a valid Window object.
+//! @param	the_window -- reference to a valid Window object.
 //! @return:	Returns a window_state enum. Returns WIN_UNKNOWN_STATE in any error condition.
 window_state Window_GetState(Window* the_window)
 {
@@ -2376,7 +2375,7 @@ error:
 
 //! Get the bitmap object used as the offscreen buffer for the window
 //! NOTE: this is not a pointer into VRAM, or directly to the screen.
-//! @param	the_window: reference to a valid Window object.
+//! @param	the_window -- reference to a valid Window object.
 //! @return:	Returns a pointer to the bitmap used by the window. Returns NULL in any error condition.
 Bitmap* Window_GetBitmap(Window* the_window)
 {
@@ -2395,7 +2394,7 @@ error:
 
 
 //! Get the global horizontal coordinate of the window
-//! @param	the_window: reference to a valid Window object.
+//! @param	the_window -- reference to a valid Window object.
 //! @return:	Returns the horizontal portion of the upper-left coordinate of the window. Returns -1 in any error condition.
 int16_t Window_GetX(Window* the_window)
 {
@@ -2414,7 +2413,7 @@ error:
 
 
 //! Get the global vertical coordinate of the window
-//! @param	the_window: reference to a valid Window object.
+//! @param	the_window -- reference to a valid Window object.
 //! @return:	Returns the vertical portion of the upper-left coordinate of the window. Returns -1 in any error condition.
 int16_t Window_GetY(Window* the_window)
 {
@@ -2433,7 +2432,7 @@ error:
 
 
 //! Get the width of the window
-//! @param	the_window: reference to a valid Window object.
+//! @param	the_window -- reference to a valid Window object.
 //! @return:	Returns -1 in any error condition.
 int16_t Window_GetWidth(Window* the_window)
 {
@@ -2452,7 +2451,7 @@ error:
 
 
 //! Get the height of the window
-//! @param	the_window: reference to a valid Window object.
+//! @param	the_window -- reference to a valid Window object.
 //! @return:	Returns -1 in any error condition.
 int16_t Window_GetHeight(Window* the_window)
 {
@@ -2471,7 +2470,7 @@ error:
 
 
 //! Check if a window is a backdrop window or a regular window
-//! @param	the_window: reference to a valid Window object.
+//! @param	the_window -- reference to a valid Window object.
 //! @return:	Returns true if backdrop, false if not
 bool Window_IsBackdrop(Window* the_window)
 {
@@ -2491,7 +2490,7 @@ error:
 
 //! Check if a window should be visible or not
 //! NOTE: this does not necessarily mean the window isn't currently rendered to the screen. This indicates if it will or won't be after the next render pass.
-//! @param	the_window: reference to a valid Window object.
+//! @param	the_window -- reference to a valid Window object.
 //! @return:	Returns true if window should be rendered, false if not
 bool Window_IsVisible(Window* the_window)
 {
@@ -2510,7 +2509,7 @@ error:
 
 
 //! Get the active/inactive condition of the window
-//! @param	the_window: reference to a valid Window object.
+//! @param	the_window -- reference to a valid Window object.
 //! @return:	Returns true if window is active, false if not
 bool Window_IsActive(Window* the_window)
 {
@@ -2578,8 +2577,8 @@ error:
 //! This is the font that will be used for any subsequent font drawing in this Window
 //! This also sets the font of the window's bitmap
 //! This only affects programmer-controlled drawing actions; it will not change the title bar font, the icon font, etc. Those are controlled by the theme.
-//! @param	the_window: reference to a valid Window object.
-//! @param	the_font: reference to a complete, loaded Font object.
+//! @param	the_window -- reference to a valid Window object.
+//! @param	the_font -- reference to a complete, loaded Font object.
 //! @return Returns false on any error condition
 bool Window_SetFont(Window* the_window, Font* the_font)
 {
@@ -2610,8 +2609,8 @@ error:
 //! This is the color that the next pen-based graphics function will use
 //! This also sets the pen color of the window's bitmap
 //! This only affects functions that use the pen: any graphics function that specifies a color will use that instead
-//! @param	the_window: reference to a valid Window object.
-//! @param	the_color: a 1-byte index to the current LUT
+//! @param	the_window -- reference to a valid Window object.
+//! @param	the_color -- a 1-byte index to the current LUT
 //! @return Returns false on any error condition
 bool Window_SetColor(Window* the_window, uint8_t the_color)
 {
@@ -2635,9 +2634,9 @@ error:
 //! Set the local "pen" position within the window, based on global coordinates
 //! This also sets the pen position of the window's bitmap
 //! This is the location that the next pen-based graphics function will use for a starting location
-//! @param	the_window: reference to a valid Window object.
-//! @param	x: the global horizontal position to be converted to window-local. Will be clipped to the edges.
-//! @param	y: the global vertical position to be converted to window-local. Will be clipped to the edges.
+//! @param	the_window -- reference to a valid Window object.
+//! @param	x -- the global horizontal position to be converted to window-local. Will be clipped to the edges.
+//! @param	y -- the global vertical position to be converted to window-local. Will be clipped to the edges.
 //! @return Returns false on any error condition
 bool Window_SetPenXYFromGlobal(Window* the_window, int16_t x, int16_t y)
 {
@@ -2665,9 +2664,9 @@ error:
 //! Set the "pen" position within the content area
 //! This also sets the pen position of the window's bitmap
 //! This is the location that the next pen-based graphics function will use for a starting location
-//! @param	the_window: reference to a valid Window object.
-//! @param	x: the horizontal position within the content area of the window. Will be clipped to the edges.
-//! @param	y: the vertical position within the content area of the window. Will be clipped to the edges.
+//! @param	the_window -- reference to a valid Window object.
+//! @param	x -- the horizontal position within the content area of the window. Will be clipped to the edges.
+//! @param	y -- the vertical position within the content area of the window. Will be clipped to the edges.
 //! @return Returns false on any error condition
 bool Window_SetPenXY(Window* the_window, int16_t x, int16_t y)
 {
@@ -2700,7 +2699,7 @@ bool Window_SetPenXY(Window* the_window, int16_t x, int16_t y)
 	the_window->pen_x_ = x;
 	the_window->pen_y_ = y;
 	the_window->bitmap_->x_ = x + the_window->content_rect_.MinX;
-	the_window->bitmap_->y_ = y + the_window->content_rect_.MinY;;
+	the_window->bitmap_->y_ = y + the_window->content_rect_.MinY;
 	
 	return true;
 	
@@ -2712,10 +2711,12 @@ error:
 
 //! Blit from source bitmap to the window's content area, at the window's current pen coordinate
 //! The source bitmap can be the window's bitmap: you can use this to copy a chunk of pixels from one part of a window to another. If the destination location cannot fit the entirety of the copied rectangle, the copy will be truncated, but will not return an error. 
-//! @param	the_window: reference to a valid Window object.
-//! @param src_bm: the source bitmap. It must have a valid address within the VRAM memory space.
-//! @param src_x, src_y: the upper left coordinate within the source bitmap, for the rectangle you want to copy. May be negative.
-//! @param width, height: the scope of the copy, in pixels.
+//! @param	the_window -- reference to a valid Window object.
+//! @param	src_bm -- the source bitmap. It must have a valid address within the VRAM memory space.
+//! @param	src_x -- the upper left coordinate within the source bitmap, for the rectangle you want to copy. May be negative.
+//! @param	src_y -- the upper left coordinate within the source bitmap, for the rectangle you want to copy. May be negative.
+//! @param	width -- the scope of the copy, in pixels.
+//! @param	height -- the scope of the copy, in pixels.
 bool Window_Blit(Window* the_window, Bitmap* src_bm, int16_t src_x, int16_t src_y, int16_t width, int16_t height)
 {
 	if (the_window == NULL)
@@ -2733,10 +2734,10 @@ error:
 
 
 //! Fill a rectangle drawn from the current pen location, for the passed width/height
-//! @param	the_window: reference to a valid Window object.
-//! @param	width: width, in pixels, of the rectangle to be drawn
-//! @param	height: height, in pixels, of the rectangle to be drawn
-//! @param	the_color: a 1-byte index to the current LUT
+//! @param	the_window -- reference to a valid Window object.
+//! @param	width -- width, in pixels, of the rectangle to be drawn
+//! @param	height -- height, in pixels, of the rectangle to be drawn
+//! @param	the_color -- a 1-byte index to the current LUT
 //! @return:	returns false on any error/invalid input.
 bool Window_FillBox(Window* the_window, int16_t width, int16_t height, uint8_t the_color)
 {
@@ -2755,9 +2756,9 @@ error:
 
 
 //! Fill pixel values for the passed Rectangle object, using the specified LUT value
-//! @param	the_window: reference to a valid Window object.
-//! @param	the_coords: the starting and ending coordinates within the content area of the window
-//! @param	the_color: a 1-byte index to the current LUT
+//! @param	the_window -- reference to a valid Window object.
+//! @param	the_coords -- the starting and ending coordinates within the content area of the window
+//! @param	the_color -- a 1-byte index to the current LUT
 //! @return:	returns false on any error/invalid input.
 bool Window_FillBoxRect(Window* the_window, Rectangle* the_coords, uint8_t the_color)
 {
@@ -2787,8 +2788,8 @@ error:
 
 
 //! Set the color of the pixel at the current pen location
-//! @param	the_window: reference to a valid Window object.
-//! @param	the_color: a 1-byte index to the current LUT
+//! @param	the_window -- reference to a valid Window object.
+//! @param	the_color -- a 1-byte index to the current LUT
 //! @return:	returns false on any error/invalid input.
 bool Window_SetPixel(Window* the_window, uint8_t the_color)
 {
@@ -2808,12 +2809,12 @@ error:
 
 //! Draws a line between 2 passed coordinates.
 //! Use for any line that is not perfectly vertical or perfectly horizontal
-//! @param	the_window: reference to a valid Window object.
-//! @param	x1: the starting horizontal position within the content area of the window
-//! @param	y1: the starting vertical position within the content area of the window
-//! @param	x2: the ending horizontal position within the content area of the window
-//! @param	y2: the ending vertical position within the content area of the window
-//! @param	the_color: a 1-byte index to the current color LUT
+//! @param	the_window -- reference to a valid Window object.
+//! @param	x1 -- the starting horizontal position within the content area of the window
+//! @param	y1 -- the starting vertical position within the content area of the window
+//! @param	x2 -- the ending horizontal position within the content area of the window
+//! @param	y2 -- the ending vertical position within the content area of the window
+//! @param	the_color -- a 1-byte index to the current color LUT
 //! Based on http://rosettacode.org/wiki/Bitmap/Bresenham%27s_line_algorithm#C. Used in C128 Lich King. 
 bool Window_DrawLine(Window* the_window, int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint8_t the_color)
 {
@@ -2838,9 +2839,9 @@ error:
 
 
 //! Draws a horizontal line from the current pen location, for n pixels, using the specified pixel value
-//! @param	the_window: reference to a valid Window object.
-//! @param	the_line_len: The total length of the line, in pixels
-//! @param	the_color: a 1-byte index to the current LUT
+//! @param	the_window -- reference to a valid Window object.
+//! @param	the_line_len -- The total length of the line, in pixels
+//! @param	the_color -- a 1-byte index to the current LUT
 //! @return:	returns false on any error/invalid input.
 bool Window_DrawHLine(Window* the_window, int16_t the_line_len, uint8_t the_color)
 {
@@ -2859,9 +2860,9 @@ error:
 
 
 //! Draws a vertical line from specified coords, for n pixels
-//! @param	the_window: reference to a valid Window object.
-//! @param	the_line_len: The total length of the line, in pixels
-//! @param	the_color: a 1-byte index to the current LUT
+//! @param	the_window -- reference to a valid Window object.
+//! @param	the_line_len -- The total length of the line, in pixels
+//! @param	the_color -- a 1-byte index to the current LUT
 //! @return:	returns false on any error/invalid input.
 bool Window_DrawVLine(Window* the_window, int16_t the_line_len, uint8_t the_color)
 {
@@ -2880,9 +2881,9 @@ error:
 
 
 //! Draws a rectangle based on the passed Rectangle object, using the specified LUT value
-//! @param	the_window: reference to a valid Window object.
-//! @param	the_coords: the starting and ending coordinates within the content area of the window
-//! @param	the_color: a 1-byte index to the current LUT
+//! @param	the_window -- reference to a valid Window object.
+//! @param	the_coords -- the starting and ending coordinates within the content area of the window
+//! @param	the_color -- a 1-byte index to the current LUT
 //! @return:	returns false on any error/invalid input.
 bool Window_DrawBoxRect(Window* the_window, Rectangle* the_coords, uint8_t the_color)
 {
@@ -2912,12 +2913,12 @@ error:
 
 
 //! Draws a rectangle based on 2 sets of coords, using the specified LUT value
-//! @param	the_window: reference to a valid Window object.
-//! @param	x1: the starting horizontal position within the content area of the window
-//! @param	y1: the starting vertical position within the content area of the window
-//! @param	x2: the ending horizontal position within the content area of the window
-//! @param	y2: the ending vertical position within the content area of the window
-//! @param	the_color: a 1-byte index to the current LUT
+//! @param	the_window -- reference to a valid Window object.
+//! @param	x1 -- the starting horizontal position within the content area of the window
+//! @param	y1 -- the starting vertical position within the content area of the window
+//! @param	x2 -- the ending horizontal position within the content area of the window
+//! @param	y2 -- the ending vertical position within the content area of the window
+//! @param	the_color -- a 1-byte index to the current LUT
 //! @return:	returns false on any error/invalid input.
 bool Window_DrawBoxCoords(Window* the_window, int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint8_t the_color)
 {
@@ -2942,11 +2943,11 @@ error:
 
 
 //! Draws a rectangle based on start coords and width/height, and optionally fills the rectangle.
-//! @param	the_window: reference to a valid Window object.
-//! @param	width: width, in pixels, of the rectangle to be drawn
-//! @param	height: height, in pixels, of the rectangle to be drawn
-//! @param	the_color: a 1-byte index to the current LUT
-//! @param	do_fill: If true, the box will be filled with the provided color. If false, the box will only draw the outline.
+//! @param	the_window -- reference to a valid Window object.
+//! @param	width -- width, in pixels, of the rectangle to be drawn
+//! @param	height -- height, in pixels, of the rectangle to be drawn
+//! @param	the_color -- a 1-byte index to the current LUT
+//! @param	do_fill -- If true, the box will be filled with the provided color. If false, the box will only draw the outline.
 //! @return:	returns false on any error/invalid input.
 bool Window_DrawBox(Window* the_window, int16_t width, int16_t height, uint8_t the_color, bool do_fill)
 {
@@ -2965,12 +2966,12 @@ error:
 
 
 //! Draws a rounded rectangle from the current pen location, with the specified size and radius, and optionally fills the rectangle.
-//! @param	the_window: reference to a valid Window object.
-//! @param	width: width, in pixels, of the rectangle to be drawn
-//! @param	height: height, in pixels, of the rectangle to be drawn
-//! @param	radius: radius, in pixels, of the arc to be applied to the rectangle's corners. Minimum 3, maximum 20.
-//! @param	the_color: a 1-byte index to the current color LUT
-//! @param	do_fill: If true, the box will be filled with the provided color. If false, the box will only draw the outline.
+//! @param	the_window -- reference to a valid Window object.
+//! @param	width -- width, in pixels, of the rectangle to be drawn
+//! @param	height -- height, in pixels, of the rectangle to be drawn
+//! @param	radius -- radius, in pixels, of the arc to be applied to the rectangle's corners. Minimum 3, maximum 20.
+//! @param	the_color -- a 1-byte index to the current color LUT
+//! @param	do_fill -- If true, the box will be filled with the provided color. If false, the box will only draw the outline.
 //! @return:	returns false on any error/invalid input.
 bool Window_DrawRoundBox(Window* the_window, int16_t width, int16_t height, int16_t radius, uint8_t the_color, bool do_fill)
 {
@@ -2990,9 +2991,9 @@ error:
 
 //! Draw a circle centered on the current pen location
 //! Based on http://rosettacode.org/wiki/Bitmap/Midpoint_circle_algorithm#C
-//! @param	the_window: reference to a valid Window object.
-//! @param	radius: radius, in pixels, measured from the window's current pen location
-//! @param	the_color: a 1-byte index to the current color LUT
+//! @param	the_window -- reference to a valid Window object.
+//! @param	radius -- radius, in pixels, measured from the window's current pen location
+//! @param	the_color -- a 1-byte index to the current color LUT
 bool Window_DrawCircle(Window* the_window, int16_t radius, uint8_t the_color)
 {
 	if (the_window == NULL)
@@ -3033,13 +3034,13 @@ error:
 //! Draw a string in a rectangular block on the window, with wrap.
 //! The current font, pen location, and pen color of the window will be used
 //! If a word can't be wrapped, it will break the word and move on to the next line. So if you pass a rect with 1 char of width, it will draw a vertical line of chars down the screen.
-//! @param	the_window: reference to a valid Window object.
-//! @param	width: the horizontal size of the text wrap box, in pixels. The total of 'width' and the current X coord of the bitmap must not be greater than width of the window's content area.
-//! @param	height: the vertical size of the text wrap box, in pixels. The total of 'height' and the current Y coord of the bitmap must not be greater than height of the window's content area.
-//! @param	the_string: the null-terminated string to be displayed.
-//! @param	num_chars: either the length of the passed string, or as much of the string as should be displayed.
-//! @param	wrap_buffer: pointer to a pointer to a temporary text buffer that can be used to hold the wrapped ('formatted') characters. The buffer must be large enough to hold num_chars of incoming text, plus additional line break characters where necessary. 
-//! @param	continue_function: optional hook to a function that will be called if the provided text cannot fit into the specified box. If provided, the function will be called each time text exceeds available space. If the function returns true, another chunk of text will be displayed, replacing the first. If the function returns false, processing will stop. If no function is provided, processing will stop at the point text exceeds the available space.
+//! @param	the_window -- reference to a valid Window object.
+//! @param	width -- the horizontal size of the text wrap box, in pixels. The total of 'width' and the current X coord of the bitmap must not be greater than width of the window's content area.
+//! @param	height -- the vertical size of the text wrap box, in pixels. The total of 'height' and the current Y coord of the bitmap must not be greater than height of the window's content area.
+//! @param	the_string -- the null-terminated string to be displayed.
+//! @param	num_chars -- either the length of the passed string, or as much of the string as should be displayed.
+//! @param	wrap_buffer -- pointer to a pointer to a temporary text buffer that can be used to hold the wrapped ('formatted') characters. The buffer must be large enough to hold num_chars of incoming text, plus additional line break characters where necessary. 
+//! @param	continue_function -- optional hook to a function that will be called if the provided text cannot fit into the specified box. If provided, the function will be called each time text exceeds available space. If the function returns true, another chunk of text will be displayed, replacing the first. If the function returns false, processing will stop. If no function is provided, processing will stop at the point text exceeds the available space.
 //! @return:	returns a pointer to the first character in the string after which it stopped processing (if string is too long to be displayed in its entirety). Returns the original string if the entire string was processed successfully. Returns NULL in the event of any error.
 char* Window_DrawStringInBox(Window* the_window, int16_t width, int16_t height, char* the_string, int16_t num_chars, char** wrap_buffer, bool (* continue_function)(void))
 {

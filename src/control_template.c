@@ -93,7 +93,8 @@ void ControlTemplate_Print(ControlTemplate* the_template)
 // **** CONSTRUCTOR AND DESTRUCTOR *****
 
 // constructor
-//! Create a new Control Template object
+//! Creates a new ControlTemplate object, allocating space from the heap
+//! @return	Returns a new ControlTemplate object. Returns NULL on any error condition.
 ControlTemplate* ControlTemplate_New(void)
 {
 	ControlTemplate*	the_template;
@@ -115,7 +116,9 @@ error:
 
 
 // destructor
-// frees all allocated memory associated with the passed object, and the object itself
+//! Frees all allocated memory associated with the passed object, and the object itself
+//! @param	the_template -- pointer to the pointer for the ControlTemplate object to be destroyed
+//! @return	Returns false if the pointer to the passed ControlTemplate was NULL
 bool ControlTemplate_Destroy(ControlTemplate** the_template)
 {
 	if (*the_template == NULL)

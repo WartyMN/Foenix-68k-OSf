@@ -181,8 +181,8 @@ int16_t General_Strnlen(const char *the_string, size_t max_len);
 
 
 //! Test if one rectangle is entirely within the bounds of another Rectangle
-//! @param	r1: the rectangle being tested
-//! @param	r2: the rectangle being measured to determine if r1 fits entirely within it
+//! @param	r1 - the rectangle being tested
+//! @param	r2 - the rectangle being measured to determine if r1 fits entirely within it
 //! @return:	returns true if r1 is within bounds of r2. 
 bool General_RectWithinRect(Rectangle r1, Rectangle r2);
 
@@ -197,8 +197,8 @@ bool General_PointInRect(int16_t x, int16_t y, Rectangle r);
 void General_CenterRectWithinRect(Rectangle* the_frame_rect, Rectangle* the_hero_rect, bool at_25_percent_v);
 
 //! Copy values of one rect to another
-//! @param	r1: the rectangle to be overwritten (copied into)
-//! @param	r2: the rectangle to copy
+//! @param	r1 - the rectangle to be overwritten (copied into)
+//! @param	r2 - the rectangle to copy
 void General_CopyRect(Rectangle* r1, Rectangle* r2);
 
 //! Calculate the difference between 2 rectangles and populate 0, 1, 2, 3, or 4 new rectangles with the difference
@@ -207,19 +207,19 @@ void General_CopyRect(Rectangle* r1, Rectangle* r2);
 //! If Rect 1 is smaller than Rect 2 in two dimensions (axes), 3 new rect will be populated
 //! If Rect 1 is same size as Rect 2 and moved in one dimension (axis) only, 1 new rect will be populated
 //! If Rect 1 is same size as Rect 2 and moved in two dimensions (axes), 3 new rect will be populated
-//! @param	r1: the lead, or foreground rect. When calculating a damage rect, this would typically be the rect of the window after it is moved/resized.
-//! @param	r2: the secondary, or background rect. When calculating a damage rect, this would typically be the rect of the window before it is moved/resized.
-//! @param	diff_r1: valid pointer to a rect object that will be populated if there is 1 or 3 difference rects resulting from the operation
-//! @param	diff_r2: valid pointer to a rect object that will be populated if there are 2 or more difference rects resulting from the operation
-//! @param	diff_r3: valid pointer to a rect object that will be populated if there are 3 or more difference rects resulting from the operation
-//! @param	diff_r4: valid pointer to a rect object that will be populated if there are 4 difference rects resulting from the operation
+//! @param	r1 - the lead, or foreground rect. When calculating a damage rect, this would typically be the rect of the window after it is moved/resized.
+//! @param	r2 - the secondary, or background rect. When calculating a damage rect, this would typically be the rect of the window before it is moved/resized.
+//! @param	diff_r1 - valid pointer to a rect object that will be populated if there is 1 or 3 difference rects resulting from the operation
+//! @param	diff_r2 - valid pointer to a rect object that will be populated if there are 2 or more difference rects resulting from the operation
+//! @param	diff_r3 - valid pointer to a rect object that will be populated if there are 3 or more difference rects resulting from the operation
+//! @param	diff_r4 - valid pointer to a rect object that will be populated if there are 4 difference rects resulting from the operation
 //! @return	Returns number of new rects that represent the difference between the passed rectangles. This indicates how many, if any, of the diff_rects need to be evaluated. Returns -1 on any error condition.
 int16_t General_CalculateRectDifference(Rectangle* r1, Rectangle* r2, Rectangle* diff_r1, Rectangle* diff_r2, Rectangle* diff_r3, Rectangle* diff_r4);
 
 //! Calculate the intersection between 2 rectangles, storing result in the 3rd rect passed
-//! @param	r1: valid pointer to a rect object
-//! @param	r2: valid pointer to a rect object
-//! @param	intersect_r: valid pointer to a rect object that will contain the intersection rectangle, if any, at end of operation
+//! @param	r1 - valid pointer to a rect object
+//! @param	r2 - valid pointer to a rect object
+//! @param	intersect_r - valid pointer to a rect object that will contain the intersection rectangle, if any, at end of operation
 //! @return:	Returns true if there is an intersecting rectangle between r1 and r2.
 bool General_CalculateRectIntersection(Rectangle* r1, Rectangle* r2, Rectangle* intersect_r);
 

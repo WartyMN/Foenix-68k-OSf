@@ -1,6 +1,6 @@
 var struct_control_template =
 [
-    [ "avail_text_width_", "struct_control_template.html#a8a0a34ce8c7230e4180f63117e72772e", null ],
+    [ "avail_text_width_", "struct_control_template.html#a29f9c07db54a848818013653512ff134", null ],
     [ "caption_", "struct_control_template.html#a747633a6be35d190f2e3f68398eb7b48", null ],
     [ "h_align_", "struct_control_template.html#afa284f9217be584d191f7147518448d6", null ],
     [ "height_", "struct_control_template.html#ace72f9e98c93dd05f94952ed23978817", null ],

@@ -145,46 +145,61 @@ struct Menu
 /*****************************************************************************/
 
 // constructor
-// allocates space for the object, copies in the passed key string and sets a dummy string value
+//! Creates a new Menu object, allocating space from the heap
+//! return	Returns a complete Menu object with bitmap allocation, and all properties set to default. Returns NULL on any error.
 Menu* Menu_New(void);
 
 // destructor
+//! @param	the_template -- pointer to the pointer for the Menu object to be destroyed
+//! @return	Returns false if the pointer to the passed Menu was NULL
 void Menu_Destroy(Menu** the_menu);
 
 
 //! Renders the menu and blits entire menu or required cliprects to the screen
+//! @param	the_menu -- reference to a valid Menu object.
 void Menu_Render(Menu* the_menu);
 
 //! Replaces current menu_group_ reference with a new one, calculates widths, rects, and renders the menu at an appropriate place based on x, y passed and size of menu
+//! NOTE: this sets mouse mode to mouseMenuOpen
+//! @param	the_menu -- reference to a valid Menu object.
+//! @param	the_menu_group -- reference to a valid MenuGroup object. The menu will be assigned to this group.
+//! @param	x -- Global horizontal coordinate when the mouse was clicked
+//! @param	y -- Global vertical coordinate when the mouse was clicked
 void Menu_Open(Menu* the_menu, MenuGroup* the_menu_group, int16_t x, int16_t y);
 
 //! Cancels the opening of a menu before it is shown
 //! NOTE: this sets mouse mode back to mouseFree
+//! @param	the_menu -- reference to a valid Menu object.
 void Menu_CancelOpen(Menu* the_menu);
 
 //! Hides the menu by damaging and distributing damage rects to all other windows, and re-rendering screen
+//! @param	the_menu -- reference to a valid Menu object.
 void Menu_Hide(Menu* the_menu);
 
 //! Set the menu's visibility flag.
 //! This does not immediately cause the menu to render. The menu will be rendered on the next rendering pass.
+//! @param	the_menu -- reference to a valid Menu object.
+//! @param	is_visible -- if true, the menu will no longer be rendered on subsequent render passes. If false, the menu will be rendered on the next rendering pass.
 void Menu_SetVisible(Menu* the_menu, bool is_visible);
 
 
 //! Accept a right or left mouse click while a menu is open, identify which, if any, menu item should be selected as a result
-//! @param x:	Global horizontal coordinate when the mouse was clicked
-//! @param y:	Global vertical coordinate when the mouse was clicked
-//! @return:	Returns MENU_ID_NO_SELECTION if no menu item was under the mouse. Returns ID of menu item if one was selected.
+//! @param	the_menu -- reference to a valid Menu object.
+//! @param	x -- Global horizontal coordinate when the mouse was clicked
+//! @param	y -- Global vertical coordinate when the mouse was clicked
+//! @return Returns MENU_ID_NO_SELECTION if no menu item was under the mouse. Returns ID of menu item if one was selected.
 int16_t	Menu_AcceptClick(Menu* the_menu, int16_t x, int16_t y);
 
 //! Accept a new mouse x/y while a menu is open, identify which, if any, menu item should be shown as selected
-//! @param x:	Global horizontal coordinate of current mouse loc
-//! @param y:	Global vertical coordinate of current mouse loc
+//! @param	the_menu -- reference to a valid Menu object.
+//! @param	x -- Global horizontal coordinate of current mouse loc
+//! @param	y -- Global vertical coordinate of current mouse loc
 void Menu_AcceptMouseMove(Menu* the_menu, int16_t x, int16_t y);
 
 //! Set the font used for drawing menu text
 //! This also sets the font of the menu's bitmap
-//! @param	the_menu: reference to a valid Menu object.
-//! @param	the_font: reference to a complete, loaded Font object.
+//! @param	the_menu -- reference to a valid Menu object.
+//! @param	the_font -- reference to a complete, loaded Font object.
 //! @return Returns false on any error condition
 bool Menu_SetFont(Menu* the_menu, Font* the_font);
 

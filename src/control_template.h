@@ -34,6 +34,7 @@
 /*****************************************************************************/
 
 // project includes
+#include "control.h"
 
 
 // C includes
@@ -77,7 +78,7 @@ struct ControlTemplate
 	int16_t					max_;							//! maximum allowed value
 	Bitmap*					image_[2][2];					//! 4 image state bitmaps: [active yes/no][pushed down yes/no]
 	char*					caption_;						//! optional string to draw centered horizontally and vertically on the control. Typical use case is for a button.
-	uint16_t				avail_text_width_;				//! number of pixels available for writing text. For flexible width buttons, etc., this excludes the left/right segments. 
+	int16_t					avail_text_width_;				//! number of pixels available for writing text. For flexible width buttons, etc., this excludes the left/right segments. 
 // 	char*					hover_text_;					//! optional string to show in help/hover-text situations
 };
 
@@ -97,11 +98,14 @@ struct ControlTemplate
 // **** CONSTRUCTOR AND DESTRUCTOR *****
 
 // constructor
-//! Allocate a ControlTemplate object
+//! Creates a new ControlTemplate object, allocating space from the heap
+//! @return	Returns a new ControlTemplate object. Returns NULL on any error condition.
 ControlTemplate* ControlTemplate_New(void);
 
 // destructor
-// frees all allocated memory associated with the passed object, and the object itself
+//! Frees all allocated memory associated with the passed object, and the object itself
+//! @param	the_template -- pointer to the pointer for the ControlTemplate object to be destroyed
+//! @return	Returns false if the pointer to the passed ControlTemplate was NULL
 bool ControlTemplate_Destroy(ControlTemplate** the_template);
 
 

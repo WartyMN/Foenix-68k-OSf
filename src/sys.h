@@ -100,7 +100,7 @@ struct System
 	uint8_t			window_count_;
 	uint16_t		model_number_;
 	Menu*			menu_manager_;
-	char*			text_temp_buffer_;	// general use temp buffer big enough for full screen word wrap - do NOT use for real storage - any utility function clobber it
+	char*			text_temp_buffer_;	// general use temp buffer big enough for full screen word wrap; do NOT use for real storage. Any utility function clobber it
 };
 
 
@@ -125,7 +125,7 @@ System* Sys_New(void);
 
 // destructor
 // frees all allocated memory associated with the passed object, and the object itself
-//! @param	the_system: valid pointer to system object
+//! @param	the_system -- valid pointer to system object
 bool Sys_Destroy(System** the_system);
 
 
@@ -153,8 +153,8 @@ bool Sys_InitSystem(System* the_system);
 // **** Screen mode/resolution/size functions *****
 
 //! Change video mode to the one passed.
-//! @param	the_screen: valid pointer to the target screen to operate on
-//! @param	new_mode: One of the enumerated screen_resolution values. Must correspond to a valid VICKY video mode for the host machine. See VICKY_IIIA_RES_800X600_FLAGS, etc. defined in a2560_platform.h
+//! @param	the_screen -- valid pointer to the target screen to operate on
+//! @param	new_mode -- One of the enumerated screen_resolution values. Must correspond to a valid VICKY video mode for the host machine. See VICKY_IIIA_RES_800X600_FLAGS, etc. defined in a2560_platform.h
 //! @return	returns false on any error/invalid input.
 bool Sys_SetVideoMode(Screen* the_screen, screen_resolution new_mode);
 
@@ -165,7 +165,7 @@ bool Sys_SetVideoMode(Screen* the_screen, screen_resolution new_mode);
 
 //! Switch machine into text mode
 //! @param	the_system -- valid pointer to system object
-//! @param as_overlay -- If true, sets text overlay mode (text over graphics). If false, sets full text mode (no graphics);
+//! @param	as_overlay -- If true, sets text overlay mode (text over graphics). If false, sets full text mode (no graphics);
 //! @return	returns false on any error/invalid input.
 bool Sys_SetModeText(System* the_system, bool as_overlay);
 
@@ -175,16 +175,16 @@ bool Sys_SetModeText(System* the_system, bool as_overlay);
 bool Sys_SetGraphicMode(System* the_system, bool enable_sprites, bool enable_bitmaps, bool enable_tiles, bool enable_text_overlay, bool enable_text);
 
 //! Enable or disable the hardware cursor in text mode, for the specified screen
-//! @param	the_system: valid pointer to system object
-//! @param	the_screen: valid pointer to the target screen to operate on
-//! @param enable_it: If true, turns the hardware blinking cursor on. If false, hides the hardware cursor;
+//! @param	the_system -- valid pointer to system object
+//! @param	the_screen -- valid pointer to the target screen to operate on
+//! @param	enable_it -- If true, turns the hardware blinking cursor on. If false, hides the hardware cursor;
 //! @return	returns false on any error/invalid input.
 bool Sys_EnableTextModeCursor(System* the_system, Screen* the_screen, bool enable_it);
 
 //! Set the left/right and top/bottom borders
 //! This will reset the visible text columns as a side effect
-//! @param	border_width: width in pixels of the border on left and right side of the screen. Total border used with be the double of this.
-//! @param	border_height: height in pixels of the border on top and bottom of the screen. Total border used with be the double of this.
+//! @param	border_width -- width in pixels of the border on left and right side of the screen. Total border used with be the double of this.
+//! @param	border_height -- height in pixels of the border on top and bottom of the screen. Total border used with be the double of this.
 //! @return	returns false on any error/invalid input.
 bool Sys_SetBorderSize(System* the_system, Screen* the_screen, uint8_t border_width, uint8_t border_height);
 
@@ -193,40 +193,40 @@ bool Sys_SetBorderSize(System* the_system, Screen* the_screen, uint8_t border_wi
 // **** Window management functions *****
 
 //! Add this window to the list of windows and make it the currently active window
-//! @param	the_system: valid pointer to system object
+//! @param	the_system -- valid pointer to system object
 //! @return	Returns false if adding this window would exceed the system's hard cap on the number of available windows
 bool Sys_AddToWindowList(System* the_system, Window* the_new_window);
 
 // create the backdrop window for the system
-//! @param	the_system: valid pointer to system object
+//! @param	the_system -- valid pointer to system object
 bool Sys_CreateBackdropWindow(System* the_system);
 
 // return the active window
-//! @param	the_system: valid pointer to system object
+//! @param	the_system -- valid pointer to system object
 Window* Sys_GetActiveWindow(System* the_system);
 
 // return the backdrop window
-//! @param	the_system: valid pointer to system object
+//! @param	the_system -- valid pointer to system object
 Window* Sys_GetBackdropWindow(System* the_system);
 
 // return a reference to the next window in the system's list, excluding backdrop windows
-//! @param	the_system: valid pointer to system object
+//! @param	the_system -- valid pointer to system object
 Window* Sys_GetNextWindow(System* the_system);
 
 // return a reference to the previous window in the system's list, excluding backdrop windows
-//! @param	the_system: valid pointer to system object
+//! @param	the_system -- valid pointer to system object
 Window* Sys_GetPreviousWindow(System* the_system);
 
 // Find the Window under the mouse -- accounts for z depth (topmost window will be found)
-//! @param	the_system: valid pointer to system object
-//! @param	x: global horizontal coordinate
-//! @param	y: global vertical coordinate
+//! @param	the_system -- valid pointer to system object
+//! @param	x -- global horizontal coordinate
+//! @param	y -- global vertical coordinate
 Window* Sys_GetWindowAtXY(System* the_system, int16_t x, int16_t y);
 
 //! Set the passed window to the active window, and marks the previously active window as inactive
 //! NOTE: This will resort the list of windows to move the (new) active one to the front
 //! NOTE: The exception to this is that the backdrop window is never moved in front of other windows
-//! @param	the_system: valid pointer to system object
+//! @param	the_system -- valid pointer to system object
 bool Sys_SetActiveWindow(System* the_system, Window* the_window);
 
 // List-sort compatible function for sorting windows by their display order property
@@ -252,48 +252,48 @@ void Sys_CollectDamageRects(System* the_system, Window* the_future_active_window
 
 // **** Other GET functions *****
 
-//! @param	the_system: valid pointer to system object
+//! @param	the_system -- valid pointer to system object
 Font* Sys_GetSystemFont(System* the_system);
 
-//! @param	the_system: valid pointer to system object
+//! @param	the_system -- valid pointer to system object
 Font* Sys_GetAppFont(System* the_system);
 
-//! @param	the_system: valid pointer to system object
+//! @param	the_system -- valid pointer to system object
 Screen* Sys_GetScreen(System* the_system, int16_t channel_id);
 
-//! @param	the_system: valid pointer to system object
+//! @param	the_system -- valid pointer to system object
 Menu* Sys_GetMenu(System* the_system);
 
-//! @param	the_system: valid pointer to system object
+//! @param	the_system -- valid pointer to system object
 Theme* Sys_GetTheme(System* the_system);
 
 //! NOTE: Foenix systems only have 1 screen with bitmap graphics, even if the system has 2 screens overall. The bitmap returned will always be from the appropriate channel (A or B).
-//! @param	the_system: valid pointer to system object
+//! @param	the_system -- valid pointer to system object
 Bitmap* Sys_GetScreenBitmap(System* the_system, bitmap_layer the_layer);
 
-//! @param	the_system: valid pointer to system object
+//! @param	the_system -- valid pointer to system object
 EventManager* Sys_GetEventManager(System* the_system);
 
 
 
 // **** Other SET functions *****
 
-//! @param	the_system: valid pointer to system object
+//! @param	the_system -- valid pointer to system object
 void Sys_SetSystemFont(System* the_system, Font* the_font);
 
-//! @param	the_system: valid pointer to system object
+//! @param	the_system -- valid pointer to system object
 void Sys_SetAppFont(System* the_system, Font* the_font);
 
-//! @param	the_system: valid pointer to system object
+//! @param	the_system -- valid pointer to system object
 void Sys_SetScreen(System* the_system, int16_t channel_id, Screen* the_screen);
 
 //! NOTE: Foenix systems only have 1 screen with bitmap graphics, even if the system has 2 screens overall. The bitmap returned will always be from the appropriate channel (A or B).
-//! @param	the_system: valid pointer to system object
+//! @param	the_system -- valid pointer to system object
 void Sys_SetScreenBitmap(System* the_system, Bitmap* the_bitmap, bitmap_layer the_layer);
 
 //! Set the passed theme as the System's current theme
 //! Note: this will dispose of the current theme after setting the new one
-//! @param	the_system: valid pointer to system object
+//! @param	the_system -- valid pointer to system object
 //! @return	Returns false on any error condition
 bool Sys_SetTheme(System* the_system, Theme* the_theme);
 
@@ -302,9 +302,9 @@ bool Sys_SetTheme(System* the_system, Theme* the_theme);
 // **** xxx functions *****
 
 //! Tell the VICKY to use a different address for the specified bitmap layer
-//! @param	the_system: valid pointer to system object
-//! @param	the_bitmap_layer: 0 or 1, the bitmap layer to get a new address
-//! @param	the_address: The address within the VRAM zone that the bitmap layer should be repointed to
+//! @param	the_system -- valid pointer to system object
+//! @param	the_bitmap_layer -- 0 or 1, the bitmap layer to get a new address
+//! @param	the_address -- The address within the VRAM zone that the bitmap layer should be repointed to
 bool Sys_SetVRAMAddr(System* the_system, uint8_t the_bitmap_layer, unsigned char* the_address);
 
 
@@ -372,7 +372,7 @@ Font* Sys_LoadAppFont(void);
 
 //! Render all visible windows
 //! NOTE: this will move to a private Sys function later, once event handling is available
-//! @param	the_system: valid pointer to system object
+//! @param	the_system -- valid pointer to system object
 void Sys_Render(System* the_system);
 
 

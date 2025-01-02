@@ -6971,8 +6971,8 @@ static void Splash_DrawStartupMessage(char* the_message);
 //! @return	Returns false on any error condition
 bool Startup_CopyCLUTtoVicky(Screen* the_screen)
 {
-	char*		dest;
-	size_t		data_size = 0x400;
+	volatile uint8_t*	dest;
+	size_t				data_size = 0x400;
 	
 	// hardcode CLUT address: only B has graphics, so no place where we woudl need to set a clut for A.
 	//dest = P8(VICKY_IIIB_CLUT0);
@@ -7026,7 +7026,6 @@ static void Splash_DrawStartupMessage(char* the_message)
 	int16_t		y;
 	int16_t		chars_that_fit;
 	int16_t		pixels_used;
-	uint8_t		font_color;
 
 	// Draw control caption with parent window's current font. 
 // 	// Assumption is that all controls with text are going to be rendered one after another, so getting/setting font each time is wasteful.
@@ -7106,8 +7105,8 @@ bool Startup_ShowSplash(void)
 	// do pointless delay to give user time to admire beautiful graphic, and show random sub-set of startup messages
 	// TODO: add equally pointless startup progress bar
 	
-	int16_t clut_selector = 1;
-	int16_t max_clut_selector = 5;
+// 	int16_t clut_selector = 1;
+// 	int16_t max_clut_selector = 5;
 	int16_t	i;
 	int16_t	message_num;
 	int16_t bar_height = 10;

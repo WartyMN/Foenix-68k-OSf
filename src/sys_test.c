@@ -58,39 +58,103 @@ System*			global_system;
 /*                       Private Function Prototypes                         */
 /*****************************************************************************/
 
+// try to open serial comms
+bool Test_OpenSerial(void);
 
 
 /*****************************************************************************/
 /*                       Private Function Definitions                        */
 /*****************************************************************************/
 
+// try to open serial comms
+bool Test_OpenSerial(void)
+{
+	// test serial via MCP
+	
+	#define CDEV_CONSOLE 0
+	#define CDEV_EVID 1
+	#define CDEV_COM1 2
+	#define CDEV_COM2 3
+	#define CDEV_LPT 4
+	#define CDEV_MIDI 5
 
+	int16_t uart;
+	uint8_t	open_command[32] = "9600,8,1,NONE";
+	uint8_t*	the_open_command = open_command;
+	
+	//  uart = sys_chan_open(3, "9600,8,1,NONE", 0);
+	// //sys_chan_open(3, NULL, 0x03);	// RW
+	// sys_chan_write(3, "hello from A2560k", 17);
+	// sys_chan_close(3);
 
-// int _Stub_close(int fd)
-// {
-// 	return 0;
-// }
+	uart = sys_chan_open(CDEV_COM1, the_open_command, 0);
+	if (uart >= 0)
+    {
+		printf("COM%d: 9600, no parity, 1 stop bit, 8 data bits\nPress ESC to finish.\n", CDEV_COM1 - CDEV_COM1 + 1);
+        
+		sys_chan_write_b(uart, 65);
+		return true;
+ 	}
+	else
+ 	{
+		printf("couldn't open CDEV_COM1 \n");
+		return false;
+ 	}
+	
+// short cli_test_uart(short channel, int argc, const char * argv[]) {
+//     char c, c_out;
+//     short scan_code;
+//     char buffer[80];
+//     short cdev = CDEV_COM1;
+//     short uart = -1;
+//     short uart_index = 0;
+//     unsigned long uart_address = 0;
 // 
-// int _Stub_open(const char *path, int oflag, ...)
-// {
-// 	return 0;
-// }
+//     if (argc > 1) {
+//         // Get the COM port number
+//         short port = (short)cli_eval_number(argv[1]);
+//         if (port <= 1) cdev = CDEV_COM1;
+//         if (port >= 2) cdev = CDEV_COM2;
+//     }
 // 
-// size_t _Stub_write(int fd, const void *buf, size_t count)
-// {
-// 	return 0;
-// }
+//     uart_index = cdev - CDEV_COM1;
+//     uart_address = (unsigned long)uart_get_base(uart_index);
 // 
-// size_t _Stub_read(int fd, void *buf, size_t count)
-// {
-// 	return 0;
-// }
+//     sprintf(buffer, "Serial port loopback test of COM%d at 0x%08X...\n", cdev - CDEV_COM1 + 1, uart_address);
+//     print(channel, buffer);
 // 
-// long _Stub_lseek(int fd, long offset, int whence)
-// {
-// 	return 0;
+//     uart = sys_chan_open(cdev, "9600,8,1,NONE", 0);
+//     if (uart >= 0) {
+//         sprintf(buffer, "COM%d: 9600, no parity, 1 stop bit, 8 data bits\nPress ESC to finish.\n", cdev - CDEV_COM1 + 1);
+//         print(channel, buffer);
+// 
+//         c_out = ' ';
+//         do {
+//             sys_chan_write_b(uart, c_out++);
+//             if (c_out > '}') {
+//                 c_out = ' ';
+//                 sys_chan_write_b(uart, '\r');
+//                 sys_chan_write_b(uart, '\n');
+//             }
+// 
+//             if (sys_chan_status(uart) & CDEV_STAT_READABLE) {
+//                 c = sys_chan_read_b(uart);
+//                 if (c != 0) {
+//                     sys_chan_write_b(channel, c);
+//                 }
+//             }
+// 
+//             scan_code = sys_kbd_scancode();
+//         } while (scan_code != 0x01);
+//     } else {
+//         sprintf(buffer, "Unable to open the serial port: %d\n", uart);
+//         print(channel, buffer);
+//     }
+// 
+//     return 0;
 // }
 
+}
 
 
 /*****************************************************************************/
@@ -201,85 +265,6 @@ int main(int argc, char* argv[])
 	DEBUG_OUT(("%s %d: Setting graphics mode...", __func__, __LINE__));
 
 
-// test serial via MCP
-
-#define CDEV_CONSOLE 0
-#define CDEV_EVID 1
-#define CDEV_COM1 2
-#define CDEV_COM2 3
-#define CDEV_LPT 4
-#define CDEV_MIDI 5
-
-int16_t uart;
-//  uart = sys_chan_open(3, "9600,8,1,NONE", 0);
-// //sys_chan_open(3, NULL, 0x03);	// RW
-// sys_chan_write(3, "hello from A2560k", 17);
-// sys_chan_close(3);
-
-	uart = sys_chan_open(CDEV_COM1, "9600,8,1,NONE", 0);
-	if (uart >= 0)
-    {
-		printf("COM%d: 9600, no parity, 1 stop bit, 8 data bits\nPress ESC to finish.\n", CDEV_COM1 - CDEV_COM1 + 1);
-        
-		sys_chan_write_b(uart, 65);
- 	}
-	else
- 	{
-		printf("couldn't open CDEV_COM1 \n");
- 	}
-	
-// short cli_test_uart(short channel, int argc, const char * argv[]) {
-//     char c, c_out;
-//     short scan_code;
-//     char buffer[80];
-//     short cdev = CDEV_COM1;
-//     short uart = -1;
-//     short uart_index = 0;
-//     unsigned long uart_address = 0;
-// 
-//     if (argc > 1) {
-//         // Get the COM port number
-//         short port = (short)cli_eval_number(argv[1]);
-//         if (port <= 1) cdev = CDEV_COM1;
-//         if (port >= 2) cdev = CDEV_COM2;
-//     }
-// 
-//     uart_index = cdev - CDEV_COM1;
-//     uart_address = (unsigned long)uart_get_base(uart_index);
-// 
-//     sprintf(buffer, "Serial port loopback test of COM%d at 0x%08X...\n", cdev - CDEV_COM1 + 1, uart_address);
-//     print(channel, buffer);
-// 
-//     uart = sys_chan_open(cdev, "9600,8,1,NONE", 0);
-//     if (uart >= 0) {
-//         sprintf(buffer, "COM%d: 9600, no parity, 1 stop bit, 8 data bits\nPress ESC to finish.\n", cdev - CDEV_COM1 + 1);
-//         print(channel, buffer);
-// 
-//         c_out = ' ';
-//         do {
-//             sys_chan_write_b(uart, c_out++);
-//             if (c_out > '}') {
-//                 c_out = ' ';
-//                 sys_chan_write_b(uart, '\r');
-//                 sys_chan_write_b(uart, '\n');
-//             }
-// 
-//             if (sys_chan_status(uart) & CDEV_STAT_READABLE) {
-//                 c = sys_chan_read_b(uart);
-//                 if (c != 0) {
-//                     sys_chan_write_b(channel, c);
-//                 }
-//             }
-// 
-//             scan_code = sys_kbd_scancode();
-//         } while (scan_code != 0x01);
-//     } else {
-//         sprintf(buffer, "Unable to open the serial port: %d\n", uart);
-//         print(channel, buffer);
-//     }
-// 
-//     return 0;
-// }
 
 // printf("Setting overlay text mode... \n ");
 // 	Sys_SetModeText(global_system, true);
@@ -298,6 +283,9 @@ int16_t uart;
 	MU_REPORT();
 
 	Sys_SetModeText(global_system, false);
+	
+	// test of serial connection
+	Test_OpenSerial();
 
 	printf("sys test complete \n");
 

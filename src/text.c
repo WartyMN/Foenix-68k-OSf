@@ -63,18 +63,18 @@ extern System*			global_system;
 //! \cond PRIVATE
 
 //! Validate screen id, x, y, and colors
-//! @param	the_screen: valid pointer to the target screen to operate on
-//! @param	x: the horizontal position to validate. Must be between 0 and the screen's text_cols_vis_ - 1
-//! @param	y: the vertical position to validate. Must be between 0 and the screen's text_rows_vis_ - 1
-//! @param	fore_color: Index to the desired foreground color (0-15).
-//! @param	back_color: Index to the desired background color (0-15).
+//! @param	the_screen - valid pointer to the target screen to operate on
+//! @param	x - the horizontal position to validate. Must be between 0 and the screen's text_cols_vis_ - 1
+//! @param	y - the vertical position to validate. Must be between 0 and the screen's text_rows_vis_ - 1
+//! @param	fore_color - Index to the desired foreground color (0-15).
+//! @param	back_color - Index to the desired background color (0-15).
 //! @return	Returns false on any error/invalid input.
 bool Text_ValidateAll(Screen* the_screen, int16_t x, int16_t y, uint8_t fore_color, uint8_t back_color);
 
 //! Validate the coordinates are within the bounds of the specified screen. 
-//! @param	the_screen: valid pointer to the target screen to operate on
-//! @param	x: the horizontal position to validate. Must be between 0 and the screen's text_cols_vis_ - 1
-//! @param	y: the vertical position to validate. Must be between 0 and the screen's text_rows_vis_ - 1
+//! @param	the_screen - valid pointer to the target screen to operate on
+//! @param	x - the horizontal position to validate. Must be between 0 and the screen's text_cols_vis_ - 1
+//! @param	y - the vertical position to validate. Must be between 0 and the screen's text_rows_vis_ - 1
 bool Text_ValidateXY(Screen* the_screen, int16_t x, int16_t y);
 
 // Fill attribute or text char memory. Writes to char memory if for_attr is false.
@@ -84,24 +84,24 @@ bool Text_FillMemory(Screen* the_screen, bool for_attr, uint8_t the_fill);
 
 //! Fill character and attribute memory for a specific box area
 //! calling function must validate screen id, coords, attribute value before passing!
-//! @param	the_screen: valid pointer to the target screen to operate on
-//! @param	x: the starting horizontal position, between 0 and the screen's text_cols_vis_ - 1
-//! @param	y: the starting vertical position, between 0 and the screen's text_rows_vis_ - 1
-//! @param	width: width, in character cells, of the rectangle to be filled
-//! @param	height: height, in character cells, of the rectangle to be filled
-//! @param	the_attribute_value: a 1-byte attribute code (foreground in high nibble, background in low nibble)
+//! @param	the_screen - valid pointer to the target screen to operate on
+//! @param	x - the starting horizontal position, between 0 and the screen's text_cols_vis_ - 1
+//! @param	y - the starting vertical position, between 0 and the screen's text_rows_vis_ - 1
+//! @param	width - width, in character cells, of the rectangle to be filled
+//! @param	height - height, in character cells, of the rectangle to be filled
+//! @param	the_attribute_value - a 1-byte attribute code (foreground in high nibble, background in low nibble)
 //! @return	Returns false on any error/invalid input.
 bool Text_FillMemoryBoxBoth(Screen* the_screen, int16_t x, int16_t y, int16_t width, int16_t height, unsigned char the_char, uint8_t the_attribute_value);
 
 //! Fill character OR attribute memory for a specific box area
 //! calling function must validate screen id, coords, attribute value before passing!
-//! @param	the_screen: valid pointer to the target screen to operate on
-//! @param	x: the starting horizontal position, between 0 and the screen's text_cols_vis_ - 1
-//! @param	y: the starting vertical position, between 0 and the screen's text_rows_vis_ - 1
-//! @param	width: width, in character cells, of the rectangle to be filled
-//! @param	height: height, in character cells, of the rectangle to be filled
-//! @param	for_attr: true to work with attribute data, false to work character data. Recommend using SCREEN_FOR_TEXT_ATTR/SCREEN_FOR_TEXT_CHAR.
-//! @param	the_fill: either a 1-byte character code, or a 1-byte attribute code (foreground in high nibble, background in low nibble)
+//! @param	the_screen - valid pointer to the target screen to operate on
+//! @param	x - the starting horizontal position, between 0 and the screen's text_cols_vis_ - 1
+//! @param	y - the starting vertical position, between 0 and the screen's text_rows_vis_ - 1
+//! @param	width - width, in character cells, of the rectangle to be filled
+//! @param	height - height, in character cells, of the rectangle to be filled
+//! @param	for_attr - true to work with attribute data, false to work character data. Recommend using SCREEN_FOR_TEXT_ATTR/SCREEN_FOR_TEXT_CHAR.
+//! @param	the_fill - either a 1-byte character code, or a 1-byte attribute code (foreground in high nibble, background in low nibble)
 //! @return	Returns false on any error/invalid input.
 bool Text_FillMemoryBox(Screen* the_screen, int16_t x, int16_t y, int16_t width, int16_t height, bool for_attr, uint8_t the_fill);
 
@@ -133,11 +133,11 @@ int16_t General_WrapPara(char* this_line_start, char** formatted_text, int16_t r
 //! \cond PRIVATE
 
 //! Validate screen id, x, y, and colors
-//! @param	the_screen: valid pointer to the target screen to operate on
-//! @param	x: the horizontal position to validate. Must be between 0 and the screen's text_cols_vis_ - 1
-//! @param	y: the vertical position to validate. Must be between 0 and the screen's text_rows_vis_ - 1
-//! @param	fore_color: Index to the desired foreground color (0-15).
-//! @param	back_color: Index to the desired background color (0-15).
+//! @param	the_screen - valid pointer to the target screen to operate on
+//! @param	x - the horizontal position to validate. Must be between 0 and the screen's text_cols_vis_ - 1
+//! @param	y - the vertical position to validate. Must be between 0 and the screen's text_rows_vis_ - 1
+//! @param	fore_color - Index to the desired foreground color (0-15).
+//! @param	back_color - Index to the desired background color (0-15).
 //! @return	Returns false on any error/invalid input.
 bool Text_ValidateAll(Screen* the_screen, int16_t x, int16_t y, uint8_t fore_color, uint8_t back_color)
 {
@@ -163,9 +163,9 @@ bool Text_ValidateAll(Screen* the_screen, int16_t x, int16_t y, uint8_t fore_col
 }
 
 //! Validate the coordinates are within the bounds of the specified screen. 
-//! @param	the_screen: valid pointer to the target screen to operate on
-//! @param	x: the horizontal position to validate. Must be between 0 and the screen's text_cols_vis_ - 1
-//! @param	y: the vertical position to validate. Must be between 0 and the screen's text_rows_vis_ - 1
+//! @param	the_screen - valid pointer to the target screen to operate on
+//! @param	x - the horizontal position to validate. Must be between 0 and the screen's text_cols_vis_ - 1
+//! @param	y - the vertical position to validate. Must be between 0 and the screen's text_rows_vis_ - 1
 bool Text_ValidateXY(Screen* the_screen, int16_t x, int16_t y)
 {
 	int16_t			max_row;
@@ -186,9 +186,9 @@ bool Text_ValidateXY(Screen* the_screen, int16_t x, int16_t y)
 
 //! Fill attribute or text char memory. 
 //! calling function must validate the screen ID before passing!
-//! @param	the_screen: valid pointer to the target screen to operate on
-//! @param	for_attr: true to work with attribute data, false to work character data. Recommend using SCREEN_FOR_TEXT_ATTR/SCREEN_FOR_TEXT_CHAR.
-//! @param	the_fill: either a 1-byte character code, or a 1-byte attribute code (foreground in high nibble, background in low nibble)
+//! @param	the_screen - valid pointer to the target screen to operate on
+//! @param	for_attr - true to work with attribute data, false to work character data. Recommend using SCREEN_FOR_TEXT_ATTR/SCREEN_FOR_TEXT_CHAR.
+//! @param	the_fill - either a 1-byte character code, or a 1-byte attribute code (foreground in high nibble, background in low nibble)
 //! @return	Returns false on any error/invalid input.
 bool Text_FillMemory(Screen* the_screen, bool for_attr, uint8_t the_fill)
 {
@@ -214,12 +214,12 @@ bool Text_FillMemory(Screen* the_screen, bool for_attr, uint8_t the_fill)
 
 //! Fill character and attribute memory for a specific box area
 //! calling function must validate screen id, coords, attribute value before passing!
-//! @param	the_screen: valid pointer to the target screen to operate on
-//! @param	x: the starting horizontal position, between 0 and the screen's text_cols_vis_ - 1
-//! @param	y: the starting vertical position, between 0 and the screen's text_rows_vis_ - 1
-//! @param	width: width, in character cells, of the rectangle to be filled
-//! @param	height: height, in character cells, of the rectangle to be filled
-//! @param	the_attribute_value: a 1-byte attribute code (foreground in high nibble, background in low nibble)
+//! @param	the_screen - valid pointer to the target screen to operate on
+//! @param	x - the starting horizontal position, between 0 and the screen's text_cols_vis_ - 1
+//! @param	y - the starting vertical position, between 0 and the screen's text_rows_vis_ - 1
+//! @param	width - width, in character cells, of the rectangle to be filled
+//! @param	height - height, in character cells, of the rectangle to be filled
+//! @param	the_attribute_value - a 1-byte attribute code (foreground in high nibble, background in low nibble)
 //! @return	Returns false on any error/invalid input.
 bool Text_FillMemoryBoxBoth(Screen* the_screen, int16_t x, int16_t y, int16_t width, int16_t height, uint8_t the_char, uint8_t the_attribute_value)
 {
@@ -247,13 +247,13 @@ bool Text_FillMemoryBoxBoth(Screen* the_screen, int16_t x, int16_t y, int16_t wi
 
 //! Fill character OR attribute memory for a specific box area
 //! calling function must validate screen id, coords, attribute value before passing!
-//! @param	the_screen: valid pointer to the target screen to operate on
-//! @param	x: the starting horizontal position, between 0 and the screen's text_cols_vis_ - 1
-//! @param	y: the starting vertical position, between 0 and the screen's text_rows_vis_ - 1
-//! @param	width: width, in character cells, of the rectangle to be filled
-//! @param	height: height, in character cells, of the rectangle to be filled
-//! @param	for_attr: true to work with attribute data, false to work character data. Recommend using SCREEN_FOR_TEXT_ATTR/SCREEN_FOR_TEXT_CHAR.
-//! @param	the_fill: either a 1-byte character code, or a 1-byte attribute code (foreground in high nibble, background in low nibble)
+//! @param	the_screen - valid pointer to the target screen to operate on
+//! @param	x - the starting horizontal position, between 0 and the screen's text_cols_vis_ - 1
+//! @param	y - the starting vertical position, between 0 and the screen's text_rows_vis_ - 1
+//! @param	width - width, in character cells, of the rectangle to be filled
+//! @param	height - height, in character cells, of the rectangle to be filled
+//! @param	for_attr - true to work with attribute data, false to work character data. Recommend using SCREEN_FOR_TEXT_ATTR/SCREEN_FOR_TEXT_CHAR.
+//! @param	the_fill - either a 1-byte character code, or a 1-byte attribute code (foreground in high nibble, background in low nibble)
 //! @return	Returns false on any error/invalid input.
 bool Text_FillMemoryBox(Screen* the_screen, int16_t x, int16_t y, int16_t width, int16_t height, bool for_attr, uint8_t the_fill)
 {
@@ -504,15 +504,15 @@ int16_t General_StrFindNextLineBreak(const char* the_string, int16_t max_search_
 
 //! Format a string by wrapping and trimming to fit the passed width and height. 
 //! If the string cannot be displayed in the specified height and width, processing will stop, but it is not an error condition
-//! @param	orig_string: pointer to a string pointer that holds the text to be formatted. Upon return, this pointer will point to the next character after the last processed character (if the string was too long to fit). If the entire string fits, this pointer will not be adjusted.
-//! @param	formatted_string: pointer to a string pointer to an empty string buffer that will be filled with the formatted version of the text.
-//! @param	max_chars_to_format: the length of the string to format (in characters). If max_chars_to_format is less than the length of string, processing will stop after that many characters.
-//! @param	max_width: the width into which the text must fit, in pixels. 
-//! @param	max_height: the height into which the text must fit, in pixels. Pass a 0 to disable the governor on vertical space. 
-//! @param	one_char_width: the width in pixels, of one character. NOTE: This is only used for fixed-width, text mode operations. 
-//! @param	one_row_height: the height in pixels, of one row of text, including any leading. 
-//! @param	the_font: the font object to be used in measuring width. This is optional and ignore if called for text mode operations.
-//! @param	measure_function: pointer to the function responsible for measuring the graphical width of a string 
+//! @param	orig_string - pointer to a string pointer that holds the text to be formatted. Upon return, this pointer will point to the next character after the last processed character (if the string was too long to fit). If the entire string fits, this pointer will not be adjusted.
+//! @param	formatted_string - pointer to a string pointer to an empty string buffer that will be filled with the formatted version of the text.
+//! @param	max_chars_to_format - the length of the string to format (in characters). If max_chars_to_format is less than the length of string, processing will stop after that many characters.
+//! @param	max_width - the width into which the text must fit, in pixels. 
+//! @param	max_height - the height into which the text must fit, in pixels. Pass a 0 to disable the governor on vertical space. 
+//! @param	one_char_width - the width in pixels, of one character. NOTE: This is only used for fixed-width, text mode operations. 
+//! @param	one_row_height - the height in pixels, of one row of text, including any leading. 
+//! @param	the_font - the font object to be used in measuring width. This is optional and ignore if called for text mode operations.
+//! @param	measure_function - pointer to the function responsible for measuring the graphical width of a string 
 //! @return Returns number of vertical pixels required. Returns -1 in any error condition.
 int16_t General_WrapAndTrimTextToFit(char** orig_string, char** formatted_string, int16_t max_chars_to_format, int16_t max_width, int16_t max_height, int16_t one_char_width, int16_t one_row_height, Font* the_font, int16_t (* measure_function)(Font*, char*, int16_t, int16_t, int16_t, int16_t*))
 {
@@ -534,7 +534,6 @@ int16_t General_WrapAndTrimTextToFit(char** orig_string, char** formatted_string
 	// Outer Loop: each pass is one line
 	do
 	{
-		bool			line_complete = false;
 		int16_t			dist_to_next_hard_break;
 		int16_t			len_to_process;
 		
@@ -610,8 +609,8 @@ int16_t General_WrapAndTrimTextToFit(char** orig_string, char** formatted_string
 // **** Block copy functions ****
 
 //! Copy a full screen of attr from an off-screen buffer
-//! @param	the_screen: valid pointer to the target screen to operate on
-//! @param	the_source_buffer: valid pointer to attribute value data that will be copied to the screen. It must be at least as large as the visible rows X visible columns of the screen.
+//! @param	the_screen - valid pointer to the target screen to operate on
+//! @param	the_source_buffer - valid pointer to attribute value data that will be copied to the screen. It must be at least as large as the visible rows X visible columns of the screen.
 //! @return	Returns false on any error/invalid input.
 bool Text_CopyAttrMemToScreen(Screen* the_screen, char* the_source_buffer)
 {
@@ -633,8 +632,8 @@ bool Text_CopyAttrMemToScreen(Screen* the_screen, char* the_source_buffer)
 }
 
 //! Copy a full screen of text attributes to an off-screen buffer.
-//! @param	the_screen: valid pointer to the target screen to operate on
-//! @param	the_target_buffer: valid pointer to a block of memory big enough to hold the attribute data copied from the screen. It must be at least as large as the visible rows X visible columns of the screen.
+//! @param	the_screen - valid pointer to the target screen to operate on
+//! @param	the_target_buffer - valid pointer to a block of memory big enough to hold the attribute data copied from the screen. It must be at least as large as the visible rows X visible columns of the screen.
 //! @return	Returns false on any error/invalid input.
 bool Text_CopyAttrMemFromScreen(Screen* the_screen, char* the_target_buffer)
 {
@@ -656,8 +655,8 @@ bool Text_CopyAttrMemFromScreen(Screen* the_screen, char* the_target_buffer)
 }
 
 //! Copy a full screen of text from an off-screen buffer.
-//! @param	the_screen: valid pointer to the target screen to operate on
-//! @param	the_source_buffer: valid pointer to character data that will be copied to the screen. It must be at least as large as the visible rows X visible columns of the screen.
+//! @param	the_screen - valid pointer to the target screen to operate on
+//! @param	the_source_buffer - valid pointer to character data that will be copied to the screen. It must be at least as large as the visible rows X visible columns of the screen.
 //! @return	Returns false on any error/invalid input.
 bool Text_CopyCharMemToScreen(Screen* the_screen, char* the_source_buffer)
 {
@@ -679,8 +678,8 @@ bool Text_CopyCharMemToScreen(Screen* the_screen, char* the_source_buffer)
 }
 
 //! Copy a full screen of text to an off-screen buffer
-//! @param	the_screen: valid pointer to the target screen to operate on
-//! @param	the_target_buffer: valid pointer to a block of memory big enough to hold the character data copied from the screen. It must be at least as large as the visible rows X visible columns of the screen.
+//! @param	the_screen - valid pointer to the target screen to operate on
+//! @param	the_target_buffer - valid pointer to a block of memory big enough to hold the character data copied from the screen. It must be at least as large as the visible rows X visible columns of the screen.
 //! @return	Returns false on any error/invalid input.
 bool Text_CopyCharMemFromScreen(Screen* the_screen, char* the_target_buffer)
 {
@@ -703,10 +702,10 @@ bool Text_CopyCharMemFromScreen(Screen* the_screen, char* the_target_buffer)
 
 
 //! Copy a full screen worth of EITHER text or attribute data to OR from an off-screen buffer
-//! @param	the_screen: valid pointer to the target screen to operate on
-//! @param	the_buffer: valid pointer to a block of memory big enough to store (or alternatively act as the source of) the character or attribute data for the specified screen. It must be at least as large as the visible rows X visible columns of the screen.
-//! @param	to_screen: true to copy to the screen from the buffer, false to copy from the screen to the buffer. Recommend using SCREEN_COPY_TO_SCREEN/SCREEN_COPY_FROM_SCREEN.
-//! @param	for_attr: true to work with attribute data, false to work character data. Recommend using SCREEN_FOR_TEXT_ATTR/SCREEN_FOR_TEXT_CHAR.
+//! @param	the_screen - valid pointer to the target screen to operate on
+//! @param	the_buffer - valid pointer to a block of memory big enough to store (or alternatively act as the source of) the character or attribute data for the specified screen. It must be at least as large as the visible rows X visible columns of the screen.
+//! @param	to_screen - true to copy to the screen from the buffer, false to copy from the screen to the buffer. Recommend using SCREEN_COPY_TO_SCREEN/SCREEN_COPY_FROM_SCREEN.
+//! @param	for_attr - true to work with attribute data, false to work character data. Recommend using SCREEN_FOR_TEXT_ATTR/SCREEN_FOR_TEXT_CHAR.
 //! @return	Returns false on any error/invalid input.
 bool Text_CopyScreen(Screen* the_screen, char* the_buffer, bool to_screen, bool for_attr)
 {
@@ -751,14 +750,14 @@ bool Text_CopyScreen(Screen* the_screen, char* the_buffer, bool to_screen, bool 
 
 
 //! Copy a rectangular area of text or attr to or from an off-screen buffer
-//! @param	the_screen: valid pointer to the target screen to operate on
-//! @param	the_buffer: valid pointer to a block of memory big enough to store (or alternatively act as the source of) the character or attribute data for the specified rectangle of screen memory.
-//! @param	x1: the leftmost horizontal position, between 0 and the screen's text_cols_vis_ - 1
-//! @param	y1: the uppermost vertical position, between 0 and the screen's text_rows_vis_ - 1
-//! @param	x2: the rightmost horizontal position, between 0 and the screen's text_cols_vis_ - 1
-//! @param	y2: the lowermost vertical position, between 0 and the screen's text_rows_vis_ - 1
-//! @param	to_screen: true to copy to the screen from the buffer, false to copy from the screen to the buffer. Recommend using SCREEN_COPY_TO_SCREEN/SCREEN_COPY_FROM_SCREEN.
-//! @param	for_attr: true to work with attribute data, false to work character data. Recommend using SCREEN_FOR_TEXT_ATTR/SCREEN_FOR_TEXT_CHAR.
+//! @param	the_screen - valid pointer to the target screen to operate on
+//! @param	the_buffer - valid pointer to a block of memory big enough to store (or alternatively act as the source of) the character or attribute data for the specified rectangle of screen memory.
+//! @param	x1 - the leftmost horizontal position, between 0 and the screen's text_cols_vis_ - 1
+//! @param	y1 - the uppermost vertical position, between 0 and the screen's text_rows_vis_ - 1
+//! @param	x2 - the rightmost horizontal position, between 0 and the screen's text_cols_vis_ - 1
+//! @param	y2 - the lowermost vertical position, between 0 and the screen's text_rows_vis_ - 1
+//! @param	to_screen - true to copy to the screen from the buffer, false to copy from the screen to the buffer. Recommend using SCREEN_COPY_TO_SCREEN/SCREEN_COPY_FROM_SCREEN.
+//! @param	for_attr - true to work with attribute data, false to work character data. Recommend using SCREEN_FOR_TEXT_ATTR/SCREEN_FOR_TEXT_CHAR.
 //! @return	Returns false on any error/invalid input.
 bool Text_CopyMemBox(Screen* the_screen, char* the_buffer, int16_t x1, int16_t y1, int16_t x2, int16_t y2, bool to_screen, bool for_attr)
 {
@@ -856,9 +855,9 @@ void Text_ClearScreen(Screen* the_screen, uint8_t fore_color, uint8_t back_color
 
 
 //! Fill the entire attribute memory of the passed screen with the specified fore- and back-color
-//! @param	the_screen: valid pointer to the target screen to operate on
-//! @param	fore_color: Index to the desired foreground color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
-//! @param	back_color: Index to the desired background color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
+//! @param	the_screen - valid pointer to the target screen to operate on
+//! @param	fore_color - Index to the desired foreground color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
+//! @param	back_color - Index to the desired background color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
 //! @return	Returns false on any error/invalid input.
 bool Text_FillAttrMemForeBack(Screen* the_screen, uint8_t fore_color, uint8_t back_color)
 {
@@ -873,8 +872,8 @@ bool Text_FillAttrMemForeBack(Screen* the_screen, uint8_t fore_color, uint8_t ba
 
 
 //! Fill the entire attribute memory of the passed screen
-//! @param	the_screen: valid pointer to the target screen to operate on
-//! @param	the_fill: a 1-byte attribute code (foreground in high nibble, background in low nibble)
+//! @param	the_screen - valid pointer to the target screen to operate on
+//! @param	the_fill - a 1-byte attribute code (foreground in high nibble, background in low nibble)
 //! @return	Returns false on any error/invalid input.
 bool Text_FillAttrMem(Screen* the_screen, uint8_t the_fill)
 {
@@ -889,8 +888,8 @@ bool Text_FillAttrMem(Screen* the_screen, uint8_t the_fill)
 
 
 //! Fill the entire character memory of the passed screen
-//! @param	the_screen: valid pointer to the target screen to operate on
-//! @param	the_fill: a 1-byte character code
+//! @param	the_screen - valid pointer to the target screen to operate on
+//! @param	the_fill - a 1-byte character code
 //! @return	Returns false on any error/invalid input.
 bool Text_FillCharMem(Screen* the_screen, unsigned char the_fill)
 {
@@ -906,15 +905,15 @@ bool Text_FillCharMem(Screen* the_screen, unsigned char the_fill)
 
 //! Fill a box-shaped section of character and/or attribute memory
 //! This version uses char-by-char functions, so it is very slow. It will be removed before release. 
-//! @param	the_screen: valid pointer to the target screen to operate on
-//! @param	x1: the leftmost horizontal position, between 0 and the screen's text_cols_vis_ - 1
-//! @param	y1: the uppermost vertical position, between 0 and the screen's text_rows_vis_ - 1
-//! @param	x2: the rightmost horizontal position, between 0 and the screen's text_cols_vis_ - 1
-//! @param	y2: the lowermost vertical position, between 0 and the screen's text_rows_vis_ - 1
-//! @param	the_char: the character to be used for the fill operation
-//! @param	fore_color: Index to the desired foreground color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
-//! @param	back_color: Index to the desired background color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
-//! @param	the_draw_choice: controls the scope of the action, and is one of CHAR_ONLY, ATTR_ONLY, or CHAR_AND_ATTR. See the text_draw_choice enum.
+//! @param	the_screen - valid pointer to the target screen to operate on
+//! @param	x1 - the leftmost horizontal position, between 0 and the screen's text_cols_vis_ - 1
+//! @param	y1 - the uppermost vertical position, between 0 and the screen's text_rows_vis_ - 1
+//! @param	x2 - the rightmost horizontal position, between 0 and the screen's text_cols_vis_ - 1
+//! @param	y2 - the lowermost vertical position, between 0 and the screen's text_rows_vis_ - 1
+//! @param	the_char - the character to be used for the fill operation
+//! @param	fore_color - Index to the desired foreground color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
+//! @param	back_color - Index to the desired background color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
+//! @param	the_draw_choice - controls the scope of the action, and is one of CHAR_ONLY, ATTR_ONLY, or CHAR_AND_ATTR. See the text_draw_choice enum.
 //! @return	Returns false on any error/invalid input.
 bool Text_FillBoxSlow(Screen* the_screen, int16_t x1, int16_t y1, int16_t x2, int16_t y2, unsigned char the_char, uint8_t fore_color, uint8_t back_color, text_draw_choice the_draw_choice)
 {
@@ -961,14 +960,14 @@ bool Text_FillBoxSlow(Screen* the_screen, int16_t x1, int16_t y1, int16_t x2, in
 
 
 //! Fill character and attribute memory for a specific box area
-//! @param	the_screen: valid pointer to the target screen to operate on
-//! @param	x1: the leftmost horizontal position, between 0 and the screen's text_cols_vis_ - 1
-//! @param	y1: the uppermost vertical position, between 0 and the screen's text_rows_vis_ - 1
-//! @param	x2: the rightmost horizontal position, between 0 and the screen's text_cols_vis_ - 1
-//! @param	y2: the lowermost vertical position, between 0 and the screen's text_rows_vis_ - 1
-//! @param	the_char: the character to be used for the fill operation
-//! @param	fore_color: Index to the desired foreground color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
-//! @param	back_color: Index to the desired background color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
+//! @param	the_screen - valid pointer to the target screen to operate on
+//! @param	x1 - the leftmost horizontal position, between 0 and the screen's text_cols_vis_ - 1
+//! @param	y1 - the uppermost vertical position, between 0 and the screen's text_rows_vis_ - 1
+//! @param	x2 - the rightmost horizontal position, between 0 and the screen's text_cols_vis_ - 1
+//! @param	y2 - the lowermost vertical position, between 0 and the screen's text_rows_vis_ - 1
+//! @param	the_char - the character to be used for the fill operation
+//! @param	fore_color - Index to the desired foreground color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
+//! @param	back_color - Index to the desired background color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
 //! @return	Returns false on any error/invalid input.
 bool Text_FillBox(Screen* the_screen, int16_t x1, int16_t y1, int16_t x2, int16_t y2, unsigned char the_char, uint8_t fore_color, uint8_t back_color)
 {
@@ -1014,12 +1013,12 @@ bool Text_FillBox(Screen* the_screen, int16_t x1, int16_t y1, int16_t x2, int16_
 
 
 //! Fill character memory for a specific box area
-//! @param	the_screen: valid pointer to the target screen to operate on
-//! @param	x1: the leftmost horizontal position, between 0 and the screen's text_cols_vis_ - 1
-//! @param	y1: the uppermost vertical position, between 0 and the screen's text_rows_vis_ - 1
-//! @param	x2: the rightmost horizontal position, between 0 and the screen's text_cols_vis_ - 1
-//! @param	y2: the lowermost vertical position, between 0 and the screen's text_rows_vis_ - 1
-//! @param	the_char: the character to be used for the fill operation
+//! @param	the_screen - valid pointer to the target screen to operate on
+//! @param	x1 - the leftmost horizontal position, between 0 and the screen's text_cols_vis_ - 1
+//! @param	y1 - the uppermost vertical position, between 0 and the screen's text_rows_vis_ - 1
+//! @param	x2 - the rightmost horizontal position, between 0 and the screen's text_cols_vis_ - 1
+//! @param	y2 - the lowermost vertical position, between 0 and the screen's text_rows_vis_ - 1
+//! @param	the_char - the character to be used for the fill operation
 //! @return	Returns false on any error/invalid input.
 bool Text_FillBoxCharOnly(Screen* the_screen, int16_t x1, int16_t y1, int16_t x2, int16_t y2, unsigned char the_char)
 {
@@ -1060,13 +1059,13 @@ bool Text_FillBoxCharOnly(Screen* the_screen, int16_t x1, int16_t y1, int16_t x2
 
 
 //! Fill attribute memory for a specific box area
-//! @param	the_screen: valid pointer to the target screen to operate on
-//! @param	x1: the leftmost horizontal position, between 0 and the screen's text_cols_vis_ - 1
-//! @param	y1: the uppermost vertical position, between 0 and the screen's text_rows_vis_ - 1
-//! @param	x2: the rightmost horizontal position, between 0 and the screen's text_cols_vis_ - 1
-//! @param	y2: the lowermost vertical position, between 0 and the screen's text_rows_vis_ - 1
-//! @param	fore_color: Index to the desired foreground color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
-//! @param	back_color: Index to the desired background color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
+//! @param	the_screen - valid pointer to the target screen to operate on
+//! @param	x1 - the leftmost horizontal position, between 0 and the screen's text_cols_vis_ - 1
+//! @param	y1 - the uppermost vertical position, between 0 and the screen's text_rows_vis_ - 1
+//! @param	x2 - the rightmost horizontal position, between 0 and the screen's text_cols_vis_ - 1
+//! @param	y2 - the lowermost vertical position, between 0 and the screen's text_rows_vis_ - 1
+//! @param	fore_color - Index to the desired foreground color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
+//! @param	back_color - Index to the desired background color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
 //! @return	Returns false on any error/invalid input.
 bool Text_FillBoxAttrOnly(Screen* the_screen, int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint8_t fore_color, uint8_t back_color)
 {
@@ -1113,11 +1112,11 @@ bool Text_FillBoxAttrOnly(Screen* the_screen, int16_t x1, int16_t y1, int16_t x2
 
 //! Invert the colors of a rectangular block.
 //! As this requires sampling each character cell, it is no faster (per cell) to do for entire screen as opposed to a subset box
-//! @param	the_screen: valid pointer to the target screen to operate on
-//! @param	x1: the leftmost horizontal position, between 0 and the screen's text_cols_vis_ - 1
-//! @param	y1: the uppermost vertical position, between 0 and the screen's text_rows_vis_ - 1
-//! @param	x2: the rightmost horizontal position, between 0 and the screen's text_cols_vis_ - 1
-//! @param	y2: the lowermost vertical position, between 0 and the screen's text_rows_vis_ - 1
+//! @param	the_screen - valid pointer to the target screen to operate on
+//! @param	x1 - the leftmost horizontal position, between 0 and the screen's text_cols_vis_ - 1
+//! @param	y1 - the uppermost vertical position, between 0 and the screen's text_rows_vis_ - 1
+//! @param	x2 - the rightmost horizontal position, between 0 and the screen's text_cols_vis_ - 1
+//! @param	y2 - the lowermost vertical position, between 0 and the screen's text_rows_vis_ - 1
 //! @return	Returns false on any error/invalid input.
 bool Text_InvertBox(Screen* the_screen, int16_t x1, int16_t y1, int16_t x2, int16_t y2)
 {
@@ -1181,8 +1180,8 @@ bool Text_InvertBox(Screen* the_screen, int16_t x1, int16_t y1, int16_t x2, int1
 // **** FONT RELATED *****
 
 //! replace the current font data with the data at the passed memory buffer
-//! @param	the_screen: valid pointer to the target screen to operate on
-//! @param	new_font_data: Pointer to 2K (256 characters x 8 lines/bytes each) of font data. Each byte represents one line of an 8x8 font glyph.
+//! @param	the_screen - valid pointer to the target screen to operate on
+//! @param	new_font_data - Pointer to 2K (256 characters x 8 lines/bytes each) of font data. Each byte represents one line of an 8x8 font glyph.
 //! @return	Returns false on any error/invalid input.
 bool Text_UpdateFontData(Screen* the_screen, char* new_font_data)
 {
@@ -1206,8 +1205,8 @@ bool Text_UpdateFontData(Screen* the_screen, char* new_font_data)
 
 //! Test function to display all 256 font characters.
 //! Characters are rendered in 8 rows of 32 characters.
-//! @param	the_screen: valid pointer to the target screen to operate on
-//! @param	y: the starting row to draw the font characters.
+//! @param	the_screen - valid pointer to the target screen to operate on
+//! @param	y - the starting row to draw the font characters.
 //! @return	Returns false on any error/invalid input.
 bool Text_ShowFontChars(Screen* the_screen, int16_t y)
 {
@@ -1244,10 +1243,10 @@ bool Text_ShowFontChars(Screen* the_screen, int16_t y)
 
 
 //! Set a char at a specified x, y coord
-//! @param	the_screen: valid pointer to the target screen to operate on
-//! @param	x: the horizontal position, between 0 and the screen's text_cols_vis_ - 1
-//! @param	y: the vertical position, between 0 and the screen's text_rows_vis_ - 1
-//! @param	the_char: the character to be used
+//! @param	the_screen - valid pointer to the target screen to operate on
+//! @param	x - the horizontal position, between 0 and the screen's text_cols_vis_ - 1
+//! @param	y - the vertical position, between 0 and the screen's text_rows_vis_ - 1
+//! @param	the_char - the character to be used
 //! @return	Returns false on any error/invalid input.
 bool Text_SetCharAtXY(Screen* the_screen, int16_t x, int16_t y, unsigned char the_char)
 {
@@ -1273,10 +1272,10 @@ bool Text_SetCharAtXY(Screen* the_screen, int16_t x, int16_t y, unsigned char th
 
 
 //! Set the attribute value at a specified x, y coord
-//! @param	the_screen: valid pointer to the target screen to operate on
-//! @param	x: the horizontal position, between 0 and the screen's text_cols_vis_ - 1
-//! @param	y: the vertical position, between 0 and the screen's text_rows_vis_ - 1
-//! @param	the_attribute_value: a 1-byte attribute code (foreground in high nibble, background in low nibble)
+//! @param	the_screen - valid pointer to the target screen to operate on
+//! @param	x - the horizontal position, between 0 and the screen's text_cols_vis_ - 1
+//! @param	y - the vertical position, between 0 and the screen's text_rows_vis_ - 1
+//! @param	the_attribute_value - a 1-byte attribute code (foreground in high nibble, background in low nibble)
 //! @return	Returns false on any error/invalid input.
 bool Text_SetAttrAtXY(Screen* the_screen, int16_t x, int16_t y, uint8_t the_attribute_value)
 {
@@ -1302,15 +1301,14 @@ bool Text_SetAttrAtXY(Screen* the_screen, int16_t x, int16_t y, uint8_t the_attr
 
 
 //! Set the attribute value at a specified x, y coord based on the foreground and background colors passed
-//! @param	the_screen: valid pointer to the target screen to operate on
-//! @param	x: the horizontal position, between 0 and the screen's text_cols_vis_ - 1
-//! @param	y: the vertical position, between 0 and the screen's text_rows_vis_ - 1
-//! @param	fore_color: Index to the desired foreground color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
-//! @param	back_color: Index to the desired background color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
+//! @param	the_screen - valid pointer to the target screen to operate on
+//! @param	x - the horizontal position, between 0 and the screen's text_cols_vis_ - 1
+//! @param	y - the vertical position, between 0 and the screen's text_rows_vis_ - 1
+//! @param	fore_color - Index to the desired foreground color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
+//! @param	back_color - Index to the desired background color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
 //! @return	Returns false on any error/invalid input.
 bool Text_SetColorAtXY(Screen* the_screen, int16_t x, int16_t y, uint8_t fore_color, uint8_t back_color)
 {
-	char*			the_write_loc;
 	uint8_t			the_attribute_value;
 	
 	if (!Text_ValidateAll(the_screen, x, y, fore_color, back_color))
@@ -1328,12 +1326,12 @@ bool Text_SetColorAtXY(Screen* the_screen, int16_t x, int16_t y, uint8_t fore_co
 
 
 //! Draw a char at a specified x, y coord, also setting the color attributes
-//! @param	the_screen: valid pointer to the target screen to operate on
-//! @param	x: the horizontal position, between 0 and the screen's text_cols_vis_ - 1
-//! @param	y: the vertical position, between 0 and the screen's text_rows_vis_ - 1
-//! @param	the_char: the character to be used
-//! @param	fore_color: Index to the desired foreground color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
-//! @param	back_color: Index to the desired background color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
+//! @param	the_screen - valid pointer to the target screen to operate on
+//! @param	x - the horizontal position, between 0 and the screen's text_cols_vis_ - 1
+//! @param	y - the vertical position, between 0 and the screen's text_rows_vis_ - 1
+//! @param	the_char - the character to be used
+//! @param	fore_color - Index to the desired foreground color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
+//! @param	back_color - Index to the desired background color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
 //! @return	Returns false on any error/invalid input.
 bool Text_SetCharAndColorAtXY(Screen* the_screen, int16_t x, int16_t y, unsigned char the_char, uint8_t fore_color, uint8_t back_color)
 {
@@ -1372,9 +1370,9 @@ bool Text_SetCharAndColorAtXY(Screen* the_screen, int16_t x, int16_t y, unsigned
 
 
 //! Get the char at a specified x, y coord
-//! @param	the_screen: valid pointer to the target screen to operate on
-//! @param	x: the horizontal position, between 0 and the screen's text_cols_vis_ - 1
-//! @param	y: the vertical position, between 0 and the screen's text_rows_vis_ - 1
+//! @param	the_screen - valid pointer to the target screen to operate on
+//! @param	x - the horizontal position, between 0 and the screen's text_cols_vis_ - 1
+//! @param	y - the vertical position, between 0 and the screen's text_rows_vis_ - 1
 //! @return	Returns a character code
 unsigned char Text_GetCharAtXY(Screen* the_screen, int16_t x, int16_t y)
 {
@@ -1401,9 +1399,9 @@ unsigned char Text_GetCharAtXY(Screen* the_screen, int16_t x, int16_t y)
 
 
 //! Get the attribute value at a specified x, y coord
-//! @param	the_screen: valid pointer to the target screen to operate on
-//! @param	x: the horizontal position, between 0 and the screen's text_cols_vis_ - 1
-//! @param	y: the vertical position, between 0 and the screen's text_rows_vis_ - 1
+//! @param	the_screen - valid pointer to the target screen to operate on
+//! @param	x - the horizontal position, between 0 and the screen's text_cols_vis_ - 1
+//! @param	y - the vertical position, between 0 and the screen's text_rows_vis_ - 1
 //! @return	Returns a 1-byte attribute code (foreground in high nibble, background in low nibble)
 uint8_t Text_GetAttrAtXY(Screen* the_screen, int16_t x, int16_t y)
 {
@@ -1430,9 +1428,9 @@ uint8_t Text_GetAttrAtXY(Screen* the_screen, int16_t x, int16_t y)
 
 
 //! Get the foreground color at a specified x, y coord
-//! @param	the_screen: valid pointer to the target screen to operate on
-//! @param	x: the horizontal position, between 0 and the screen's text_cols_vis_ - 1
-//! @param	y: the vertical position, between 0 and the screen's text_rows_vis_ - 1
+//! @param	the_screen - valid pointer to the target screen to operate on
+//! @param	x - the horizontal position, between 0 and the screen's text_cols_vis_ - 1
+//! @param	y - the vertical position, between 0 and the screen's text_rows_vis_ - 1
 //! @return	Returns an index (0-15) to the foreground color LUT
 uint8_t Text_GetForeColorAtXY(Screen* the_screen, int16_t x, int16_t y)
 {
@@ -1461,9 +1459,9 @@ uint8_t Text_GetForeColorAtXY(Screen* the_screen, int16_t x, int16_t y)
 
 
 //! Get the background color at a specified x, y coord
-//! @param	the_screen: valid pointer to the target screen to operate on
-//! @param	x: the horizontal position, between 0 and the screen's text_cols_vis_ - 1
-//! @param	y: the vertical position, between 0 and the screen's text_rows_vis_ - 1
+//! @param	the_screen - valid pointer to the target screen to operate on
+//! @param	x - the horizontal position, between 0 and the screen's text_cols_vis_ - 1
+//! @param	y - the vertical position, between 0 and the screen's text_rows_vis_ - 1
 //! @return	Returns an index (0-15) to the background color LUT
 uint8_t Text_GetBackColorAtXY(Screen* the_screen, int16_t x, int16_t y)
 {
@@ -1496,14 +1494,14 @@ uint8_t Text_GetBackColorAtXY(Screen* the_screen, int16_t x, int16_t y)
 
 
 //! Draws a horizontal line from specified coords, for n characters, using the specified char and/or attribute
-//! @param	the_screen: valid pointer to the target screen to operate on
-//! @param	x: the starting horizontal position, between 0 and the screen's text_cols_vis_ - 1
-//! @param	y: the starting vertical position, between 0 and the screen's text_rows_vis_ - 1
-//! @param	the_line_len: The total length of the line, in characters, including the start and end character.
-//! @param	the_char: the character to be used when drawing
-//! @param	fore_color: Index to the desired foreground color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
-//! @param	back_color: Index to the desired background color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
-//! @param	the_draw_choice: controls the scope of the action, and is one of CHAR_ONLY, ATTR_ONLY, or CHAR_AND_ATTR. See the text_draw_choice enum.
+//! @param	the_screen - valid pointer to the target screen to operate on
+//! @param	x - the starting horizontal position, between 0 and the screen's text_cols_vis_ - 1
+//! @param	y - the starting vertical position, between 0 and the screen's text_rows_vis_ - 1
+//! @param	the_line_len - The total length of the line, in characters, including the start and end character.
+//! @param	the_char - the character to be used when drawing
+//! @param	fore_color - Index to the desired foreground color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
+//! @param	back_color - Index to the desired background color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
+//! @param	the_draw_choice - controls the scope of the action, and is one of CHAR_ONLY, ATTR_ONLY, or CHAR_AND_ATTR. See the text_draw_choice enum.
 //! @return	Returns false on any error/invalid input.
 bool Text_DrawHLine(Screen* the_screen, int16_t x, int16_t y, int16_t the_line_len, unsigned char the_char, uint8_t fore_color, uint8_t back_color, text_draw_choice the_draw_choice)
 {
@@ -1553,14 +1551,14 @@ bool Text_DrawHLine(Screen* the_screen, int16_t x, int16_t y, int16_t the_line_l
 
 //! Draws a horizontal line from specified coords, for n characters, using the specified char and/or attribute
 //! This version uses char-by-char functions, so it is very slow. It will be removed before release. 
-//! @param	the_screen: valid pointer to the target screen to operate on
-//! @param	x: the starting horizontal position, between 0 and the screen's text_cols_vis_ - 1
-//! @param	y: the starting vertical position, between 0 and the screen's text_rows_vis_ - 1
-//! @param	the_line_len: The total length of the line, in characters, including the start and end character.
-//! @param	the_char: the character to be used when drawing
-//! @param	fore_color: Index to the desired foreground color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
-//! @param	back_color: Index to the desired background color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
-//! @param	the_draw_choice: controls the scope of the action, and is one of CHAR_ONLY, ATTR_ONLY, or CHAR_AND_ATTR. See the text_draw_choice enum.
+//! @param	the_screen - valid pointer to the target screen to operate on
+//! @param	x - the starting horizontal position, between 0 and the screen's text_cols_vis_ - 1
+//! @param	y - the starting vertical position, between 0 and the screen's text_rows_vis_ - 1
+//! @param	the_line_len - The total length of the line, in characters, including the start and end character.
+//! @param	the_char - the character to be used when drawing
+//! @param	fore_color - Index to the desired foreground color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
+//! @param	back_color - Index to the desired background color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
+//! @param	the_draw_choice - controls the scope of the action, and is one of CHAR_ONLY, ATTR_ONLY, or CHAR_AND_ATTR. See the text_draw_choice enum.
 //! @return	Returns false on any error/invalid input.
 bool Text_DrawHLineSlow(Screen* the_screen, int16_t x, int16_t y, int16_t the_line_len, unsigned char the_char, uint8_t fore_color, uint8_t back_color, text_draw_choice the_draw_choice)
 {
@@ -1608,14 +1606,14 @@ bool Text_DrawHLineSlow(Screen* the_screen, int16_t x, int16_t y, int16_t the_li
 
 
 //! Draws a vertical line from specified coords, for n characters, using the specified char and/or attribute
-//! @param	the_screen: valid pointer to the target screen to operate on
-//! @param	x: the starting horizontal position, between 0 and the screen's text_cols_vis_ - 1
-//! @param	y: the starting vertical position, between 0 and the screen's text_rows_vis_ - 1
-//! @param	the_line_len: The total length of the line, in characters, including the start and end character.
-//! @param	the_char: the character to be used when drawing
-//! @param	fore_color: Index to the desired foreground color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
-//! @param	back_color: Index to the desired background color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
-//! @param	the_draw_choice: controls the scope of the action, and is one of CHAR_ONLY, ATTR_ONLY, or CHAR_AND_ATTR. See the text_draw_choice enum.
+//! @param	the_screen - valid pointer to the target screen to operate on
+//! @param	x - the starting horizontal position, between 0 and the screen's text_cols_vis_ - 1
+//! @param	y - the starting vertical position, between 0 and the screen's text_rows_vis_ - 1
+//! @param	the_line_len - The total length of the line, in characters, including the start and end character.
+//! @param	the_char - the character to be used when drawing
+//! @param	fore_color - Index to the desired foreground color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
+//! @param	back_color - Index to the desired background color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
+//! @param	the_draw_choice - controls the scope of the action, and is one of CHAR_ONLY, ATTR_ONLY, or CHAR_AND_ATTR. See the text_draw_choice enum.
 //! @return	Returns false on any error/invalid input.
 bool Text_DrawVLine(Screen* the_screen, int16_t x, int16_t y, int16_t the_line_len, unsigned char the_char, uint8_t fore_color, uint8_t back_color, text_draw_choice the_draw_choice)
 {
@@ -1663,15 +1661,15 @@ bool Text_DrawVLine(Screen* the_screen, int16_t x, int16_t y, int16_t the_line_l
 
 
 //! Draws a basic box based on 2 sets of coords, using the specified char and/or attribute for all cells
-//! @param	the_screen: valid pointer to the target screen to operate on
-//! @param	x1: the leftmost horizontal position, between 0 and the screen's text_cols_vis_ - 1
-//! @param	y1: the uppermost vertical position, between 0 and the screen's text_rows_vis_ - 1
-//! @param	x2: the rightmost horizontal position, between 0 and the screen's text_cols_vis_ - 1
-//! @param	y2: the lowermost vertical position, between 0 and the screen's text_rows_vis_ - 1
-//! @param	the_char: the character to be used when drawing the box
-//! @param	fore_color: Index to the desired foreground color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
-//! @param	back_color: Index to the desired background color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
-//! @param	the_draw_choice: controls the scope of the action, and is one of CHAR_ONLY, ATTR_ONLY, or CHAR_AND_ATTR. See the text_draw_choice enum.
+//! @param	the_screen - valid pointer to the target screen to operate on
+//! @param	x1 - the leftmost horizontal position, between 0 and the screen's text_cols_vis_ - 1
+//! @param	y1 - the uppermost vertical position, between 0 and the screen's text_rows_vis_ - 1
+//! @param	x2 - the rightmost horizontal position, between 0 and the screen's text_cols_vis_ - 1
+//! @param	y2 - the lowermost vertical position, between 0 and the screen's text_rows_vis_ - 1
+//! @param	the_char - the character to be used when drawing the box
+//! @param	fore_color - Index to the desired foreground color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
+//! @param	back_color - Index to the desired background color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
+//! @param	the_draw_choice - controls the scope of the action, and is one of CHAR_ONLY, ATTR_ONLY, or CHAR_AND_ATTR. See the text_draw_choice enum.
 //! @return	Returns false on any error/invalid input.
 bool Text_DrawBoxCoords(Screen* the_screen, int16_t x1, int16_t y1, int16_t x2, int16_t y2, unsigned char the_char, uint8_t fore_color, uint8_t back_color, text_draw_choice the_draw_choice)
 {
@@ -1737,13 +1735,13 @@ bool Text_DrawBoxCoords(Screen* the_screen, int16_t x1, int16_t y1, int16_t x2, 
 
 
 //! Draws a box based on 2 sets of coords, using the predetermined line and corner "graphics", and the passed colors
-//! @param	the_screen: valid pointer to the target screen to operate on
-//! @param	x1: the leftmost horizontal position, between 0 and the screen's text_cols_vis_ - 1
-//! @param	y1: the uppermost vertical position, between 0 and the screen's text_rows_vis_ - 1
-//! @param	x2: the rightmost horizontal position, between 0 and the screen's text_cols_vis_ - 1
-//! @param	y2: the lowermost vertical position, between 0 and the screen's text_rows_vis_ - 1
-//! @param	fore_color: Index to the desired foreground color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
-//! @param	back_color: Index to the desired background color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
+//! @param	the_screen - valid pointer to the target screen to operate on
+//! @param	x1 - the leftmost horizontal position, between 0 and the screen's text_cols_vis_ - 1
+//! @param	y1 - the uppermost vertical position, between 0 and the screen's text_rows_vis_ - 1
+//! @param	x2 - the rightmost horizontal position, between 0 and the screen's text_cols_vis_ - 1
+//! @param	y2 - the lowermost vertical position, between 0 and the screen's text_rows_vis_ - 1
+//! @param	fore_color - Index to the desired foreground color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
+//! @param	back_color - Index to the desired background color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
 //! @return	Returns false on any error/invalid input.
 bool Text_DrawBoxCoordsFancy(Screen* the_screen, int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint8_t fore_color, uint8_t back_color)
 {
@@ -1817,15 +1815,15 @@ bool Text_DrawBoxCoordsFancy(Screen* the_screen, int16_t x1, int16_t y1, int16_t
 
 
 //! Draws a basic box based on start coords and width/height, using the specified char and/or attribute for all cells
-//! @param	the_screen: valid pointer to the target screen to operate on
-//! @param	x: the starting horizontal position, between 0 and the screen's text_cols_vis_ - 1
-//! @param	y: the starting vertical position, between 0 and the screen's text_rows_vis_ - 1
-//! @param	width: width, in character cells, of the rectangle to be drawn
-//! @param	height: height, in character cells, of the rectangle to be drawn
-//! @param	the_char: the character to be used when drawing the box
-//! @param	fore_color: Index to the desired foreground color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
-//! @param	back_color: Index to the desired background color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
-//! @param	the_draw_choice: controls the scope of the action, and is one of CHAR_ONLY, ATTR_ONLY, or CHAR_AND_ATTR. See the text_draw_choice enum.
+//! @param	the_screen - valid pointer to the target screen to operate on
+//! @param	x - the starting horizontal position, between 0 and the screen's text_cols_vis_ - 1
+//! @param	y - the starting vertical position, between 0 and the screen's text_rows_vis_ - 1
+//! @param	width - width, in character cells, of the rectangle to be drawn
+//! @param	height - height, in character cells, of the rectangle to be drawn
+//! @param	the_char - the character to be used when drawing the box
+//! @param	fore_color - Index to the desired foreground color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
+//! @param	back_color - Index to the desired background color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
+//! @param	the_draw_choice - controls the scope of the action, and is one of CHAR_ONLY, ATTR_ONLY, or CHAR_AND_ATTR. See the text_draw_choice enum.
 //! @return	Returns false on any error/invalid input.
 bool Text_DrawBox(Screen* the_screen, int16_t x, int16_t y, int16_t width, int16_t height, unsigned char the_char, uint8_t fore_color, uint8_t back_color, text_draw_choice the_draw_choice)
 {	
@@ -1882,12 +1880,12 @@ bool Text_DrawBox(Screen* the_screen, int16_t x, int16_t y, int16_t width, int16
 //! Draw a string at a specified x, y coord, also setting the color attributes.
 //! If it is too long to display on the line it started, it will be truncated at the right edge of the screen.
 //! No word wrap is performed. 
-//! @param	the_screen: valid pointer to the target screen to operate on
-//! @param	x: the starting horizontal position, between 0 and the screen's text_cols_vis_ - 1
-//! @param	y: the starting vertical position, between 0 and the screen's text_rows_vis_ - 1
-//! @param	the_string: the null-terminated string to be drawn
-//! @param	fore_color: Index to the desired foreground color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
-//! @param	back_color: Index to the desired background color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
+//! @param	the_screen - valid pointer to the target screen to operate on
+//! @param	x - the starting horizontal position, between 0 and the screen's text_cols_vis_ - 1
+//! @param	y - the starting vertical position, between 0 and the screen's text_rows_vis_ - 1
+//! @param	the_string - the null-terminated string to be drawn
+//! @param	fore_color - Index to the desired foreground color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
+//! @param	back_color - Index to the desired background color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
 //! @return	Returns false on any error/invalid input.
 bool Text_DrawStringAtXY(Screen* the_screen, int16_t x, int16_t y, char* the_string, uint8_t fore_color, uint8_t back_color)
 {
@@ -1941,15 +1939,15 @@ bool Text_DrawStringAtXY(Screen* the_screen, int16_t x, int16_t y, char* the_str
 
 //! Draw a string in a rectangular block on the screen, with wrap.
 //! If a word can't be wrapped, it will break the word and move on to the next line. So if you pass a rect with 1 char of width, it will draw a vertical line of chars down the screen.
-//! @param	the_screen: valid pointer to the target screen to operate on
-//! @param	x1: the leftmost horizontal position, between 0 and the screen's text_cols_vis_ - 1
-//! @param	y1: the uppermost vertical position, between 0 and the screen's text_rows_vis_ - 1
-//! @param	x2: the rightmost horizontal position, between 0 and the screen's text_cols_vis_ - 1
-//! @param	y2: the lowermost vertical position, between 0 and the screen's text_rows_vis_ - 1
-//! @param	the_string: the null-terminated string to be displayed.
-//! @param	fore_color: Index to the desired foreground color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
-//! @param	back_color: Index to the desired background color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
-//! @param	continue_function: optional hook to a function that will be called if the provided text cannot fit into the specified box. If provided, the function will be called each time text exceeds available space. If the function returns true, another chunk of text will be displayed, replacing the first. If the function returns false, processing will stop. If no function is provided, processing will stop at the point text exceeds the available space.
+//! @param	the_screen - valid pointer to the target screen to operate on
+//! @param	x1 - the leftmost horizontal position, between 0 and the screen's text_cols_vis_ - 1
+//! @param	y1 - the uppermost vertical position, between 0 and the screen's text_rows_vis_ - 1
+//! @param	x2 - the rightmost horizontal position, between 0 and the screen's text_cols_vis_ - 1
+//! @param	y2 - the lowermost vertical position, between 0 and the screen's text_rows_vis_ - 1
+//! @param	the_string - the null-terminated string to be displayed.
+//! @param	fore_color - Index to the desired foreground color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
+//! @param	back_color - Index to the desired background color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
+//! @param	continue_function - optional hook to a function that will be called if the provided text cannot fit into the specified box. If provided, the function will be called each time text exceeds available space. If the function returns true, another chunk of text will be displayed, replacing the first. If the function returns false, processing will stop. If no function is provided, processing will stop at the point text exceeds the available space.
 //! @return	Returns a pointer to the first character in the string after which it stopped processing (if string is too long to be displayed in its entirety). Returns the original string if the entire string was processed successfully. Returns NULL in the event of any error.
 char* Text_DrawStringInBox(Screen* the_screen, int16_t x1, int16_t y1, int16_t x2, int16_t y2, char* the_string, char** work_buffer, uint8_t fore_color, uint8_t back_color, bool (* continue_function)(void))
 {
@@ -2119,12 +2117,12 @@ char* Text_DrawStringInBox(Screen* the_screen, int16_t x1, int16_t y1, int16_t x
 
 //! Calculates how many characters of the passed string will fit into the passed pixel width.
 //! In Text Mode, all characters have the same fixed width, so this is measuring against the font width described in the screen object.
-//! @param	the_font: this is for consistency with the graphical font code. Pass a NULL here, the result will not be used.
-//! @param	the_string: the null-terminated string to be measured.
-//! @param	num_chars: either the length of the passed string, or as much of the string as should be displayed. Passing GEN_NO_STRLEN_CAP will mean it will attempt to measure the entire string.
-//! @param	available_width: the width, in pixels, of the space the string is to be measured against.
-//! @param	fixed_char_width: the width, in pixels, of one character.
-//! @param	measured_width: the number of pixels needed to display the characters that fit into the available_width. If the entire string fit, this is the width in pixels of that string. If only X characters fit, it is the pixel width of those X characters.
+//! @param	the_font - this is for consistency with the graphical font code. Pass a NULL here, the result will not be used.
+//! @param	the_string - the null-terminated string to be measured.
+//! @param	num_chars - either the length of the passed string, or as much of the string as should be displayed. Passing GEN_NO_STRLEN_CAP will mean it will attempt to measure the entire string.
+//! @param	available_width - the width, in pixels, of the space the string is to be measured against.
+//! @param	fixed_char_width - the width, in pixels, of one character.
+//! @param	measured_width - the number of pixels needed to display the characters that fit into the available_width. If the entire string fit, this is the width in pixels of that string. If only X characters fit, it is the pixel width of those X characters.
 //! @return	Returns -1 in any error condition, or the number of characters that fit. If the entire string fits, the passed len will be returned.
 int16_t Text_MeasureStringWidth(Font* the_font, char* the_string, int16_t num_chars, int16_t available_width, int16_t fixed_char_width, int16_t* measured_width)
 {
@@ -2170,10 +2168,10 @@ int16_t Text_MeasureStringWidth(Font* the_font, char* the_string, int16_t num_ch
 
 
 //! Calculate the VRAM location of the specified coordinate
-//! @param	the_screen: valid pointer to the target screen to operate on
-//! @param	x: the horizontal position, between 0 and the screen's text_cols_vis_ - 1
-//! @param	y: the vertical position, between 0 and the screen's text_rows_vis_ - 1
-//! @param	for_attr: true to work with attribute data, false to work character data. Recommend using SCREEN_FOR_TEXT_ATTR/SCREEN_FOR_TEXT_CHAR.
+//! @param	the_screen - valid pointer to the target screen to operate on
+//! @param	x - the horizontal position, between 0 and the screen's text_cols_vis_ - 1
+//! @param	y - the vertical position, between 0 and the screen's text_rows_vis_ - 1
+//! @param	for_attr - true to work with attribute data, false to work character data. Recommend using SCREEN_FOR_TEXT_ATTR/SCREEN_FOR_TEXT_CHAR.
 char* Text_GetMemLocForXY(Screen* the_screen, int16_t x, int16_t y, bool for_attr)
 {
 	char*			the_write_loc;

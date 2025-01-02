@@ -136,8 +136,8 @@ void Demo_Bitmap_FillMemory2(void)
 void Demo_Bitmap_FillBox1(void)
 {
 	int16_t x = 5;
-	int	y = 125; // 0-101 is the amount coverable with 65536 bytes, so starting past that tests 65816 version's ability to plot beyond 64k.
-	int	width = (global_system->screen_[ID_CHANNEL_B]->width_ - x) - 30;
+	int16_t	y = 125; // 0-101 is the amount coverable with 65536 bytes, so starting past that tests 65816 version's ability to plot beyond 64k.
+	int16_t	width = (global_system->screen_[ID_CHANNEL_B]->width_ - x) - 30;
 	//int16_t height = global_system->screen_[ID_CHANNEL_B]->height_ - y - 100;
 	int16_t height = 5;
 	
@@ -150,8 +150,8 @@ void Demo_Bitmap_FillBox1(void)
 void Demo_Bitmap_FillBox2(void)
 {
 	int16_t x = 400;
-	int	y = 8*6+100;
-	int	width = global_system->screen_[ID_CHANNEL_B]->width_ - x - 25;
+	int16_t	y = 8*6+100;
+	int16_t	width = global_system->screen_[ID_CHANNEL_B]->width_ - x - 25;
 	int16_t height = global_system->screen_[ID_CHANNEL_B]->height_ - y - 100;
 	
 	ShowDescription("Bitmap_FillBox -> fill a square on screen with 0x05");	
@@ -163,7 +163,7 @@ void Demo_Bitmap_FillBox2(void)
 void Demo_Bitmap_FillBox3(void)
 {
 	int16_t x = 5;
-	int	y = 8*6;
+	int16_t	y = 8*6;
 	
 	ShowDescription("Bitmap_FillBox -> fill various squares with different color values");	
 	Bitmap_FillBox(Sys_GetScreenBitmap(global_system, back_layer), x + 30, y, 250, 100, 0x55);
@@ -210,7 +210,7 @@ void Demo_Bitmap_GetPixelAtXY(void)
  	{
 		int16_t	detected_color;
 
-		Bitmap_FillBox(Sys_GetScreenBitmap(global_system, back_layer), x, y, width, height, color);
+		Bitmap_FillBox(Sys_GetScreenBitmap(global_system, back_layer), x, y, width, height, (uint8_t)color);
 	 	detected_color = Bitmap_GetPixelAtXY(Sys_GetScreenBitmap(global_system, back_layer), x, y);
 	 	sprintf(temp_buff, "Set:%x", color);
 	 	Text_DrawStringAtXY(global_system->screen_[ID_CHANNEL_B], (x+1)/8, text_y, (char*)temp_buff, FG_COLOR_BRIGHT_YELLOW, BG_COLOR_BLACK);
@@ -256,7 +256,7 @@ void Demo_Bitmap_DrawLine(void)
 
 	for (i = 0; i < 256; i++)
 	{
-		Bitmap_DrawLine(Sys_GetScreenBitmap(global_system, back_layer), x1, y1, x2, y2, i);
+		Bitmap_DrawLine(Sys_GetScreenBitmap(global_system, back_layer), x1, y1, x2, y2, (uint8_t)i);
 		
 		x1 += 2;
 		x2 -= 2;
@@ -274,8 +274,8 @@ void Demo_Bitmap_DrawLine(void)
 void Demo_Bitmap_DrawBox(void)
 {
 	int16_t x = 60;
-	int	y = 8*8;
-	int	width = global_system->screen_[ID_CHANNEL_B]->width_ - x - 60;
+	int16_t	y = 8*8;
+	int16_t	width = global_system->screen_[ID_CHANNEL_B]->width_ - x - 60;
 	int16_t height = 300;
 
 	ShowDescription("Bitmap_DrawBox -> Draw a filled or unfilled box. Supply start coordinates, width, height, color, and fill choice.");	
@@ -319,14 +319,14 @@ void Demo_Bitmap_DrawRoundBox(void)
 	int16_t	radius = 8;
 	int16_t	i;
 	int16_t	color = 0x20;
-	int16_t	line_color = 0xff;
 	int16_t	xleft = 560;
+	int8_t	line_color = 0xff;
 	
 	ShowDescription("Demo_Bitmap_DrawRoundBox -> Draw an unfilled rect with rounded corners. Specify start coords, width, height, corner radius, color, and fill/no-fill.");	
 
 	for (i = 0; i <= 20; i++)
 	{
-		Bitmap_DrawRoundBox(Sys_GetScreenBitmap(global_system, back_layer), x + color, y + color, width + i*2, height + i*2, i, color, PARAM_DO_NOT_FILL);
+		Bitmap_DrawRoundBox(Sys_GetScreenBitmap(global_system, back_layer), x + color, y + color, width + i*2, height + i*2, i, (uint8_t)color, PARAM_DO_NOT_FILL);
 		
 		// MB 2024-12-30: this does not work / freezes up machine or does something bad - possibly stack as fill is recursive.
 		//Bitmap_DrawRoundBox(Sys_GetScreenBitmap(global_system, back_layer), xleft - color, y + color, width*2 + i*2, height*2 + i*2, 20 - i, color, PARAM_DO_FILL);
@@ -372,7 +372,7 @@ void Demo_Bitmap_DrawCircle(void)
 
 	for (i = 0; i < 256 && radius < 238; i += 3)
 	{
-		Bitmap_DrawCircle(Sys_GetScreenBitmap(global_system, back_layer), x1, y1, radius, i);
+		Bitmap_DrawCircle(Sys_GetScreenBitmap(global_system, back_layer), x1, y1, radius, (uint8_t)i);
 		
 		radius += 3;
 	}
@@ -388,8 +388,8 @@ void Demo_Bitmap_Blit1(void)
 {
 	int16_t			box_height = 16;
 	int16_t			box_width = global_system->screen_[ID_CHANNEL_B]->width_;
-	int16_t			color = 0x20;
 	int16_t			i;
+	int8_t			color = 0x20;
 	Bitmap*			src_bm;
 	Bitmap*			dst_bm;
 
@@ -445,8 +445,8 @@ void Demo_Bitmap_BlitRect(void)
 {
 	int16_t			box_height = 2;
 	int16_t			box_width = 2;
-	int16_t			color = 1;
 	int16_t			i;
+	int8_t			color = 1;
 	Bitmap*			src_bm;
 	Bitmap*			dst_bm;
 	Rectangle		src_rect;

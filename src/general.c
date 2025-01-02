@@ -135,7 +135,7 @@ bool General_StringToUnsignedLong(const char* the_string_value, uint32_t* the_co
 //! Round a float to the nearest integer value
 //! THINK C's and SAS/C's math.h don't include round()
 //! from: https://stackoverflow.com/questions/4572556/concise-way-to-implement-round-in-c
-//! @param	the_float: a double value to round up/down
+//! @param	the_float - a double value to round up/down
 //! @return	Returns an int with the rounded value
 int32_t General_Round(double the_float)
 {
@@ -264,7 +264,7 @@ bool General_StringToSignedLong(const char* the_string_value, int32_t* the_conve
 //! Convert a string, in place, to lower case
 //! This overwrites the string with a lower case version of itself.
 //! Warning: no length check is in place. Calling function must verify string is well-formed (terminated).
-//! @param	the_string: the string to convert to lower case.
+//! @param	the_string - the string to convert to lower case.
 //! @return	Returns true if the string was modified by the process.
 bool General_StrToLower(char* the_string)
 {
@@ -475,8 +475,8 @@ int16_t General_Strnlen(const char* the_string, size_t max_len)
 //! Compare the length of two strings, returning true if the first is longer than the second.
 //! This function accepts void* instead of char*, to be compatible with List_MergeSortedList().
 //! NOTE: compares to a maximum of MAX_STRING_COMP_LEN
-//! @param	first_payload: the first string to compare, passed as a void pointer.
-//! @param	second_payload: the second string to compare, passed as a void pointer.
+//! @param	first_payload - the first string to compare, passed as a void pointer.
+//! @param	second_payload - the second string to compare, passed as a void pointer.
 //! @return	Returns true if the first string is longer than the second. Returns false if the strings are equivalent in length, or if second is longer. 
 bool General_CompareStringLength(void* first_payload, void* second_payload)
 {
@@ -506,8 +506,8 @@ bool General_CompareStringLength(void* first_payload, void* second_payload)
 
 
 //! Test if one rectangle is entirely within the bounds of another Rectangle
-//! @param	r1: the rectangle being tested
-//! @param	r2: the rectangle being measured to determine if r1 fits entirely within it
+//! @param	r1 - the rectangle being tested
+//! @param	r2 - the rectangle being measured to determine if r1 fits entirely within it
 //! @return:	returns true if r1 is within bounds of r2. 
 bool General_RectWithinRect(Rectangle r1, Rectangle r2)
 {
@@ -610,8 +610,8 @@ void General_CenterRectWithinRect(Rectangle* the_frame_rect, Rectangle* the_hero
 
 
 //! Copy values of one rect to another
-//! @param	r1: the rectangle to be overwritten (copied into)
-//! @param	r2: the rectangle to copy
+//! @param	r1 - the rectangle to be overwritten (copied into)
+//! @param	r2 - the rectangle to copy
 void General_CopyRect(Rectangle* r1, Rectangle* r2)
 {
 	memcpy(r1, r2, sizeof(Rectangle));
@@ -624,12 +624,12 @@ void General_CopyRect(Rectangle* r1, Rectangle* r2)
 //! If Rect 1 is smaller than Rect 2 in two dimensions (axes), 3 new rect will be populated
 //! If Rect 1 is same size as Rect 2 and moved in one dimension (axis) only, 1 new rect will be populated
 //! If Rect 1 is same size as Rect 2 and moved in two dimensions (axes), 3 new rect will be populated
-//! @param	r1: the lead, or foreground rect. When calculating a damage rect, this would typically be the rect of the window after it is moved/resized.
-//! @param	r2: the secondary, or background rect. When calculating a damage rect, this would typically be the rect of the window before it is moved/resized.
-//! @param	diff_r1: valid pointer to a rect object that will be populated if there is 1 or 3 difference rects resulting from the operation
-//! @param	diff_r2: valid pointer to a rect object that will be populated if there are 2 or more difference rects resulting from the operation
-//! @param	diff_r3: valid pointer to a rect object that will be populated if there are 3 or more difference rects resulting from the operation
-//! @param	diff_r4: valid pointer to a rect object that will be populated if there are 4 difference rects resulting from the operation
+//! @param	r1 - the lead, or foreground rect. When calculating a damage rect, this would typically be the rect of the window after it is moved/resized.
+//! @param	r2 - the secondary, or background rect. When calculating a damage rect, this would typically be the rect of the window before it is moved/resized.
+//! @param	diff_r1 - valid pointer to a rect object that will be populated if there is 1 or 3 difference rects resulting from the operation
+//! @param	diff_r2 - valid pointer to a rect object that will be populated if there are 2 or more difference rects resulting from the operation
+//! @param	diff_r3 - valid pointer to a rect object that will be populated if there are 3 or more difference rects resulting from the operation
+//! @param	diff_r4 - valid pointer to a rect object that will be populated if there are 4 difference rects resulting from the operation
 //! @return	Returns number of new rects that represent the difference between the passed rectangles. This indicates how many, if any, of the diff_rects need to be evaluated. Returns -1 on any error condition.
 int16_t General_CalculateRectDifference(Rectangle* r1, Rectangle* r2, Rectangle* diff_r1, Rectangle* diff_r2, Rectangle* diff_r3, Rectangle* diff_r4)
 {
@@ -720,9 +720,9 @@ int16_t General_CalculateRectDifference(Rectangle* r1, Rectangle* r2, Rectangle*
 
 
 //! Calculate the intersection between 2 rectangles, storing result in the 3rd rect passed
-//! @param	r1: valid pointer to a rect object
-//! @param	r2: valid pointer to a rect object
-//! @param	intersect_r: valid pointer to a rect object that will contain the intersection rectangle, if any, at end of operation
+//! @param	r1 - valid pointer to a rect object
+//! @param	r2 - valid pointer to a rect object
+//! @param	intersect_r - valid pointer to a rect object that will contain the intersection rectangle, if any, at end of operation
 //! @return:	Returns true if there is an intersecting rectangle between r1 and r2.
 bool General_CalculateRectIntersection(Rectangle* r1, Rectangle* r2, Rectangle* intersect_r)
 {

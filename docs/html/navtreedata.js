@@ -24,30 +24,7 @@
 */
 var NAVTREE =
 [
-  [ "Foenix A2650 Text Mode Library", "index.html", [
-    [ "Foenix A2560 Foenix Retro OS: fr/OS", "index.html", [
-      [ "A2560-FoenixRetroOS", "index.html#autotoc_md0", [
-        [ "What's an A2560?", "index.html#autotoc_md1", null ],
-        [ "About this project", "index.html#autotoc_md2", null ],
-        [ "Why you might want this:", "index.html#autotoc_md3", null ],
-        [ "How to use it", "index.html#autotoc_md4", [
-          [ "Development platform", "index.html#autotoc_md5", null ],
-          [ "Setting up your development tool chain", "index.html#autotoc_md6", null ],
-          [ "Documentation", "index.html#autotoc_md7", [
-            [ "Doxygen Docs", "index.html#autotoc_md8", null ],
-            [ "Examples/Demos", "index.html#autotoc_md9", null ],
-            [ "Programmer's Reference Guide", "index.html#autotoc_md10", null ],
-            [ "fr/OS User's Guide", "index.html#autotoc_md11", null ],
-            [ "Breakdown of functionality – Application framework", "index.html#autotoc_md12", null ],
-            [ "Expected functionality – File Manager / Desktop environment", "index.html#autotoc_md13", null ]
-          ] ]
-        ] ],
-        [ "Status", "index.html#autotoc_md14", [
-          [ "Completed", "index.html#autotoc_md15", null ],
-          [ "ToDo", "index.html#autotoc_md16", null ]
-        ] ]
-      ] ]
-    ] ],
+  [ "Foenix A2650 OS/f Library", "index.html", [
     [ "Data Structures", "annotated.html", [
       [ "Data Structures", "annotated.html", "annotated_dup" ],
       [ "Data Structure Index", "classes.html", null ],
@@ -71,8 +48,8 @@ var NAVTREE =
 
 var NAVTREEINDEX =
 [
-"a2560__platform_8h_source.html",
-"struct_control.html#a7475bfc3eedd64a1222a2ce2889198fe"
+"a2560k_8h_source.html",
+"struct_font.html#a6d117a180ccfbd2a47daab6b8051f841"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

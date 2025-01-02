@@ -14,7 +14,7 @@ var bitmap_8h =
     [ "PARAM_SKIP_SE", "bitmap_8h.html#a63a5c46ca218a07a51778816a677f9d8", null ],
     [ "PARAM_SKIP_SW", "bitmap_8h.html#a88ba7a1e7c7fe2fa810fb8cb9440ff71", null ],
     [ "Bitmap_Blit", "bitmap_8h.html#a5033e773db5a1fb8000e7b3113737e37", null ],
-    [ "Bitmap_BlitRect", "bitmap_8h.html#a1d338c4832ddb16eacaad76d26397f84", null ],
+    [ "Bitmap_BlitRect", "bitmap_8h.html#abd06a032dadc7e891e1686f8de32fb1e", null ],
     [ "Bitmap_DrawBox", "bitmap_8h.html#af774a4ea39722216206bec228903eee5", null ],
     [ "Bitmap_DrawBoxCoords", "bitmap_8h.html#aa4723c81c46f2e3b150ddf79ab0f8917", null ],
     [ "Bitmap_DrawBoxRect", "bitmap_8h.html#ac0e17b0a447ab7db19222a68c43b2c17", null ],
@@ -29,6 +29,7 @@ var bitmap_8h =
     [ "Bitmap_GetColor", "bitmap_8h.html#a4e70bbcddae55b46542446a34bdd6b1c", null ],
     [ "Bitmap_GetFont", "bitmap_8h.html#a70b34a53887965e8568100f4715e5d06", null ],
     [ "Bitmap_GetMemLoc", "bitmap_8h.html#aa92373cfecfb103fa5c8d301a05dc6f3", null ],
+    [ "Bitmap_GetMemLocInt", "bitmap_8h.html#a5bb6d830586e70a8d468b37c884d3ae7", null ],
     [ "Bitmap_GetPixelAtXY", "bitmap_8h.html#a80798125dce1dbd21e53bfd0eae05f07", null ],
     [ "Bitmap_GetX", "bitmap_8h.html#a133023077dfdefaab36d11e66bb4b101", null ],
     [ "Bitmap_GetY", "bitmap_8h.html#ae1ed084e11d653fc15c14ba9e843dd01", null ],
@@ -40,5 +41,6 @@ var bitmap_8h =
     [ "Bitmap_SetXY", "bitmap_8h.html#aa31a1573bc86e96d93df337b05ce632a", null ],
     [ "Bitmap_Tile", "bitmap_8h.html#a3272fa959a54195930c4ec563ae1970b", null ],
     [ "Bitmap_TileV1", "bitmap_8h.html#a7761f98923af89bb316a5e279ab266dd", null ],
-    [ "Bitmap_TileV2", "bitmap_8h.html#a0431dd5565c39a0447bceec0deafc296", null ]
+    [ "Bitmap_TileV2", "bitmap_8h.html#a0431dd5565c39a0447bceec0deafc296", null ],
+    [ "Bitmap_TileV3", "bitmap_8h.html#abf0029d7b32603644eb92beeffdab36a", null ]
 ];

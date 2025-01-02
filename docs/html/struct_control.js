@@ -1,11 +1,11 @@
 var struct_control =
 [
-    [ "avail_text_width_", "struct_control.html#a1830500523c9f9f0fdec309b49e3d8c1", null ],
+    [ "avail_text_width_", "struct_control.html#a51a59f12988e630549a995f021c10008", null ],
     [ "caption_", "struct_control.html#ae02f4fc327d34777a97016325372e8bb", null ],
     [ "enabled_", "struct_control.html#aa56c61b646c83d8a0b4270bca86b95ea", null ],
-    [ "group_", "struct_control.html#a7475bfc3eedd64a1222a2ce2889198fe", null ],
     [ "h_align_", "struct_control.html#a15753baf0559398fb3b003de2fe58621", null ],
     [ "height_", "struct_control.html#ad2c69ac7c782ba0d0aaf5aafb8b4257a", null ],
+    [ "id_", "struct_control.html#ad1f5581cd902f35652bcffdfa4f286a5", null ],
     [ "image_", "struct_control.html#afdd523074f64763feabc4805380ebcf2", null ],
     [ "invalidated_", "struct_control.html#a132516824ce548ede80c0e0e5b5c0ec9", null ],
     [ "max_", "struct_control.html#a6909c8627298b08a531c524b2fe0a047", null ],

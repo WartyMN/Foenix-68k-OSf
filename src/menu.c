@@ -47,26 +47,38 @@ extern System*			global_system;
 /*****************************************************************************/
 
 //! Analyzes the current menu_group, calculates longest width, total height, changes menu overall and global rects, and draws contents in non-selected style
+//! @param	the_menu -- reference to a valid Menu object.
 void Menu_LayoutMenu(Menu* the_menu);
 
 //! Convert the passed x, y global coordinates to local (to menu) coordinates
+//! @param	the_menu -- reference to a valid Menu object.
+//! @param	x -- pointer to a global horizontal coordinate when the mouse was clicked. Will be modified to local-to-menu coords.
+//! @param	y -- pointer to a global vertical coordinate when the mouse was clicked. Will be modified to local-to-menu coords.
 void Menu_GlobalToLocal(Menu* the_menu, int16_t* x, int16_t* y);
 
 //! Find the menu item at the passed location
-//! @param x:	Local horizontal coordinate already confirmed to be within the bounds of the menu
-//! @param y:	Local vertical coordinate already confirmed to be within the bounds of the menu
-//! @return:	Returns MENU_NOTHING_HIGHLIGHTED if no menu item was at the location specified, or if the location is over a divider. Otherwise, returns the index to the selected menu item
-int16_t Menu_FindSelectionFromXY(Menu* the_menu, int16_t x, int16_t y);
+//! @param	the_menu -- reference to a valid Menu object.
+//! @param	local_x -- Local horizontal coordinate already confirmed to be within the bounds of the menu
+//! @param	local_y -- Local vertical coordinate already confirmed to be within the bounds of the menu
+//! @return	Returns MENU_NOTHING_HIGHLIGHTED if no menu item was at the location specified, or if the location is over a divider. Otherwise, returns the index to the selected menu item
+int16_t Menu_FindSelectionFromXY(Menu* the_menu, int16_t local_x, int16_t local_y);
 
 //! Draw the background and text of the passed menu item, using either unselected or selected style
+//! @param	the_menu -- reference to a valid Menu object.
+//! @param	selection_index -- index to the menu item within the menu group array.
+//! @param	as_selected -- if true menu item will be drawn as selected. If false, will be drawn in the unselected style.
 void Menu_DrawOneMenuItem(Menu* the_menu, int16_t selection_index, bool as_selected);
 
 //! Copy the passed rectangle to the menu's clip rect collection
 //! NOTE: the incoming rect must be using menu-local coordinates, not global. No translation will be performed.
+//! @param	the_menu -- reference to a valid Menu object.
+//! @param	new_rect -- reference to a valid Rectangle object
+//! @return	Returns false on any error, including when the clip rect count is higher than allowed.
 bool Menu_AddClipRect(Menu* the_menu, Rectangle* new_rect);
 
 //! Blit each clip rect to the screen, and clear all clip rects when done
 //! This is the actual mechanics of rendering the menu to the screen
+//! @param	the_menu -- reference to a valid Menu object.
 bool Menu_BlitClipRects(Menu* the_menu);
 
 
@@ -76,6 +88,7 @@ bool Menu_BlitClipRects(Menu* the_menu);
 /*****************************************************************************/
 
 //! Analyzes the current menu_group, calculates longest width, total height, changes menu overall and global rects, and draws contents in non-selected style
+//! @param	the_menu -- reference to a valid Menu object.
 void Menu_LayoutMenu(Menu* the_menu)
 {
 	MenuGroup*	the_menu_group;
@@ -151,7 +164,6 @@ void Menu_LayoutMenu(Menu* the_menu)
 	for (i = 0; i < the_menu_group->num_menu_items_; i ++)
 	{
 		MenuItem*	this_menu_item;
-		int16_t		this_width;
 		
 		this_menu_item = the_menu_group->item_[i];
 		
@@ -238,6 +250,9 @@ void Menu_LayoutMenu(Menu* the_menu)
 
 
 //! Convert the passed x, y global coordinates to local (to menu) coordinates
+//! @param	the_menu -- reference to a valid Menu object.
+//! @param	x -- pointer to a global horizontal coordinate when the mouse was clicked. Will be modified to local-to-menu coords.
+//! @param	y -- pointer to a global vertical coordinate when the mouse was clicked. Will be modified to local-to-menu coords.
 void Menu_GlobalToLocal(Menu* the_menu, int16_t* x, int16_t* y)
 {
 	if (the_menu == NULL)
@@ -261,16 +276,16 @@ error:
 
 
 //! Find the menu item at the passed location
-//! @param x:	Local horizontal coordinate already confirmed to be within the bounds of the menu
-//! @param y:	Local vertical coordinate already confirmed to be within the bounds of the menu
-//! @return:	Returns MENU_NOTHING_HIGHLIGHTED if no menu item was at the location specified, or if the location is over a divider. Otherwise, returns the index to the selected menu item
-int16_t Menu_FindSelectionFromXY(Menu* the_menu, int16_t x, int16_t y)
+//! @param	the_menu -- reference to a valid Menu object.
+//! @param	local_x -- Local horizontal coordinate already confirmed to be within the bounds of the menu
+//! @param	local_y -- Local vertical coordinate already confirmed to be within the bounds of the menu
+//! @return	Returns MENU_NOTHING_HIGHLIGHTED if no menu item was at the location specified, or if the location is over a divider. Otherwise, returns the index to the selected menu item
+int16_t Menu_FindSelectionFromXY(Menu* the_menu, int16_t local_x, int16_t local_y)
 {
 	// LOGIC:
 	//   iterate through menu_item_[] array and check rect intersect
 	
 	int16_t		i;
-	int16_t		menu_selection;
 	MenuGroup*	the_menu_group;
 	int16_t		count;
 	
@@ -285,7 +300,7 @@ int16_t Menu_FindSelectionFromXY(Menu* the_menu, int16_t x, int16_t y)
 		
 		if (this_menu_item->type_ != menuDivider)
 		{
-			if (General_PointInRect(x, y, this_menu_item->selection_rect_) == true)
+			if (General_PointInRect(local_x, local_y, this_menu_item->selection_rect_) == true)
 			{
 				return i;
 			}
@@ -297,6 +312,9 @@ int16_t Menu_FindSelectionFromXY(Menu* the_menu, int16_t x, int16_t y)
 
 
 //! Draw the background and text of the passed menu item, using either unselected or selected style
+//! @param	the_menu -- reference to a valid Menu object.
+//! @param	selection_index -- index to the menu item within the menu group array.
+//! @param	as_selected -- if true menu item will be drawn as selected. If false, will be drawn in the unselected style.
 void Menu_DrawOneMenuItem(Menu* the_menu, int16_t selection_index, bool as_selected)
 {
 	Theme*		the_theme;
@@ -355,6 +373,9 @@ void Menu_DrawOneMenuItem(Menu* the_menu, int16_t selection_index, bool as_selec
 
 //! Copy the passed rectangle to the menu's clip rect collection
 //! NOTE: the incoming rect must be using menu-local coordinates, not global. No translation will be performed.
+//! @param	the_menu -- reference to a valid Menu object.
+//! @param	new_rect -- reference to a valid Rectangle object
+//! @return	Returns false on any error, including when the clip rect count is higher than allowed.
 bool Menu_AddClipRect(Menu* the_menu, Rectangle* new_rect)
 {
 	Rectangle*	the_clip;
@@ -392,6 +413,7 @@ error:
 
 //! Blit each clip rect to the screen, and clear all clip rects when done
 //! This is the actual mechanics of rendering the menu to the screen
+//! @param	the_menu -- reference to a valid Menu object.
 bool Menu_BlitClipRects(Menu* the_menu)
 {
 	Rectangle*	the_clip;
@@ -450,7 +472,8 @@ error:
 
 
 // constructor
-// allocates space for the object, copies in the passed key string and sets a dummy string value
+//! Creates a new Menu object, allocating space from the heap
+//! return	Returns a complete Menu object with bitmap allocation, and all properties set to default. Returns NULL on any error.
 Menu* Menu_New(void)
 {
 	Menu*	the_menu;
@@ -507,6 +530,8 @@ error:
 
 
 // destructor
+//! @param	the_template -- pointer to the pointer for the Menu object to be destroyed
+//! @return	Returns false if the pointer to the passed Menu was NULL
 void Menu_Destroy(Menu** the_menu)
 {
 	if (*the_menu == NULL)
@@ -533,6 +558,7 @@ error:
 
 
 //! Renders the menu and blits entire menu or required cliprects to the screen
+//! @param	the_menu -- reference to a valid Menu object.
 void Menu_Render(Menu* the_menu)
 {
 	if (the_menu == NULL)
@@ -571,6 +597,10 @@ error:
 
 //! Replaces current menu_group_ reference with a new one, calculates widths, rects, and renders the menu at an appropriate place based on x, y passed and size of menu
 //! NOTE: this sets mouse mode to mouseMenuOpen
+//! @param	the_menu -- reference to a valid Menu object.
+//! @param	the_menu_group -- reference to a valid MenuGroup object. The menu will be assigned to this group.
+//! @param	x -- Global horizontal coordinate when the mouse was clicked
+//! @param	y -- Global vertical coordinate when the mouse was clicked
 void Menu_Open(Menu* the_menu, MenuGroup* the_menu_group, int16_t x, int16_t y)
 {
 	EventManager*	the_event_manager;
@@ -586,11 +616,6 @@ void Menu_Open(Menu* the_menu, MenuGroup* the_menu_group, int16_t x, int16_t y)
 		LOG_ERR(("%s %d: passed menu group was null", __func__ , __LINE__));
 		goto error;
 	}
-	if (the_menu == NULL)
-	{
-		LOG_ERR(("%s %d: passed class object was null", __func__ , __LINE__));
-		goto error;
-	}
 
 	the_event_manager = Sys_GetEventManager(global_system);
 	Mouse_SetMode(the_event_manager->mouse_tracker_, mouseMenuOpen);
@@ -598,7 +623,7 @@ void Menu_Open(Menu* the_menu, MenuGroup* the_menu_group, int16_t x, int16_t y)
 	the_menu->menu_group_ = the_menu_group;
 	Menu_LayoutMenu(the_menu);
 	
-	// extract to private function
+	// TODO: extract to private function
 	{
 		Screen*		the_screen;
 		the_screen = Sys_GetScreen(global_system, ID_CHANNEL_B);
@@ -641,6 +666,7 @@ error:
 
 //! Cancels the opening of a menu before it is shown
 //! NOTE: this sets mouse mode back to mouseFree
+//! @param	the_menu -- reference to a valid Menu object.
 void Menu_CancelOpen(Menu* the_menu)
 {
 	EventManager*	the_event_manager;
@@ -663,6 +689,7 @@ error:
 
 
 //! Hides the menu by damaging and distributing damage rects to all other windows, and re-rendering screen
+//! @param	the_menu -- reference to a valid Menu object.
 void Menu_Hide(Menu* the_menu)
 {
 	if (the_menu == NULL)
@@ -698,6 +725,8 @@ error:
 
 //! Set the menu's visibility flag.
 //! This does not immediately cause the menu to render. The menu will be rendered on the next rendering pass.
+//! @param	the_menu -- reference to a valid Menu object.
+//! @param	is_visible -- if true, the menu will no longer be rendered on subsequent render passes. If false, the menu will be rendered on the next rendering pass.
 void Menu_SetVisible(Menu* the_menu, bool is_visible)
 {
 	if (the_menu == NULL)
@@ -717,9 +746,10 @@ error:
 
 
 //! Accept a right or left mouse click while a menu is open, identify which, if any, menu item should be selected as a result
-//! @param x:	Global horizontal coordinate when the mouse was clicked
-//! @param y:	Global vertical coordinate when the mouse was clicked
-//! @return:	Returns MENU_ID_NO_SELECTION if no menu item was under the mouse. Returns ID of menu item if one was selected.
+//! @param	the_menu -- reference to a valid Menu object.
+//! @param	x -- Global horizontal coordinate when the mouse was clicked
+//! @param	y -- Global vertical coordinate when the mouse was clicked
+//! @return Returns MENU_ID_NO_SELECTION if no menu item was under the mouse. Returns ID of menu item if one was selected.
 int16_t	Menu_AcceptClick(Menu* the_menu, int16_t x, int16_t y)
 {
 	int16_t		local_x;
@@ -767,8 +797,9 @@ error:
 
 
 //! Accept a new mouse x/y while a menu is open, identify which, if any, menu item should be shown as selected
-//! @param x:	Global horizontal coordinate of current mouse loc
-//! @param y:	Global vertical coordinate of current mouse loc
+//! @param	the_menu -- reference to a valid Menu object.
+//! @param	x -- Global horizontal coordinate of current mouse loc
+//! @param	y -- Global vertical coordinate of current mouse loc
 void Menu_AcceptMouseMove(Menu* the_menu, int16_t x, int16_t y)
 {
 	int16_t		local_x;
@@ -832,8 +863,8 @@ error:
 
 //! Set the font used for drawing menu text
 //! This also sets the font of the menu's bitmap
-//! @param	the_menu: reference to a valid Menu object.
-//! @param	the_font: reference to a complete, loaded Font object.
+//! @param	the_menu -- reference to a valid Menu object.
+//! @param	the_font -- reference to a complete, loaded Font object.
 //! @return Returns false on any error condition
 bool Menu_SetFont(Menu* the_menu, Font* the_font)
 {

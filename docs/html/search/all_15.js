@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['x_5f_0',['x_',['../struct_bitmap.html#ab8824a30fcd6b07ba517a22415872a36',1,'Bitmap::x_()'],['../struct_event_record.html#a93fda04b0130c985451a6d13b0ad045c',1,'EventRecord::x_()']]],
-  ['x_5foffset_5f_1',['x_offset_',['../struct_control.html#a9424132171918a2acdda50b61a771bf6',1,'Control::x_offset_()'],['../struct_control_template.html#afa618aa931a3acfaa4a15d787ece2b33',1,'ControlTemplate::x_offset_()']]]
+  ['y_5f_0',['y_',['../struct_bitmap.html#a7d843b2c11de9ce68d6c232f726016fb',1,'Bitmap::y_()'],['../struct_event_record.html#ad6ac6ddc507646288a46ae321944e9c4',1,'EventRecord::y_()']]],
+  ['y_5foffset_5f_1',['y_offset_',['../struct_control.html#a199ea1b379b5c57eff4bf04913c009d7',1,'Control::y_offset_()'],['../struct_control_template.html#a926316e3c7063616f7573cafca51cf4d',1,'ControlTemplate::y_offset_()']]]
 ];

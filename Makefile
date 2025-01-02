@@ -22,6 +22,11 @@ DEBUG_DEF_5=NO_LOG_LEVEL_5
 #DEBUG_VIA_SERIAL=USE_SERIAL_LOGGING
 DEBUG_VIA_SERIAL=USE_DISK_LOGGING
 
+# warnings
+WARN_PACKAGE=
+#WARN_PACKAGE=-Weverything 
+#WARN_PACKAGE=-Wall 
+
 # source files
 ASM_SRCS =
 C_SRCS = sys_test.c general_test.c font_test.c window_test.c bitmap_test.c text_test.c main.c startup.c sys_demo.c font_demo.c window_demo.c bitmap_demo.c text_demo.c bitmap.c control_template.c control.c debug.c event.c font.c general.c list.c menu.c mouse.c sys.c text.c theme.c window.c  startup.c
@@ -45,15 +50,15 @@ obj/%.o: %.s
 	as68k --core=68040 $(MODEL)  --list-file=$(@:%.o=%.lst) -o $@ $<
 
 obj/%.o: %.c $(DEPDIR)/%.d | $(DEPDIR)
-	@cc68k -D_A2560K_ -D$(DEBUG_DEF_1) -D$(DEBUG_DEF_2) -D$(DEBUG_DEF_3) -D$(DEBUG_DEF_4) -D$(DEBUG_DEF_5) -D$(DEBUG_VIA_SERIAL) --core=68040 $(MODEL)  -I$(CALYPSI_INSTALL)/contrib/Foenix-SDK/include --dependencies -MQ$@ >$(DEPDIR)/$*.d $<
-	cc68k -D_A2560K_ -D$(DEBUG_DEF_1) -D$(DEBUG_DEF_2) -D$(DEBUG_DEF_3) -D$(DEBUG_DEF_4) -D$(DEBUG_DEF_5) -D$(DEBUG_VIA_SERIAL) --core=68040 $(MODEL)  -I$(CALYPSI_INSTALL)/contrib/Foenix-SDK/include --list-file=$(@:%.o=%.lst) -o $@ $<
+	@cc68k $(WARN_PACKAGE) -D_A2560K_ -D$(DEBUG_DEF_1) -D$(DEBUG_DEF_2) -D$(DEBUG_DEF_3) -D$(DEBUG_DEF_4) -D$(DEBUG_DEF_5) -D$(DEBUG_VIA_SERIAL) --core=68040 $(MODEL)  -I$(CALYPSI_INSTALL)/contrib/Foenix-SDK/include --dependencies -MQ$@ >$(DEPDIR)/$*.d $<
+	cc68k $(WARN_PACKAGE) -D_A2560K_ -D$(DEBUG_DEF_1) -D$(DEBUG_DEF_2) -D$(DEBUG_DEF_3) -D$(DEBUG_DEF_4) -D$(DEBUG_DEF_5) -D$(DEBUG_VIA_SERIAL) --core=68040 $(MODEL)  -I$(CALYPSI_INSTALL)/contrib/Foenix-SDK/include --list-file=$(@:%.o=%.lst) -o $@ $<
 
 obj/%-debug.o: %.s
 	as68k --core=68040 $(MODEL) --debug --list-file=$(@:%.o=%.lst) -o $@ $<
 
 obj/%-debug.o: %.c $(DEPDIR)/%-debug.d | $(DEPDIR)
-	@cc68k -D_A2560K_ -D$(DEBUG_DEF_1) -D$(DEBUG_DEF_2) -D$(DEBUG_DEF_3) -D$(DEBUG_DEF_4) -D$(DEBUG_DEF_5) -D$(DEBUG_VIA_SERIAL)  -core=68040 $(MODEL) --debug -I$(CALYPSI_INSTALL)/contrib/Foenix-SDK/include --dependencies -MQ$@ >$(DEPDIR)/$*-debug.d $<
-	cc68k -D_A2560K_ -D$(DEBUG_DEF_1) -D$(DEBUG_DEF_2) -D$(DEBUG_DEF_3) -D$(DEBUG_DEF_4) -D$(DEBUG_DEF_5) -D$(DEBUG_VIA_SERIAL)  --core=68040 $(MODEL) --debug -I$(CALYPSI_INSTALL)/contrib/Foenix-SDK/include --list-file=$(@:%.o=%.lst) -o $@ $<
+	@cc68k $(WARN_PACKAGE) -D_A2560K_ -D$(DEBUG_DEF_1) -D$(DEBUG_DEF_2) -D$(DEBUG_DEF_3) -D$(DEBUG_DEF_4) -D$(DEBUG_DEF_5) -D$(DEBUG_VIA_SERIAL)  -core=68040 $(MODEL) --debug -I$(CALYPSI_INSTALL)/contrib/Foenix-SDK/include --dependencies -MQ$@ >$(DEPDIR)/$*-debug.d $<
+	cc68k $(WARN_PACKAGE) -D_A2560K_ -D$(DEBUG_DEF_1) -D$(DEBUG_DEF_2) -D$(DEBUG_DEF_3) -D$(DEBUG_DEF_4) -D$(DEBUG_DEF_5) -D$(DEBUG_VIA_SERIAL)  --core=68040 $(MODEL) --debug -I$(CALYPSI_INSTALL)/contrib/Foenix-SDK/include --list-file=$(@:%.o=%.lst) -o $@ $<
 
 all: lib tests demos
 

@@ -394,7 +394,7 @@ EventRecord* EventManager_NextEvent(void)
 //! Add a new event to the event queue
 //! NOTE: this does not actually insert a new record, as the event queue is a circular buffer
 //! It overwrites whatever slot is next in line
-//! @param	the_window: this may be set for non-mouse up/down events. For mouse up/down events, it will not be set, and X/Y will be used to find the window.
+//! @param	the_window -- this may be set for non-mouse up/down events. For mouse up/down events, it will not be set, and X/Y will be used to find the window.
 void EventManager_AddEvent(event_kind the_what, uint32_t the_code, int16_t x, int16_t y, event_modifiers the_modifiers, Window* the_window, Control* the_control)
 {
 	EventManager*	the_event_manager;
@@ -917,7 +917,7 @@ void EventManager_HandleMouseMoved(EventManager* the_event_manager, EventRecord*
 				int16_t	new_y;
 				int16_t	new_width;
 				int16_t	new_height;
-				bool	change_made = false;
+				//bool	change_made = false;
 				
 				DEBUG_OUT(("%s %d: window x/y (%i, %i)", __func__, __LINE__,  Window_GetX(the_window), Window_GetY(the_window)));
 				

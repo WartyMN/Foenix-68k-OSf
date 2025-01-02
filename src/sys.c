@@ -114,24 +114,24 @@ void Window_BackdropWinEventHandler(EventRecord* the_event);
 bool Sys_SetGammaMode(System* the_system, Screen* the_screen, bool enable_it);
 
 //! Find out what kind of machine the software is running on, and determine # of screens available
-//! @param	the_system: valid pointer to system object
+//! @param	the_system -- valid pointer to system object
 //! @return	Returns false if the machine is known to be incompatible with this software. 
 bool Sys_AutoDetectMachine(System* the_system);
 
 //! Find out what kind of machine the software is running on, and configure the passed screen accordingly
 //! Configures screen settings, RAM addresses, etc. based on known info about machine types
 //! Configures screen width, height, total text rows and cols, and visible text rows and cols by checking hardware
-//! @param	the_system: valid pointer to system object
+//! @param	the_system -- valid pointer to system object
 //! @return	Returns false if the machine is known to be incompatible with this software. 
 bool Sys_AutoConfigure(System* the_system);
 
 //! Detect the current screen mode/resolution, and set # of columns, rows, H pixels, V pixels, accordingly
-//! @param	the_screen: valid pointer to the target screen to operate on
+//! @param	the_screen -- valid pointer to the target screen to operate on
 //! @return	returns false on any error/invalid input.
 bool Sys_DetectScreenSize(Screen* the_screen);
 
 //! Change the cursor character to the passed character
-//! @param	the_char: the character point to be set as the cursor graphic
+//! @param	the_char -- the character point to be set as the cursor graphic
 //! FUTURE: pass and set foreground and background cursor color; pass and set blink speed.
 void Sys_ChangeCursor(uint8_t the_char);
 
@@ -146,7 +146,7 @@ void Sys_ChangeCursor(uint8_t the_char);
 
 
 //! Instruct all windows to close / clean themselves up
-//! @param	the_system: valid pointer to system object
+//! @param	the_system -- valid pointer to system object
 void Sys_DestroyAllWindows(System* the_system)
 {
 	int16_t		num_nodes = 0;
@@ -278,7 +278,7 @@ void Window_BackdropWinEventHandler(EventRecord* the_event)
 
 
 //! Find out what kind of machine the software is running on, and determine # of screens available
-//! @param	the_system: valid pointer to system object
+//! @param	the_system -- valid pointer to system object
 //! @return	Returns false if the machine is known to be incompatible with this software. 
 bool Sys_AutoDetectMachine(System* the_system)
 {
@@ -300,9 +300,13 @@ bool Sys_AutoDetectMachine(System* the_system)
 			DEBUG_OUT(("%s %d: I think this is a A2560U or A2560U+...", __func__, __LINE__));
 			the_system->num_screens_ = 1;
 	}
-	else if (the_system->model_number_ == MACHINE_A2560X || the_system->model_number_ == MACHINE_A2560K)
+	else if (the_system->model_number_ == MACHINE_A2560X || 
+			the_system->model_number_ == MACHINE_A2560K ||
+			the_system->model_number_ == MACHINE_A2560K40 ||
+			the_system->model_number_ == MACHINE_A2560K60 ||
+			the_system->model_number_ == MACHINE_GENX)
 	{
-			DEBUG_OUT(("%s %d: I think this is a A2560K or A2560X...", __func__, __LINE__));
+			DEBUG_OUT(("%s %d: I think this is a A2560K or A2560X or GenX...", __func__, __LINE__));
 			the_system->num_screens_ = 2;
 	}
 	else
@@ -318,15 +322,14 @@ bool Sys_AutoDetectMachine(System* the_system)
 //! Find out what kind of machine the software is running on, and configure the passed screen accordingly
 //! Configures screen settings, RAM addresses, etc. based on known info about machine types
 //! Configures screen width, height, total text rows and cols, and visible text rows and cols by checking hardware
-//! @param	the_system: valid pointer to system object
+//! @param	the_system -- valid pointer to system object
 //! @return	Returns false if the machine is known to be incompatible with this software. 
 bool Sys_AutoConfigure(System* the_system)
 {
 	int16_t				i;
 
 	// TEMP until bug fix for calypsi on switch below
-	if (the_system->model_number_ == MACHINE_GENX || 
-		the_system->model_number_ == MACHINE_C256FMX)
+	if (the_system->model_number_ == MACHINE_C256FMX)
 	{
 		DEBUG_OUT(("%s %d: Configuring screen for single-screen Foenix", __func__, __LINE__));
 		the_system->screen_[ID_CHANNEL_A]->vicky_ = P32(VICKY_C256);
@@ -362,7 +365,9 @@ bool Sys_AutoConfigure(System* the_system)
 	else if (the_system->model_number_ == MACHINE_A2560X || 
 			the_system->model_number_ == MACHINE_A2560K ||
 			the_system->model_number_ == MACHINE_A2560K40 ||
-			the_system->model_number_ == MACHINE_A2560K60 )
+			the_system->model_number_ == MACHINE_A2560K60 ||
+			the_system->model_number_ == MACHINE_GENX
+			)
 	{
 		the_system->screen_[ID_CHANNEL_A]->vicky_ = P32(VICKY_A_BASE_ADDRESS);
 		the_system->screen_[ID_CHANNEL_A]->text_ram_ = TEXTA_RAM_A2560K;
@@ -400,6 +405,7 @@ bool Sys_AutoConfigure(System* the_system)
 			return false;
 		}
 
+// MB 2025: this is deadly. the 2 memcpys. have not explored why yet. 
 		// set standard color LUTs for text mode
 // printf("about to copy text fore lut for screen %u... \n", i);
 // printf("the_system->screen_[i]->text_color_fore_ram_ = %p... \n", the_system->screen_[i]->text_color_fore_ram_);
@@ -573,7 +579,7 @@ error:
 
 
 //! Change the cursor character to the passed character
-//! @param	the_char: the character point to be set as the cursor graphic
+//! @param	the_char -- the character point to be set as the cursor graphic
 //! FUTURE: pass and set foreground and background cursor color; pass and set blink speed.
 void Sys_ChangeCursor(uint8_t the_char)
 {
@@ -660,10 +666,6 @@ void Sys_PrintScreen(Screen* the_screen)
 System* Sys_New(void)
 {
 	System*			the_system;
-	int16_t			i;
-	
-	
-	// LOGIC:
 	
 	if ( (the_system = (System*)calloc(1, sizeof(System)) ) == NULL)
 	{
@@ -769,8 +771,6 @@ void Sys_Exit(System** the_system, bool error_condition)
 //! Starts up the memory manager, creates the global system object, runs autoconfigure to check the system hardware, loads system and application fonts, allocates a bitmap for the screen.
 bool Sys_InitSystem(System* the_system)
 {
-	Font*		the_system_font;
-	Font*		the_icon_font;
 	Theme*		the_theme;
 	int16_t		i;
 	
@@ -1069,7 +1069,7 @@ error:
 
 
 // //! Switch machine into graphics mode
-// //! @param	the_system: valid pointer to system object
+// //! @param	the_system -- valid pointer to system object
 // bool Sys_SetModeGraphics(System* the_system)
 // {	
 // 	if (the_system == NULL)
@@ -1099,8 +1099,8 @@ error:
 
 
 //! Switch machine into text mode
-//! @param	the_system: valid pointer to system object
-//! @param as_overlay: If true, sets text overlay mode (text over graphics). If false, sets full text mode (no graphics);
+//! @param	the_system -- valid pointer to system object
+//! @param	as_overlay -- If true, sets text overlay mode (text over graphics). If false, sets full text mode (no graphics);
 bool Sys_SetModeText(System* the_system, bool as_overlay)
 {	
 	if (the_system == NULL)
@@ -1115,7 +1115,7 @@ bool Sys_SetModeText(System* the_system, bool as_overlay)
 	if (as_overlay)
 	{
 		// switch to text mode with overlay by setting graphics mode bit, setting bitmap engine enable bit, and setting graphics mode overlay		
-		R32(the_system->screen_[ID_CHANNEL_B]->vicky_) = (*the_system->screen_[ID_CHANNEL_B]->vicky_ & GRAPHICS_MODE_MASK | GRAPHICS_MODE_TEXT | GRAPHICS_MODE_TEXT_OVER | GRAPHICS_MODE_GRAPHICS | GRAPHICS_MODE_EN_BITMAP);
+		R32(the_system->screen_[ID_CHANNEL_B]->vicky_) = ((*the_system->screen_[ID_CHANNEL_B]->vicky_ & GRAPHICS_MODE_MASK) | GRAPHICS_MODE_TEXT | GRAPHICS_MODE_TEXT_OVER | GRAPHICS_MODE_GRAPHICS | GRAPHICS_MODE_EN_BITMAP);
 		
 		// c256foenix, discord 2022/03/10
 		// Normally, for example, if you setup everything to be in bitmap mode, and you download an image in VRAM and you can see it properly... If you turn on overlay, then you will see on top of that same image, your text that you had before.
@@ -1127,7 +1127,7 @@ bool Sys_SetModeText(System* the_system, bool as_overlay)
 	}
 	else
 	{
-		R32(the_system->screen_[ID_CHANNEL_B]->vicky_) = (*the_system->screen_[ID_CHANNEL_B]->vicky_ & GRAPHICS_MODE_MASK | GRAPHICS_MODE_TEXT);
+		R32(the_system->screen_[ID_CHANNEL_B]->vicky_) = ((*the_system->screen_[ID_CHANNEL_B]->vicky_ & GRAPHICS_MODE_MASK) | GRAPHICS_MODE_TEXT);
 		// disable bitmap layers 0 and 1
 		R32(the_system->screen_[ID_CHANNEL_B]->vicky_ + BITMAP_L0_CTRL_L) = 0x00;
 		R32(the_system->screen_[ID_CHANNEL_B]->vicky_ + BITMAP_L1_CTRL_L) = 0x00;
@@ -1142,15 +1142,15 @@ error:
 
 
 //! Change video mode to the one passed.
-//! @param	the_screen: valid pointer to the target screen to operate on
-//! @param	new_mode: One of the enumerated screen_resolution values. Must correspond to a valid VICKY video mode for the host machine. See VICKY_IIIA_RES_800X600_FLAGS, etc. defined in a2560_platform.h
+//! @param	the_screen -- valid pointer to the target screen to operate on
+//! @param	new_mode -- One of the enumerated screen_resolution values. Must correspond to a valid VICKY video mode for the host machine. See VICKY_IIIA_RES_800X600_FLAGS, etc. defined in a2560_platform.h
 //! @return	returns false on any error/invalid input.
 bool Sys_SetVideoMode(Screen* the_screen, screen_resolution new_mode)
 {
-	uint8_t		the_bits;
-	uint32_t	the_old_value;
-	uint32_t	the_old_masked_value;
-	uint32_t	the_new_value;
+// 	uint8_t		the_bits;
+// 	uint32_t	the_old_value;
+// 	uint32_t	the_old_masked_value;
+// 	uint32_t	the_new_value;
 	uint8_t		the_mcp_screen_id;
 	
 	if (the_screen == NULL)
@@ -1164,64 +1164,63 @@ bool Sys_SetVideoMode(Screen* the_screen, screen_resolution new_mode)
 	//   clears everything from first byte of master control but the reserved bit (bit 6)
 	//   then re-enables only those modes specified
 
-	the_old_value = R32(the_screen->vicky_);	// R32(VICKY_B_MASTER_CONTROL) etc also works.
-	the_old_masked_value = the_old_value & VIDEO_MODE_MASK;	
-	the_bits = 0;
-
-	// TODO: figure out smarter way of knowing which video modes are legal for the machine being run on
-	if (the_screen->vicky_ == P32(VICKY_A_BASE_ADDRESS))
-	{
-		//DEBUG_OUT(("%s %d: vicky identified as VICKY_A_BASE_ADDRESS", __func__, __LINE__));
-		
-		if (new_mode == RES_800X600)
-		{
-			the_bits = VICKY_IIIA_RES_800X600_FLAGS;
-		}
-		else if (new_mode == RES_1024X768)
-		{
-			the_bits = VICKY_IIIA_RES_1024X768_FLAGS;
-		}
-	}
-	else if (the_screen->vicky_ == P32(VICKY_B_BASE_ADDRESS))
-	{
-		//DEBUG_OUT(("%s %d: vicky identified as VICKY_B_BASE_ADDRESS", __func__, __LINE__));
-		// Video Mode [1] [0]
-		// 640x480 @ 60FPS 0 0
-		// 800x600 @ 60FPS 0 1
-		// Reserved 1 0
-		// 640x400 @ 70FPS 1 1		
-		
-		if (new_mode == RES_640X400)
-		{
-			LOG_WARN(("%s %d: 640x400 mode is not yet available in hardware", __func__, __LINE__));
-			//the_bits = VICKY_IIIB_RES_640X400_FLAGS;
-		}
-		else if (new_mode == RES_640X480)
-		{
-			the_bits = VICKY_IIIB_RES_640X480_FLAGS;
-		}
-		else if (new_mode == RES_800X600)
-		{
-// 			DEBUG_OUT(("%s %d: RES_800X600", __func__, __LINE__));
-			the_bits = VICKY_IIIB_RES_800X600_FLAGS;
-		}
-	}
-	else if (the_screen->vicky_ == P32(VICKY_A2560U))
-	{
- 		//DEBUG_OUT(("%s %d: vicky identified as VICKY_A2560U", __func__, __LINE__));
-		if (new_mode == RES_640X400)
-		{
-			the_bits = VICKY_II_RES_640X400_FLAGS;
-		}
-		else if (new_mode == RES_640X480)
-		{
-			the_bits = VICKY_II_RES_640X480_FLAGS;
-		}
-		else if (new_mode == RES_800X600)
-		{
-			the_bits = VICKY_II_RES_800X600_FLAGS;
-		}
-	}
+// 	the_old_value = R32(the_screen->vicky_);	// R32(VICKY_B_MASTER_CONTROL) etc also works.
+// 	the_old_masked_value = the_old_value & VIDEO_MODE_MASK;	
+// 	the_bits = 0;
+// 
+// 	// TODO: figure out smarter way of knowing which video modes are legal for the machine being run on
+// 	if (the_screen->vicky_ == P32(VICKY_A_BASE_ADDRESS))
+// 	{
+// 		//DEBUG_OUT(("%s %d: vicky identified as VICKY_A_BASE_ADDRESS", __func__, __LINE__));
+// 		
+// 		if (new_mode == RES_800X600)
+// 		{
+// 			the_bits = VICKY_IIIA_RES_800X600_FLAGS;
+// 		}
+// 		else if (new_mode == RES_1024X768)
+// 		{
+// 			the_bits = VICKY_IIIA_RES_1024X768_FLAGS;
+// 		}
+// 	}
+// 	else if (the_screen->vicky_ == P32(VICKY_B_BASE_ADDRESS))
+// 	{
+// 		//DEBUG_OUT(("%s %d: vicky identified as VICKY_B_BASE_ADDRESS", __func__, __LINE__));
+// 		// Video Mode [1] [0]
+// 		// 640x480 @ 60FPS 0 0
+// 		// 800x600 @ 60FPS 0 1
+// 		// Reserved 1 0
+// 		// 640x400 @ 70FPS 1 1		
+// 		
+// 		if (new_mode == RES_640X400)
+// 		{
+// 			LOG_WARN(("%s %d: 640x400 mode is not yet available in hardware", __func__, __LINE__));
+// 			//the_bits = VICKY_IIIB_RES_640X400_FLAGS;
+// 		}
+// 		else if (new_mode == RES_640X480)
+// 		{
+// 			the_bits = VICKY_IIIB_RES_640X480_FLAGS;
+// 		}
+// 		else if (new_mode == RES_800X600)
+// 		{
+// 			the_bits = VICKY_IIIB_RES_800X600_FLAGS;
+// 		}
+// 	}
+// 	else if (the_screen->vicky_ == P32(VICKY_A2560U))
+// 	{
+//  		//DEBUG_OUT(("%s %d: vicky identified as VICKY_A2560U", __func__, __LINE__));
+// 		if (new_mode == RES_640X400)
+// 		{
+// 			the_bits = VICKY_II_RES_640X400_FLAGS;
+// 		}
+// 		else if (new_mode == RES_640X480)
+// 		{
+// 			the_bits = VICKY_II_RES_640X480_FLAGS;
+// 		}
+// 		else if (new_mode == RES_800X600)
+// 		{
+// 			the_bits = VICKY_II_RES_800X600_FLAGS;
+// 		}
+// 	}
  	//DEBUG_OUT(("%s %d: specified video mode = %u, flag=%u", __func__, __LINE__, new_mode, the_bits));
 	
 	// switch to graphics mode by setting graphics mode bit, and setting bitmap engine enable bit
@@ -1265,7 +1264,6 @@ bool Sys_SetVideoMode(Screen* the_screen, screen_resolution new_mode)
 		sys_txt_set_resolution(the_mcp_screen_id, 1024, 768);
 	}
 
-
 	// teach screen about the new settings
 	if (Sys_DetectScreenSize(the_screen) == false)
 	{
@@ -1273,7 +1271,7 @@ bool Sys_SetVideoMode(Screen* the_screen, screen_resolution new_mode)
 		return false;
 	}
 
-	// tell the MCP that we changed res so it can update it's internal col sizes, etc.  - this function is not exposed in MCP headers yet
+	// tell the MCP that we changed res so it can update it's internal col sizes, etc. this function is not exposed in MCP headers yet
 	//sys_text_setsizes();
 	
 	return true;
@@ -1330,9 +1328,9 @@ error:
 
 
 //! Enable or disable the hardware cursor in text mode, for the specified screen
-//! @param	the_system: valid pointer to system object
-//! @param	the_screen: valid pointer to the target screen to operate on
-//! @param enable_it: If true, turns the hardware blinking cursor on. If false, hides the hardware cursor;
+//! @param	the_system -- valid pointer to system object
+//! @param	the_screen -- valid pointer to the target screen to operate on
+//! @param	enable_it -- If true, turns the hardware blinking cursor on. If false, hides the hardware cursor;
 bool Sys_EnableTextModeCursor(System* the_system, Screen* the_screen, bool enable_it)
 {
 	if (the_screen == NULL)
@@ -1361,8 +1359,8 @@ error:
 //! Set the left/right and top/bottom borders
 //! This will reset the visible text columns as a side effect
 //! Grotesquely large values will be accepted as is: use at your own risk!
-//! @param	border_width: width in pixels of the border on left and right side of the screen. Total border used with be the double of this.
-//! @param	border_height: height in pixels of the border on top and bottom of the screen. Total border used with be the double of this.
+//! @param	border_width -- width in pixels of the border on left and right side of the screen. Total border used with be the double of this.
+//! @param	border_height -- height in pixels of the border on top and bottom of the screen. Total border used with be the double of this.
 //! @return	returns false on any error/invalid input.
 bool Sys_SetBorderSize(System* the_system, Screen* the_screen, uint8_t border_width, uint8_t border_height)
 {
@@ -1397,7 +1395,7 @@ error:
 
 
 //! Add this window to the list of windows and make it the currently active window
-//! @param	the_system: valid pointer to system object
+//! @param	the_system -- valid pointer to system object
 //! @return	Returns false if adding this window would exceed the system's hard cap on the number of available windows
 bool Sys_AddToWindowList(System* the_system, Window* the_new_window)
 {
@@ -1462,7 +1460,7 @@ error:
 
 
 // create the backdrop window for the system
-//! @param	the_system: valid pointer to system object
+//! @param	the_system -- valid pointer to system object
 bool Sys_CreateBackdropWindow(System* the_system)
 {
 	Screen*				the_screen;
@@ -1515,7 +1513,7 @@ error:
 
 
 // return the active window
-//! @param	the_system: valid pointer to system object
+//! @param	the_system -- valid pointer to system object
 Window* Sys_GetActiveWindow(System* the_system)
 {
  	if (the_system == NULL)
@@ -1533,7 +1531,7 @@ error:
 
 
 // return the backdrop window
-//! @param	the_system: valid pointer to system object
+//! @param	the_system -- valid pointer to system object
 Window* Sys_GetBackdropWindow(System* the_system)
 {
  	List*	the_item;
@@ -1567,7 +1565,7 @@ error:
 
 
 // return a reference to the next window in the system's list, excluding backdrop windows
-//! @param	the_system: valid pointer to system object
+//! @param	the_system -- valid pointer to system object
 Window* Sys_GetNextWindow(System* the_system)
 {
 	Window*		current_window;
@@ -1660,7 +1658,7 @@ error:
 
 
 // return a reference to the previous window in the system's list, excluding backdrop windows
-//! @param	the_system: valid pointer to system object
+//! @param	the_system -- valid pointer to system object
 Window* Sys_GetPreviousWindow(System* the_system)
 {
 	Window*		current_window;
@@ -1734,9 +1732,9 @@ error:
 
 
 // Find the Window under the mouse -- accounts for z depth (topmost window will be found)
-//! @param	the_system: valid pointer to system object
-//! @param	x: global horizontal coordinate
-//! @param	y: global vertical coordinate
+//! @param	the_system -- valid pointer to system object
+//! @param	x -- global horizontal coordinate
+//! @param	y -- global vertical coordinate
 Window* Sys_GetWindowAtXY(System* the_system, int16_t x, int16_t y)
 {
  	List*	the_item;
@@ -1791,7 +1789,7 @@ error:
 //! Set the passed window to the active window, and marks the previously active window as inactive
 //! NOTE: This will resort the list of windows to move the (new) active one to the front
 //! NOTE: The exception to this is that the backdrop window is never moved in front of other windows
-//! @param	the_system: valid pointer to system object
+//! @param	the_system -- valid pointer to system object
 bool Sys_SetActiveWindow(System* the_system, Window* the_window)
 {
 	if (the_system == NULL)
@@ -2127,7 +2125,7 @@ error:
 // **** Other GET functions *****
 
 
-//! @param	the_system: valid pointer to system object
+//! @param	the_system -- valid pointer to system object
 Theme* Sys_GetTheme(System* the_system)
 {
 	if (the_system == NULL)
@@ -2143,7 +2141,7 @@ error:
 	return NULL;
 }
 
-//! @param	the_system: valid pointer to system object
+//! @param	the_system -- valid pointer to system object
 Font* Sys_GetSystemFont(System* the_system)
 {
 	if (the_system == NULL)
@@ -2160,7 +2158,7 @@ error:
 }
 
 
-//! @param	the_system: valid pointer to system object
+//! @param	the_system -- valid pointer to system object
 Font* Sys_GetAppFont(System* the_system)
 {
 	if (the_system == NULL)
@@ -2177,7 +2175,7 @@ error:
 }
 
 
-//! @param	the_system: valid pointer to system object
+//! @param	the_system -- valid pointer to system object
 Screen* Sys_GetScreen(System* the_system, int16_t channel_id)
 {
 	if (the_system == NULL)
@@ -2200,7 +2198,7 @@ error:
 }
 
 
-//! @param	the_system: valid pointer to system object
+//! @param	the_system -- valid pointer to system object
 Menu* Sys_GetMenu(System* the_system)
 {
 	if (the_system == NULL)
@@ -2218,7 +2216,7 @@ error:
 
 
 //! NOTE: Foenix systems only have 1 screen with bitmap graphics, even if the system has 2 screens overall. The bitmap returned will always be from the appropriate channel (A or B).
-//! @param	the_system: valid pointer to system object
+//! @param	the_system -- valid pointer to system object
 Bitmap* Sys_GetScreenBitmap(System* the_system, bitmap_layer the_layer)
 {
 	if (the_system == NULL)
@@ -2241,7 +2239,7 @@ error:
 }
 
 
-//! @param	the_system: valid pointer to system object
+//! @param	the_system -- valid pointer to system object
 EventManager* Sys_GetEventManager(System* the_system)
 {
 	if (the_system == NULL)
@@ -2263,7 +2261,7 @@ error:
 
 // **** Other SET functions *****
 
-//! @param	the_system: valid pointer to system object
+//! @param	the_system -- valid pointer to system object
 void Sys_SetSystemFont(System* the_system, Font* the_font)
 {
 	if (the_system == NULL)
@@ -2282,7 +2280,7 @@ error:
 }
 
 
-//! @param	the_system: valid pointer to system object
+//! @param	the_system -- valid pointer to system object
 void Sys_SetAppFont(System* the_system, Font* the_font)
 {
 	if (the_system == NULL)
@@ -2301,7 +2299,7 @@ error:
 }
 
 
-//! @param	the_system: valid pointer to system object
+//! @param	the_system -- valid pointer to system object
 void Sys_SetScreen(System* the_system, int16_t channel_id, Screen* the_screen)
 {
 	if (the_system == NULL)
@@ -2327,7 +2325,7 @@ error:
 
 
 //! NOTE: Foenix systems only have 1 screen with bitmap graphics, even if the system has 2 screens overall. The bitmap returned will always be from the appropriate channel (A or B).
-//! @param	the_system: valid pointer to system object
+//! @param	the_system -- valid pointer to system object
 void Sys_SetScreenBitmap(System* the_system, Bitmap* the_bitmap, bitmap_layer the_layer)
 {
 	if (the_system == NULL)
@@ -2364,7 +2362,7 @@ error:
 
 //! Set the passed theme as the System's current theme
 //! Note: this will dispose of the current theme after setting the new one
-//! @param	the_system: valid pointer to system object
+//! @param	the_system -- valid pointer to system object
 //! @return	Returns false on any error condition
 bool Sys_SetTheme(System* the_system, Theme* the_theme)
 {
@@ -2420,9 +2418,9 @@ error:
 
 
 //! Tell the VICKY to use a different address for the specified bitmap layer
-//! @param	the_system: valid pointer to system object
-//! @param	the_bitmap_layer: 0 or 1, the bitmap layer to get a new address
-//! @param	the_address: The address within the VRAM zone that the bitmap layer should be repointed to
+//! @param	the_system -- valid pointer to system object
+//! @param	the_bitmap_layer -- 0 or 1, the bitmap layer to get a new address
+//! @param	the_address -- The address within the VRAM zone that the bitmap layer should be repointed to
 bool Sys_SetVRAMAddr(System* the_system, uint8_t the_bitmap_layer, unsigned char* the_address)
 {
 	uint32_t			new_vicky_bitmap_vram_value;
@@ -2480,7 +2478,7 @@ error:
 
 //! Render all visible windows
 //! NOTE: this will move to a private Sys function later, once event handling is available
-//! @param	the_system: valid pointer to system object
+//! @param	the_system -- valid pointer to system object
 void Sys_Render(System* the_system)
 {
 	int16_t		num_nodes = 0;

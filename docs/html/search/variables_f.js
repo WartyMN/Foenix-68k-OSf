@@ -1,8 +1,7 @@
 var searchData=
 [
-  ['read_5fidx_5f_0',['read_idx_',['../struct_event_manager.html#ab69a1dcf502134581a24f529a33edab2',1,'EventManager']]],
-  ['rect_5f_1',['rect_',['../struct_control.html#aa66e6933036c76027de7b30536724cb7',1,'Control']]],
-  ['reserved_5f_2',['reserved_',['../struct_bitmap.html#aa1c5322a2e3429b96df3176c96a92aee',1,'Bitmap']]],
-  ['right_5fwidth_5f_3',['right_width_',['../struct_control_backdrop.html#af5a22ac9c78cf1919ecca3decd44246c',1,'ControlBackdrop']]],
-  ['rowwords_4',['rowWords',['../struct_font.html#a53a6f1a54cfe6b60e1c7260398c73c29',1,'Font']]]
+  ['selection_5frect_5f_0',['selection_rect_',['../struct_menu_item.html#ad18ae6c45471b9118a154ba7259d773c',1,'MenuItem']]],
+  ['shortcut_5f_1',['shortcut_',['../struct_menu_item.html#a3f741903344f69ef935e9525bea9f1db',1,'MenuItem']]],
+  ['standard_5fback_5fcolor_5f_2',['standard_back_color_',['../struct_theme.html#a98914ef1cdd2d87bfd34c3df9ee4cc9d',1,'Theme']]],
+  ['standard_5ffore_5fcolor_5f_3',['standard_fore_color_',['../struct_theme.html#a0c9c39155b88c926144d20f2ee5884e6',1,'Theme']]]
 ];

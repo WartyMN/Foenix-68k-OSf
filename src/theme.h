@@ -166,7 +166,7 @@ bool Theme_Destroy(Theme** the_theme);
 //! create default Theme.
 //! used in cases where a custom theme is not specified or is not available
 //! Note: set the minimal_resources flag to true when running on a C256, as this framework does not yet have full support on that platform. Controls will not be available!
-//! @param minimal_resources:	if true, control templates will not be created.
+//! @param	minimal_resources -- if true, control templates will not be created.
 Theme* Theme_CreateDefaultTheme(bool minimal_resources);
 
 
