@@ -156,8 +156,8 @@ extern System*			global_system;
 			//R16(UART_DLL) = BSWAP(UART_BAUD_DIV_57600);
 			//printf(" UART_BAUD_DIV_57600=%x, swapped=%x \n", UART_BAUD_DIV_57600, BSWAP(UART_BAUD_DIV_57600));
 			//printf(" UART_BAUD_DIV_57600 MSB=%x, LSB=%x \n", (UART_BAUD_DIV_57600 >> 8) & 0xFF, UART_BAUD_DIV_57600 & 0xFF);
-			R8(UART_DLL) = UART_BAUD_DIV_9600 & 0xFF;
-			R8(UART_DLM) = (UART_BAUD_DIV_9600 >> 8) & 0xFF;
+			R8(UART_DLL) = UART_BAUD_DIV_115200 & 0xFF;
+			R8(UART_DLM) = (UART_BAUD_DIV_115200 >> 8) & 0xFF;
 			
 			Serial_ClearDLAB();
 
@@ -192,7 +192,7 @@ extern System*			global_system;
 		bool Serial_SendByte(uint8_t the_byte)
 		{
 			uint8_t		error_code;
-			bool		uart_in_buff_is_empty = false;
+			bool		uart_out_buff_is_empty = false;
 			uint16_t	num_tries = 0;
 			
 			error_code = R8(UART_LSR) & UART_ERROR_MASK;
@@ -204,13 +204,13 @@ extern System*			global_system;
 				error_code = R8(UART_MSR);
 			}
 			
-			while (uart_in_buff_is_empty == false && num_tries < UART_MAX_SEND_ATTEMPTS)
+			while (uart_out_buff_is_empty == false && num_tries < UART_MAX_SEND_ATTEMPTS)
 			{
-				uart_in_buff_is_empty = R8(UART_LSR) & UART_THR_IS_EMPTY;
+				uart_out_buff_is_empty = R8(UART_LSR) & UART_THR_IS_EMPTY;
 				++num_tries;
 			};
 			
-			if (uart_in_buff_is_empty == true)
+			if (uart_out_buff_is_empty == false)
 			{
 				//printf(" in buff was still full after all tries \n");
 				goto error;
@@ -234,7 +234,7 @@ extern System*			global_system;
 			uint8_t		the_byte;
 			
 			//printf("serial debug trying to send buffer of size %u: '%s' \n", buffer_size, the_buffer);
-			printf("'%s' \n", the_buffer);
+			//printf("'%s' \n", the_buffer);
 			if (buffer_size > 256)
 			{
 				buffer_size = 256;
@@ -252,7 +252,7 @@ extern System*			global_system;
 			}
 			
 			// add a line return if we got this far
-			Serial_SendByte(0x0D);
+			//Serial_SendByte(0x0D);
 			
 			return i;
 		}
