@@ -189,7 +189,9 @@ MU_TEST(test_block_copy)
 	// these reason has to do with different # of columns/rows. 
 	// TODO: re-write these tests to copy to an off-screen location. have a different offscreen buffer with some preprerated text. copy that to screen. then copy original buffer back to screen. 
 	// TODO: if function is necessary, device a smarter, dedicated buffer to screen copy that accounts for width of copied buffer and width of target screen. 
-		
+
+	DEBUG_OUT(("%s %d: test_block_copy starting", __func__, __LINE__));
+
 	// Failure: could not alloc space for screen buffer 1
 	mu_check( (buffer1 = (char*)calloc(global_system->screen_[ID_CHANNEL_A]->text_mem_cols_ * global_system->screen_[ID_CHANNEL_A]->text_mem_rows_, sizeof(char)) ) != NULL );
  	// Failure: could not alloc space for screen buffer 2
@@ -279,6 +281,8 @@ MU_TEST(test_block_copy_box)
 	y = 4;
 	h_line_len = 6;
 	v_line_len = 6;
+
+	DEBUG_OUT(("%s %d: test_block_copy_box starting", __func__, __LINE__));
 	
 	// get out 2 buffers that are the full size of the screens. this block copy is designed to use same offsets as a normal sized screen. 
 	// Failure: could not alloc space for screen buffer 1
@@ -339,6 +343,8 @@ MU_TEST(test_fill_text)
 
 MU_TEST(test_fill_attr)
 {
+	DEBUG_OUT(("%s %d: test_fill_attr starting", __func__, __LINE__));
+
 	// Failure: Could not fill attribute memory in channel A
 	mu_check( Text_FillAttrMem(global_system->screen_[ID_CHANNEL_A], 127) );
 	// Failure: Could not fill attribute memory in channel B
@@ -381,6 +387,8 @@ MU_TEST(test_fill_attr)
 
 MU_TEST(test_fill_box)
 {
+	DEBUG_OUT(("%s %d: test_fill_box starting", __func__, __LINE__));
+
 	// bad values
 	mu_check( Text_FillBoxSlow(global_system->screen_[ID_CHANNEL_A], 0, 6, 15, 8, CH_DIAG_R1, COLOR_BLACK, BG_COLOR_BRIGHT_WHITE, CHAR_AND_ATTR) == true );
 	mu_check( Text_FillBoxSlow(global_system->screen_[ID_CHANNEL_A], 21, 5, 39, 7, CH_HFILLC_UP_8, COLOR_RED, COLOR_BRIGHT_RED, CHAR_AND_ATTR) == true );
@@ -405,6 +413,8 @@ MU_TEST(test_invert_box)
 {
 	int32_t	i;
 	
+	DEBUG_OUT(("%s %d: test_invert_box starting", __func__, __LINE__));
+
 	for (i = 0; i < 999; i++)
 	{
 		// Failure: Could not invert color of a box
@@ -413,6 +423,8 @@ MU_TEST(test_invert_box)
 	
 	// Failure: Could not invert color of a box
 	mu_check( Text_InvertBox(global_system->screen_[ID_CHANNEL_B], 50, 13, 71, 16) );
+
+	DEBUG_OUT(("%s %d: test_invert_box bad values...", __func__, __LINE__));
 
 	// bad values
 	// Failure: Text_InvertBox accepted an illegal screen ID
@@ -427,10 +439,14 @@ MU_TEST(test_invert_box)
 
 MU_TEST(test_font_overwrite)
 {
+	DEBUG_OUT(("%s %d: test_font_overwrite starting", __func__, __LINE__));
+
 	// Failure: Could not replace font data for channel A
 	mu_check( Text_UpdateFontData(global_system->screen_[ID_CHANNEL_A], (char*)0x000000) );
 	// Failure: Could not replace font data for channel B
 	mu_check( Text_UpdateFontData(global_system->screen_[ID_CHANNEL_B], (char*)0x000000) );
+
+	DEBUG_OUT(("%s %d: test_font_overwrite bad values...", __func__, __LINE__));
 
 	// bad values
 	// Failure: Text_UpdateFontData accepted an illegal screen ID
@@ -440,10 +456,14 @@ MU_TEST(test_font_overwrite)
 
 MU_TEST(test_show_font)
 {
+	DEBUG_OUT(("%s %d: test_show_font starting", __func__, __LINE__));
+
 	// Failure: Could not show font chars for channel A
 	mu_check( Text_ShowFontChars(global_system->screen_[ID_CHANNEL_A], 10) );
 	// Failure: Could not show font chars for channel B
 	mu_check( Text_ShowFontChars(global_system->screen_[ID_CHANNEL_B], 10) );
+
+	DEBUG_OUT(("%s %d: test_show_font bad values...", __func__, __LINE__));
 
 	// bad values
 	// Failure:  accepted an illegal screen ID
@@ -457,6 +477,8 @@ MU_TEST(test_char_placement)
 	int16_t		x;
 	int16_t		y;
 	
+	DEBUG_OUT(("%s %d: test_char_placement starting", __func__, __LINE__));
+
 	for (y = 4; y < 40; y = y+2)
 	{
 		for (x = 0; x < 50; x++)
@@ -465,6 +487,8 @@ MU_TEST(test_char_placement)
 			mu_check( Text_SetCharAtXY(global_system->screen_[ID_CHANNEL_A], x, y, 'X') );
 		}
 	}
+	
+	DEBUG_OUT(("%s %d: test_char_placement bad values...", __func__, __LINE__));
 	
 	// bad values
  	// Failure: Text_SetCharAtXY accepted illegal screen ID
@@ -487,7 +511,8 @@ MU_TEST(test_char_placement)
 // char and color writing
 MU_TEST(test_char_and_attr_writing)
 {
-// same story here: 4 or so works ok, add more, and it's likely to crash. 
+	DEBUG_OUT(("%s %d: test_char_and_attr_writing starting", __func__, __LINE__));
+
  	// Failure: Text_SetCharAndColorAtXY failed
 	mu_check( Text_SetCharAndColorAtXY(global_system->screen_[ID_CHANNEL_B], 0, 4, 33, FG_COLOR_BLACK, BG_COLOR_GRAY) == true );
  	// Failure: Text_SetCharAndColorAtXY failed
@@ -554,6 +579,8 @@ MU_TEST(test_char_and_attr_writing)
 	mu_check( Text_SetCharAndColorAtXY(global_system->screen_[ID_CHANNEL_B], 15, 5, 48, FG_COLOR_BRIGHT_WHITE, BG_COLOR_BRIGHT_WHITE) == true );
 
 	// bad values
+	DEBUG_OUT(("%s %d: test_char_and_attr_writing bad values...", __func__, __LINE__));
+
  	// Failure: Text_SetCharAndColorAtXY accepted illegal screen ID
 	mu_check( Text_SetCharAndColorAtXY(NULL, 0, 0, 'X', FG_COLOR_BRIGHT_WHITE, BG_COLOR_BRIGHT_WHITE) == false );
 	// Failure: Text_SetCharAndColorAtXY accepted illegal coordinates
@@ -590,6 +617,9 @@ MU_TEST(test_char_and_attr_reading)
 	
 	x = 0;
 	y = 6;
+
+	DEBUG_OUT(("%s %d: test_char_and_attr_reading starting", __func__, __LINE__));
+
 	the_attribute_value = ((FG_COLOR_MAGENTA << 4) | BG_COLOR_BRIGHT_WHITE);
 
 	// set known chars and colors to test again
@@ -634,6 +664,8 @@ MU_TEST(test_line_drawing)
 	int16_t			line_len;
 	unsigned char	the_char;
 	
+	DEBUG_OUT(("%s %d: test_line_drawing starting", __func__, __LINE__));
+
 	// good values	
 	x = 20;
 	y = 4;
@@ -656,6 +688,8 @@ MU_TEST(test_line_drawing)
  	// Failure: Text_DrawVLine failed
 	mu_check( Text_DrawVLine(global_system->screen_[ID_CHANNEL_A], x, y, line_len, the_char, BG_COLOR_BRIGHT_YELLOW, BG_COLOR_BLACK, CHAR_AND_ATTR) == true );
 
+	DEBUG_OUT(("%s %d: test_line_drawing bad values...", __func__, __LINE__));
+
 	// bad values
  	// Failure: Text_DrawVLine accepted illegal screen ID
 	mu_check( Text_DrawVLine(NULL, x, y, line_len, the_char, COLOR_RED, COLOR_BRIGHT_RED, CHAR_AND_ATTR) == false );
@@ -675,6 +709,8 @@ MU_TEST(test_basic_box_coords)
 	int16_t			h_line_len;
 	int16_t			v_line_len;
 	unsigned char	the_char;
+	
+	DEBUG_OUT(("%s %d: test_basic_box_coords starting", __func__, __LINE__));
 	
 	x = 45;
 	y = 4;
@@ -700,6 +736,8 @@ MU_TEST(test_basic_box_hw)
 	int16_t			v_line_len;
 	unsigned char	the_char;
 	
+	DEBUG_OUT(("%s %d: test_basic_box_hw starting", __func__, __LINE__));
+	
 	x = 60;
 	y = 6;
 	h_line_len = 6;
@@ -716,6 +754,8 @@ MU_TEST(test_basic_box_hw)
 	mu_check( Text_DrawBox(global_system->screen_[ID_CHANNEL_A], x, y, h_line_len-2, v_line_len+5, --the_char, FG_COLOR_BRIGHT_CYAN, BG_COLOR_CYAN, CHAR_AND_ATTR) == true );
 
 
+	DEBUG_OUT(("%s %d: test_basic_box_hw bad values...", __func__, __LINE__));
+	
 	// bad values
  	// Failure: Text_DrawBox accepted illegal x coord
 	mu_check( Text_DrawBox(global_system->screen_[ID_CHANNEL_B], -10, y, h_line_len, v_line_len, the_char, FG_COLOR_BRIGHT_CYAN, BG_COLOR_CYAN, CHAR_AND_ATTR) == false );
@@ -731,6 +771,8 @@ MU_TEST(test_fancy_box)
 // 	int16_t			h_line_len;
 // 	int16_t			v_line_len;
 	char*	the_message;
+	
+	DEBUG_OUT(("%s %d: test_fancy_box starting", __func__, __LINE__));
 	
 	// good values	
 	the_message = text_test_big_string;
@@ -806,6 +848,8 @@ MU_TEST(test_draw_string)
 {
 	char*	the_message;
 	
+	DEBUG_OUT(("%s %d: test_draw_string starting", __func__, __LINE__));
+	
 	// good values	
 	// Failure: General_StrlcpyWithAlloc returned NULL
 	mu_check( (the_message = General_StrlcpyWithAlloc((char*)"this is a string", 250)) != NULL );
@@ -815,6 +859,8 @@ MU_TEST(test_draw_string)
  	// Failure: Text_DrawStringAtXY failed
 	mu_check( Text_DrawStringAtXY(global_system->screen_[ID_CHANNEL_B], 67, 4, the_message, FG_COLOR_BLUE, BG_COLOR_BRIGHT_YELLOW) == true );
 		
+	DEBUG_OUT(("%s %d: test_draw_string bad values...", __func__, __LINE__));
+	
 	// bad values
  	// Failure: Text_DrawBoxCoordsFancy accepted illegal x coord
 	mu_check( Text_DrawStringAtXY(global_system->screen_[ID_CHANNEL_B], -1, 0, the_message, FG_COLOR_BLUE, BG_COLOR_BRIGHT_YELLOW) == false );
@@ -823,6 +869,8 @@ MU_TEST(test_draw_string)
 MU_TEST(test_draw_string_in_box)
 {
 	char*	the_message;
+	
+	DEBUG_OUT(("%s %d: test_draw_string_in_box starting", __func__, __LINE__));
 	
 	// good values	
    	//mu_assert((the_message = General_StrlcpyWithAlloc((char*)"This is a short sentence.", 80*60+1)) != NULL, "General_StrlcpyWithAlloc returned NULL" );
@@ -841,6 +889,8 @@ MU_TEST(font_replace_test)
 {
 	// until file objects available in emulator, need to embed data to test font replacement.
 	// this is a remapped C64 font for code page 437
+	
+	DEBUG_OUT(("%s %d: font_replace_test starting", __func__, __LINE__));
 	
 
 //   	mu_assert(Text_UpdateFontData(global_system->screen_[ID_CHANNEL_A], (char*)the_new_font_data) == true, "Failed to update font data for Channel A" );
@@ -867,6 +917,8 @@ MU_TEST(test_speed_1_hline)
 	int16_t			j;
 	int16_t			num_cycles = 10;
 
+	DEBUG_OUT(("%s %d: test_speed_1_hline starting", __func__, __LINE__));
+	
 	x = 1;
 	y = 1;
 	line_len = 120;

@@ -176,7 +176,7 @@ bool Text_ValidateXY(Screen* the_screen, int16_t x, int16_t y)
 	
 	if (x < 0 || x > max_col || y < 0 || y > max_row)
 	{
-		DEBUG_OUT(("%s %d: x=%u, y=%u, max_col=%u, max_row=%u", __func__, __LINE__, x, y, max_col, max_row));
+		DEBUG_OUT(("%s %d: x=%i, y=%i, max_col=%i, max_row=%i", __func__, __LINE__, x, y, max_col, max_row));
 		return false;
 	}
 

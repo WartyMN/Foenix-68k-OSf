@@ -61,6 +61,8 @@ System*			global_system;
 // try to open serial comms
 bool Test_OpenSerial(void);
 
+// test ps/2 mouse
+void Test_MCPMouse(void);
 
 /*****************************************************************************/
 /*                       Private Function Definitions                        */
@@ -155,6 +157,23 @@ bool Test_OpenSerial(void)
 // }
 
 }
+
+
+// test ps/2 mouse
+void Test_MCPMouse(void)
+{
+// 	if (mouse_init() != 0)
+// 	{
+// 		printf("Mouse init returned error. \n");
+// 	}
+// 	else
+// 	{
+// 		printf("Mouse init returned error. \n");
+// 	}
+	
+	
+}
+
 
 
 /*****************************************************************************/
@@ -278,15 +297,21 @@ int main(int argc, char* argv[])
 
 	Startup_ShowSplash();
 	
+	// turn on sprites too
+	Sys_SetGraphicMode(global_system, PARAM_SPRITES_ON, PARAM_BITMAP_ON, PARAM_TILES_OFF, PARAM_TEXT_OVERLAY_ON, PARAM_TEXT_ON);
+	
 	MU_RUN_SUITE(test_suite_units);
 // 	MU_RUN_SUITE(test_suite_speed);
 	MU_REPORT();
 
-	Sys_SetModeText(global_system, false);
+	//Sys_SetModeText(global_system, false);
 	
 	// test of serial connection
-	Test_OpenSerial();
+	//Test_OpenSerial();
 
+	// test ps/2 mouse
+	//Test_MCPMouse();
+	
 	printf("sys test complete \n");
 
 	Sys_Exit(&global_system, PARAM_EXIT_NO_ERROR);
