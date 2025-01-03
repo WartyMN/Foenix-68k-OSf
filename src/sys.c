@@ -24,7 +24,7 @@
 #include "sys.h"
 #include "theme.h"
 #include "window.h"
-//#include "mcp_code/dev/ps2.h"
+#include "mcp_code/ps2.h"
 
 // C includes
 #include <stdbool.h>
@@ -66,8 +66,8 @@
 extern System*			global_system;
 
 // MCP / previous interrupt handler functions for restore on exit
-// p_int_handler	global_old_keyboard_interrupt;
-// p_int_handler	global_old_mouse_interrupt;
+p_int_handler	global_old_keyboard_interrupt;
+p_int_handler	global_old_mouse_interrupt;
 // p_int_handler is defined in mcp/interrupt.h as typedef void (*p_int_handler)();
 
 // VGA colors, used for both fore- and background colors in Text mode
@@ -134,6 +134,12 @@ bool Sys_DetectScreenSize(Screen* the_screen);
 //! @param	the_char -- the character point to be set as the cursor graphic
 //! FUTURE: pass and set foreground and background cursor color; pass and set blink speed.
 void Sys_ChangeCursor(uint8_t the_char);
+
+// Interrupt handler for PS/2 keyboard
+void Sys_InterruptKeyboard(void);
+
+// Interrupt handler for PS/2 mouse
+void Sys_InterruptMouse(void);
 
 
 
@@ -464,7 +470,7 @@ bool Sys_DetectScreenSize(Screen* the_screen)
 		DEBUG_OUT(("%s %d: vicky identified as VICKY_B_BASE_ADDRESS; bits=%x, 800x600=%x, 640x480=%x, vicky val=%x", __func__, __LINE__, the_video_mode_bits, VICKY_IIIB_RES_800X600_FLAGS, VICKY_IIIB_RES_640X480_FLAGS, the_vicky_value));
 		//printf("detectscreen: bits=%x, 800x600=%x, 640x480=%x, vicky val=%x \n", the_video_mode_bits, VICKY_IIIB_RES_800X600_FLAGS, VICKY_IIIB_RES_640X480_FLAGS, the_vicky_value);
 
-		if (the_video_mode_bits & VICKY_IIIB_RES_800X600_FLAGS)
+		if (the_video_mode_bits & VICKY_IIIB_RES_800X600_FLAGS || the_video_mode_bits & VICKY_IIIB_RES_RESERVED_FLAGS)	// MB: this shouldn't be according to manual, but the reserved value is what I observer when MCp sets 800x600 mode.
 		{
 			new_mode = RES_800X600;
 		}
@@ -581,15 +587,6 @@ void Sys_ChangeCursor(uint8_t the_char)
 }
 
 
-// // interrupt 1 is PS2 keyboard, interrupt 2 is A2560K keyboard
-// void Sys_InterruptKeyboard(void)
-// {
-// 	kbd_handle_irq();
-// }
-
-// 
-// // interrupt 4 is PS2 mouse
-// void Sys_InterruptMouse(void);
 
 
 // **** Debug functions *****
@@ -912,10 +909,15 @@ bool Sys_InitSystem(System* the_system)
 	//R32(VICKYB_MOUSE_CTRL_A2560K) = 1;
 	
 	// set interrupt handlers
-//	ps2_init();
+	ps2_init();
 //	global_old_keyboard_interrupt = sys_int_register(INT_KBD_PS2, &Sys_InterruptKeyboard);
 // 	global_old_keyboard_interrupt = sys_int_register(INT_KBD_A2560K, &Sys_InterruptKeyboard);
-// 	global_old_mouse_interrupt = sys_int_register(INT_MOUSE, &Sys_InterruptKeyboard);
+// #define INT_MOUSE           0x12    /* SuperIO - PS/2 Mouse */
+// 
+// 	global_old_mouse_interrupt = sys_int_register(INT_MOUSE, &mouse_handle_irq);
+// 	DEBUG_OUT(("%s %d: osf mouse interrupt (%p) installed, replacing MCP %p", __func__, __LINE__, &mouse_handle_irq, global_old_mouse_interrupt));
+// 	global_old_mouse_interrupt = sys_int_register(INT_MOUSE, &Sys_InterruptMouse);
+// 	DEBUG_OUT(("%s %d: osf mouse interrupt (%p) installed, replacing MCP %p", __func__, __LINE__, &Sys_InterruptMouse, global_old_mouse_interrupt));
 
 
 	DEBUG_OUT(("%s %d: System initialization complete.", __func__, __LINE__));
@@ -935,19 +937,21 @@ error:
 
 // see MCP's ps2.c for real examples once real machine available
 
-// // interrupt 1 is PS2 keyboard, interrupt 2 is A2560K keyboard
-// void Sys_InterruptKeyboard(void)
-// {
-// 	printf("keyboard!\n");
-// 	return;
-// }
-// 
-// // interrupt 4 is PS2 mouse
-// void Sys_InterruptMouse(void)
-// {
-// 	printf("mouse!\n");
-// 	return;
-// }
+// interrupt 1 is PS2 keyboard, interrupt 2 is A2560K keyboard
+void Sys_InterruptKeyboard(void)
+{
+	printf("keyboard!\n");
+	kbd_handle_irq();
+	return;
+}
+
+// Interrupt handler for PS/2 mouse
+void Sys_InterruptMouse(void)
+{
+	printf("mouse!\n");
+	mouse_handle_irq();
+	return;
+}
 
 
 

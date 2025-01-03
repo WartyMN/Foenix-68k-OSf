@@ -58,6 +58,9 @@
 #define NR8(x)						*((volatile uint8_t* const)(x))			// make sure we read an 8 bit byte; for VICKY registers, etc.
 #define NP8(x)						(volatile uint8_t* const)(x)			// make sure we read an 8 bit byte; for VICKY registers, etc.
 #define NR16(x)						*((volatile uint16_t* const)(x))		// make sure we read an 16 bit byte; for RNG etc.
+#define NP16(x)						(volatile uint16_t* const)(x)			// make sure we read an 16 bit byte; for VICKY registers, etc.
+#define NR32(x)						*((volatile uint32_t* const)(x))		// make sure we read an 32 bit byte; for RNG etc.
+#define NP32(x)						(volatile uint32_t* const)(x)			// make sure we read an 32 bit byte; for VICKY registers, etc.
 
 #define TEXT_COL_COUNT_FOR_PLOTTING_A2560K		100	// regardless of visible cols (between borders), VRAM seems to be fixed at 80 cols across.
 #define TEXT_ROW_COUNT_FOR_PLOTTING_A2560K		75	// regardless of visible rows (between borders), VRAM seems to be fixed at 60 rows up/down.
@@ -502,6 +505,7 @@
 
 #define VICKY_IIIB_RES_640X480_FLAGS	0x00	// 0b00000000
 #define VICKY_IIIB_RES_800X600_FLAGS	0x01	// 0b00000001
+#define VICKY_IIIB_RES_RESERVED_FLAGS	0x02	// 0b00000010	// a2560K 0.0.2 manual says reserved, but this is what I see in the register when MCP sets 800x600
 #define VICKY_IIIB_RES_640X400_FLAGS	0x03	// 0b00000011
 
 #define VICKY_IIIA_RES_800X600_FLAGS	0x00	// 0b00000000
@@ -538,6 +542,8 @@
 #define VICKYA_CURSOR_CTRL_A2560K	(0xfec40010)	// vicky III channel A cursor control register
 	#define VICKY_AB_CCR_CHAR_MASK	0xFF00FFFF	//!> the mask for the cursor control register that controls the character used as cursor
 #define VICKYA_CURSOR_POS_A2560K	(VICKY_A_BASE_ADDRESS + 0x14)	// vicky III channel A cursor position register (x pos is lower word, y pos is upper word)
+#define VICKYA_MOUSE_GRAPHIC_A2560K	0xfec40400		// vicky III channel A mouse pointer graphic stored here (16x16 ARGB) - 4byte, WO
+#define VICKYA_MOUSE_CTRL_A2560K	0xfec40c00		// vicky III channel A mouse pointer control register. set to 1 to enable mouse. +2 to do whatever "pointer choice" does. W16, R32
 
 // VICKY III - Channel B - Text and Graphics
 #define VICKY_BITMAP_MAX_H_RES		800		// VICKY in A2560K supports a max resolution of 800x600 for graphics
@@ -589,8 +595,8 @@
 #define VICKYB_CURSOR_CTRL_A2560K	(VICKY_B_BASE_ADDRESS + 0x10)	// vicky III channel B cursor control register
 #define VICKYB_CURSOR_POS_A2560K	(VICKY_B_BASE_ADDRESS + 0x14)	// vicky III channel B cursor position register
 #define VICKYB_BITMAP_L0_CTRL		0xfec80100				// vicky III channel B bitmap layer 0 control register (1=enable, +2=LUT0, +4=LUT1, +8=LUT2
-#define VICKYB_MOUSE_GRAPHIC_A2560K	0xfec80400				// vicky III channel B mouse pointer graphic stored here (16x16)
-#define VICKYB_MOUSE_CTRL_A2560K	0xfec80c00				// vicky III channel B mouse pointer control register. set to 1 to enable mouse. +2 to do whatever "pointer choice" does.
+#define VICKYB_MOUSE_GRAPHIC_A2560K	0xfec80400				// vicky III channel B mouse pointer graphic stored here (16x16 ARGB) - 4byte, WO
+#define VICKYB_MOUSE_CTRL_A2560K	0xfec80c00				// vicky III channel B mouse pointer control register. set to 1 to enable mouse. +2 to do whatever "pointer choice" does. W16, R32
 #define VICKYB_MOUSE_PTR_POS_A2560K	0xfec80c04				// vicky III channel B mouse pointer position (Y pos in upper 16 bits, x in lower)
 #define TEXTA_RAM_A2560K			(char*)0xfec60000		// channel A text
 #define TEXTA_ATTR_A2560K			(char*)0xfec68000		// channel A attr
