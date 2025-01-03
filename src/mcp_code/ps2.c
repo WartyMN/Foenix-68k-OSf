@@ -295,9 +295,18 @@ typedef union {
 	uint32_t code_;
 } mouse_code;
 
-static mouse_code g_mouse_code;	// the 4-byte code the mouse sends
+static mouse_code ps2_mouse_code;	// the 4-byte code the mouse sends
 
-// uint8_t g_mouse_code[4];				// the 4-byte code the mouse sends
+typedef struct {
+	bool	l_button_down_;
+	bool	m_button_down_;
+	bool	r_button_down_;
+} mouse_button_states;
+
+static mouse_button_states ps2_mouse_button_tracker;
+
+volatile uint16_t*	ps2_vicky_a_mouse_byte_base = NP16(VICKYA_PS2_MOUSE_BYTE_0);
+volatile uint16_t*	ps2_vicky_b_mouse_byte_base = NP16(VICKYB_PS2_MOUSE_BYTE_0);
 
 /*
  * Mapping of "codepoints" 0x80 - 0x95 (function keys, etc)
@@ -1135,13 +1144,19 @@ char kbd_getc_poll() {
  */
 void mouse_handle_irq()
 {
-	//unsigned char status = *PS2_STATUS;
+	unsigned char status;
 	unsigned char mouse_byte = *PS2_DATA_BUF;
 	
 	/* Clear the pending interrupt flag for the mouse */
 	sys_int_clear(INT_MOUSE);
 	
 	DEBUG_OUT(("%s %d: Mouse IRQ fired, mouse_byte=%x", __func__, __LINE__, mouse_byte));
+
+	if (((status = *PS2_STATUS) & PS2_STAT_INH) == 0)
+	{
+		DEBUG_OUT(("%s %d: PS2_STATUS says wasn't ready (was: %x. ending IRQ.", __func__, __LINE__, status));
+		return;
+	}
 	
 	if ((g_mouse_state == 0) && ((mouse_byte & 0x08) != 0x08))
 	{
@@ -1155,11 +1170,12 @@ void mouse_handle_irq()
 	else
 	{
 		// capture this part of the 4-byte code
-		g_mouse_code.bytes_[g_mouse_state] = (uint8_t)mouse_byte;
+		ps2_mouse_code.bytes_[g_mouse_state] = (uint8_t)mouse_byte;
 		
-		/* Send the byte to Vicky */
-		MousePtr_A_Mouse0[g_mouse_state] = (unsigned short)mouse_byte;
-		MousePtr_B_Mouse0[g_mouse_state] = (unsigned short)mouse_byte;
+		// Send the byte to Vicky so it can handle mouse movement.
+		*(ps2_vicky_a_mouse_byte_base + g_mouse_state) = (uint16_t)mouse_byte;
+		*(ps2_vicky_b_mouse_byte_base + g_mouse_state) = (uint16_t)mouse_byte;
+
 		//DEBUG_OUT(("%s %d: mouse byte=%u", __func__, __LINE__, mouse_byte));
 		g_mouse_state++;
 		
@@ -1168,29 +1184,50 @@ void mouse_handle_irq()
 		{
 			g_mouse_state = 0;
 			
-			//DEBUG_OUT(("%s %d: got 3 bytes; g_mouse_code.bytes_[2]=%x, g_mouse_code.code_=%x", __func__, __LINE__, g_mouse_code.bytes_[2], g_mouse_code.code_));
+			//DEBUG_OUT(("%s %d: got 3 bytes; ps2_mouse_code.bytes_[2]=%x, ps2_mouse_code.code_=%x", __func__, __LINE__, ps2_mouse_code.bytes_[2], ps2_mouse_code.code_));
 			
 			// check for mouse up or down buttons
-			if (g_mouse_code.code_ == 0x09000000)
+			if (ps2_mouse_code.code_ == 0x09000000)
 			{
 				DEBUG_OUT(("%s %d: left mouse down", __func__, __LINE__));
+				ps2_mouse_button_tracker.l_button_down_ = true;
 			}
-			else if (g_mouse_code.code_ == 0x0A000000)
+			else if (ps2_mouse_code.code_ == 0x0A000000)
 			{
 				DEBUG_OUT(("%s %d: right mouse down", __func__, __LINE__));
+				ps2_mouse_button_tracker.r_button_down_ = true;
 			}
-			else if (g_mouse_code.code_ == 0x0C000000)
+			else if (ps2_mouse_code.code_ == 0x0C000000)
 			{
 				DEBUG_OUT(("%s %d: middle mouse down", __func__, __LINE__));
+				ps2_mouse_button_tracker.m_button_down_ = true;
 			}
-			else if (g_mouse_code.code_ == 0x08000000)
+			else if (ps2_mouse_code.code_ == 0x08000000)
 			{
-				DEBUG_OUT(("%s %d: some mouse button released", __func__, __LINE__));
+				if (ps2_mouse_button_tracker.l_button_down_ == true)
+				{
+						DEBUG_OUT(("%s %d: left mouse button released", __func__, __LINE__));
+				ps2_mouse_button_tracker.l_button_down_ = false;
+				}
+				else if (ps2_mouse_button_tracker.r_button_down_ == true)
+				{
+						DEBUG_OUT(("%s %d: right mouse button released", __func__, __LINE__));
+				ps2_mouse_button_tracker.r_button_down_ = false;
+				}
+				else if (ps2_mouse_button_tracker.m_button_down_ == true)
+				{
+					DEBUG_OUT(("%s %d: middle mouse button released", __func__, __LINE__));
+					ps2_mouse_button_tracker.m_button_down_ = false;
+				}
+				else
+				{
+					DEBUG_OUT(("%s %d: some mouse button released, but we didn't track a button being pushed. scroll wheel?", __func__, __LINE__));
+				}
 			}
 			else
 			{
 				// if not one of above, has to be movement left/right/up/down
-				//printf("mouse movement detected (code=%u) \n", g_mouse_code.code_);				
+				//printf("mouse movement detected (code=%u) \n", ps2_mouse_code.code_);				
 			}		
 		}
 	}
@@ -1271,11 +1308,11 @@ short ps2_mouse_get_packet() {
  * Set the visibility of the VICKY mouse pointer
  *
  * Input:
- * is_visible = 1 for show, any other value to hide
+ * is_visible = false for hide, true to show
  */
 void mouse_set_visible(short is_visible)
 {
-	if (is_visible == true)
+	if (is_visible == false)
 	{
 		NR16(VICKYB_MOUSE_CTRL_A2560K) = 0;
 		NR16(VICKYA_MOUSE_CTRL_A2560K) = 0;
@@ -1301,8 +1338,8 @@ short mouse_init() {
     unsigned short low_components;
     unsigned short hi_components;
     short result;
-	volatile uint32_t*	vicky_a_mouse_pointer;
-	volatile uint32_t*	vicky_b_mouse_pointer;
+	volatile uint32_t*	vicky_a_mouse_graphic;
+	volatile uint32_t*	vicky_b_mouse_graphic;
 
     //TRACE("mouse_init");
 	DEBUG_OUT(("%s %d: PS2 initiatialization called", __func__, __LINE__));
@@ -1370,27 +1407,13 @@ short mouse_init() {
 
     /* Set up the mouse pointer */
 
-//     short src_offset = 0;
-//     short dest_offset = 0;
-//     for (i = 0; i < 256; i++) {
-//         low_components = (Color_Pointer_bin[src_offset+1] << 8) + Color_Pointer_bin[src_offset];
-//         hi_components = Color_Pointer_bin[src_offset+2];
-//         MousePointer_Mem_A[dest_offset] = low_components;
-//         MousePointer_Mem_A[dest_offset+1] = hi_components;
-//         MousePointer_Mem_B[dest_offset] = low_components;
-//         MousePointer_Mem_B[dest_offset+1] = hi_components;
-// 
-//         src_offset += 3;
-//         dest_offset += 2;
-//     }
-
-	vicky_a_mouse_pointer = NP32(VICKYA_MOUSE_GRAPHIC_A2560K);
-	vicky_b_mouse_pointer = NP32(VICKYB_MOUSE_GRAPHIC_A2560K);
+	vicky_a_mouse_graphic = NP32(VICKYA_MOUSE_GRAPHIC_A2560K);
+	vicky_b_mouse_graphic = NP32(VICKYB_MOUSE_GRAPHIC_A2560K);
 	
-	for (i=0; i < 256; i++)
+	for (i = 0; i < 256; i++)
 	{
-		vicky_a_mouse_pointer[i] = mouse_pointer_data[i];
-		vicky_b_mouse_pointer[i] = mouse_pointer_data[i];
+		vicky_a_mouse_graphic[i] = mouse_pointer_data[i];
+		vicky_b_mouse_graphic[i] = mouse_pointer_data[i];
 	}
 
     /* Enable the mouse pointer on channel A */

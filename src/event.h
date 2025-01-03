@@ -83,6 +83,8 @@ typedef enum event_kind
 	controlClicked			= 15,
 	mouseMoved				= 16,
 	windowChanged			= 17,
+	mMouseDown				= 18,	// middle mouse button
+	mMouseUp				= 19,
 } event_kind;
 
 
@@ -105,6 +107,8 @@ typedef enum event_mask
 	controlClickedMask		= 1 << controlClicked,	// a clickable (2 state) control has been clicked
 	mouseMovedMask			= 1 << mouseMoved,		// mouse has been moved
 	windowChangedMask		= 1 << windowChanged,	// a window has changed size and/or position
+	mMouseDownMask			= 1 << mMouseDown,		// middle mouse button pressed
+	mMouseUpMask			= 1 << mMouseUp,		// middle mouse button released
 	everyEvent				= 0xFFFF				// all of the above
 } event_mask;
 

@@ -544,6 +544,9 @@
 #define VICKYA_CURSOR_POS_A2560K	(VICKY_A_BASE_ADDRESS + 0x14)	// vicky III channel A cursor position register (x pos is lower word, y pos is upper word)
 #define VICKYA_MOUSE_GRAPHIC_A2560K	0xfec40400		// vicky III channel A mouse pointer graphic stored here (16x16 ARGB) - 4byte, WO
 #define VICKYA_MOUSE_CTRL_A2560K	0xfec40c00		// vicky III channel A mouse pointer control register. set to 1 to enable mouse. +2 to do whatever "pointer choice" does. W16, R32
+#define VICKYA_PS2_MOUSE_BYTE_0		0xfec40c0a				// PS/2 mouse movement byte 0 for VICKY to interpret. W16.
+#define VICKYA_PS2_MOUSE_BYTE_1		0xfec40c0c				// PS/2 mouse movement byte 1 for VICKY to interpret. W16.
+#define VICKYA_PS2_MOUSE_BYTE_2		0xfec40c0e				// PS/2 mouse movement byte 2 for VICKY to interpret. W16.
 
 // VICKY III - Channel B - Text and Graphics
 #define VICKY_BITMAP_MAX_H_RES		800		// VICKY in A2560K supports a max resolution of 800x600 for graphics
@@ -589,15 +592,18 @@
 	#define VICKY_B_MC_SYNC_DISABLE		0x00040000	// 0b00000100	0: normal. 1: sync off (put display to sleep)
 	// VICKY B byte 3 bits are all reserved
 
-#define VICKYB_BORDER_CTRL_A2560K	(VICKY_B_BASE_ADDRESS + 0x04)	// vicky III channel B border control register
+#define VICKYB_BORDER_CTRL_A2560K	(VICKY_B_BASE_ADDRESS + 4)	// vicky III channel B border control register
 #define VICKYB_BORDER_COLOR_A2560K	0xfec80008				// vicky III channel B border color register
 #define VICKYB_BACK_COLOR_A2560K	0xfec8000C				// vicky III channel B background color register
-#define VICKYB_CURSOR_CTRL_A2560K	(VICKY_B_BASE_ADDRESS + 0x10)	// vicky III channel B cursor control register
-#define VICKYB_CURSOR_POS_A2560K	(VICKY_B_BASE_ADDRESS + 0x14)	// vicky III channel B cursor position register
+#define VICKYB_CURSOR_CTRL_A2560K	(VICKY_B_BASE_ADDRESS + 16)	// vicky III channel B cursor control register
+#define VICKYB_CURSOR_POS_A2560K	(VICKY_B_BASE_ADDRESS + 20)	// vicky III channel B cursor position register
 #define VICKYB_BITMAP_L0_CTRL		0xfec80100				// vicky III channel B bitmap layer 0 control register (1=enable, +2=LUT0, +4=LUT1, +8=LUT2
 #define VICKYB_MOUSE_GRAPHIC_A2560K	0xfec80400				// vicky III channel B mouse pointer graphic stored here (16x16 ARGB) - 4byte, WO
 #define VICKYB_MOUSE_CTRL_A2560K	0xfec80c00				// vicky III channel B mouse pointer control register. set to 1 to enable mouse. +2 to do whatever "pointer choice" does. W16, R32
 #define VICKYB_MOUSE_PTR_POS_A2560K	0xfec80c04				// vicky III channel B mouse pointer position (Y pos in upper 16 bits, x in lower)
+#define VICKYB_PS2_MOUSE_BYTE_0		0xfec80c0a				// PS/2 mouse movement byte 0 for VICKY to interpret. W16.
+#define VICKYB_PS2_MOUSE_BYTE_1		0xfec80c0c				// PS/2 mouse movement byte 1 for VICKY to interpret. W16.
+#define VICKYB_PS2_MOUSE_BYTE_2		0xfec80c0e				// PS/2 mouse movement byte 2 for VICKY to interpret. W16.
 #define TEXTA_RAM_A2560K			(char*)0xfec60000		// channel A text
 #define TEXTA_ATTR_A2560K			(char*)0xfec68000		// channel A attr
 #define TEXTA_FORE_LUT_A2560K		(char*)0xfec6c400		// FG_CHAR_LUT_PTR	Text Foreground Look-Up Table
