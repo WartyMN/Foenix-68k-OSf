@@ -79,11 +79,11 @@ tests:	$(TEST_OBJS)
 
 demos:	$(DEMO_OBJS)
 	@echo "Building demos..."
-	ln68k -o $(BUILD_PGZ)/demo_sys.pgz obj/sys_demo.o a2560k_osf.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=$(BUILD_LST)/demo_sys.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=4000000 --stack-size=30000 
-	ln68k -o $(BUILD_PGZ)/demo_font.pgz obj/font_demo.o a2560k_osf.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=$(BUILD_LST)/demo_font.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=2000000 --stack-size=30000 
-	ln68k -o $(BUILD_PGZ)/demo_window.pgz obj/window_demo.o a2560k_osf.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=$(BUILD_LST)/demo_window.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=2000000 --stack-size=30000 
-	ln68k -o $(BUILD_PGZ)/demo_bitmap.pgz obj/bitmap_demo.o a2560k_osf.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=$(BUILD_LST)/demo_bitmap.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=2000000 --stack-size=30000 
-	ln68k -o $(BUILD_PGZ)/demo_text.pgz obj/text_demo.o a2560k_osf.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=$(BUILD_LST)/demo_text.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=2000000 --stack-size=30000 
+	ln68k -o $(BUILD_PGZ)/demo_sys.pgz obj/sys_demo.o a2560k_osf.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=$(BUILD_LST)/demo_sys.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=1500000 --stack-size=30000 
+	ln68k -o $(BUILD_PGZ)/demo_font.pgz obj/font_demo.o a2560k_osf.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=$(BUILD_LST)/demo_font.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=1500000 --stack-size=30000 
+	ln68k -o $(BUILD_PGZ)/demo_window.pgz obj/window_demo.o a2560k_osf.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=$(BUILD_LST)/demo_window.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=1500000 --stack-size=30000 
+	ln68k -o $(BUILD_PGZ)/demo_bitmap.pgz obj/bitmap_demo.o a2560k_osf.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=$(BUILD_LST)/demo_bitmap.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=1500000 --stack-size=30000 
+	ln68k -o $(BUILD_PGZ)/demo_text.pgz obj/text_demo.o a2560k_osf.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=$(BUILD_LST)/demo_text.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=1500000 --stack-size=30000 
 
 demohex:	$(DEMO_OBJS)
 	@echo "Building demos..."
