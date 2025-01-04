@@ -765,7 +765,7 @@ void kbd_enqueue_scan(unsigned char scan_code) {
 
 		the_modifiers = g_kbd_control.modifiers;
 		
-		EventManager_AddEvent(the_kind, scan_code, -1, -1, the_modifiers, NULL, NULL);
+// 		EventManager_AddEvent(the_kind, scan_code, -1, -1, the_modifiers, NULL, NULL);
 		DEBUG_OUT(("%s %d: ******* IRQ handled: '%c' (%x) mod (%x)", __func__, __LINE__, scan_code, scan_code, the_modifiers));
 //void EventManager_AddEvent(event_kind the_what, uint32_t the_code, int16_t x, int16_t y, event_modifiers the_modifiers, Window* the_window, Control* the_control)
 // typedef enum event_modifiers
@@ -1144,20 +1144,13 @@ char kbd_getc_poll() {
  */
 void mouse_handle_irq()
 {
-	unsigned char status;
 	unsigned char mouse_byte = *PS2_DATA_BUF;
 	
 	/* Clear the pending interrupt flag for the mouse */
 	sys_int_clear(INT_MOUSE);
 	
-	DEBUG_OUT(("%s %d: Mouse IRQ fired, mouse_byte=%x", __func__, __LINE__, mouse_byte));
+	//DEBUG_OUT(("%s %d: Mouse IRQ fired, mouse_byte=%x", __func__, __LINE__, mouse_byte));
 
-	if (((status = *PS2_STATUS) & PS2_STAT_INH) == 0)
-	{
-		DEBUG_OUT(("%s %d: PS2_STATUS says wasn't ready (was: %x. ending IRQ.", __func__, __LINE__, status));
-		return;
-	}
-	
 	if ((g_mouse_state == 0) && ((mouse_byte & 0x08) != 0x08))
 	{
 		/*
@@ -1191,33 +1184,39 @@ void mouse_handle_irq()
 			{
 				DEBUG_OUT(("%s %d: left mouse down", __func__, __LINE__));
 				ps2_mouse_button_tracker.l_button_down_ = true;
+				EventManager_AddMouseEvent(mouseDown);
 			}
 			else if (ps2_mouse_code.code_ == 0x0A000000)
 			{
 				DEBUG_OUT(("%s %d: right mouse down", __func__, __LINE__));
 				ps2_mouse_button_tracker.r_button_down_ = true;
+				EventManager_AddMouseEvent(rMouseDown);
 			}
 			else if (ps2_mouse_code.code_ == 0x0C000000)
 			{
 				DEBUG_OUT(("%s %d: middle mouse down", __func__, __LINE__));
 				ps2_mouse_button_tracker.m_button_down_ = true;
+				EventManager_AddMouseEvent(mMouseDown);
 			}
 			else if (ps2_mouse_code.code_ == 0x08000000)
 			{
 				if (ps2_mouse_button_tracker.l_button_down_ == true)
 				{
-						DEBUG_OUT(("%s %d: left mouse button released", __func__, __LINE__));
-				ps2_mouse_button_tracker.l_button_down_ = false;
+					DEBUG_OUT(("%s %d: left mouse button released", __func__, __LINE__));
+					ps2_mouse_button_tracker.l_button_down_ = false;
+					EventManager_AddMouseEvent(mouseUp);
 				}
 				else if (ps2_mouse_button_tracker.r_button_down_ == true)
 				{
-						DEBUG_OUT(("%s %d: right mouse button released", __func__, __LINE__));
-				ps2_mouse_button_tracker.r_button_down_ = false;
+					DEBUG_OUT(("%s %d: right mouse button released", __func__, __LINE__));
+					ps2_mouse_button_tracker.r_button_down_ = false;
+					EventManager_AddMouseEvent(rMouseUp);
 				}
 				else if (ps2_mouse_button_tracker.m_button_down_ == true)
 				{
 					DEBUG_OUT(("%s %d: middle mouse button released", __func__, __LINE__));
 					ps2_mouse_button_tracker.m_button_down_ = false;
+					EventManager_AddMouseEvent(mMouseUp);
 				}
 				else
 				{
@@ -1227,7 +1226,8 @@ void mouse_handle_irq()
 			else
 			{
 				// if not one of above, has to be movement left/right/up/down
-				//printf("mouse movement detected (code=%u) \n", ps2_mouse_code.code_);				
+				//printf("mouse movement detected (code=%u) \n", ps2_mouse_code.code_);		
+				//EventManager_AddMouseEvent(mouseMoved);
 			}		
 		}
 	}

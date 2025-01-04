@@ -56,7 +56,7 @@
 /*                            Macro Definitions                              */
 /*****************************************************************************/
 
-#define EVENT_QUEUE_SIZE	64		//! number of event records in the circular buffer
+#define EVENT_QUEUE_SIZE	128		//! number of event records in the circular buffer
 
 
 /*****************************************************************************/
@@ -66,25 +66,25 @@
 typedef enum event_kind 
 {
 	nullEvent				= 0,
-	mouseDown				= 1,
-	mouseUp					= 2,
-	keyDown					= 3,
-	keyUp					= 4,
-	autoKey					= 5,
-	updateEvt				= 6,
-	diskEvt					= 7,
-	activateEvt				= 8,
-	inactivateEvt			= 9,
-	rMouseDown				= 10,
-	rMouseUp				= 11,
-	menuOpened				= 12,
-	menuSelected			= 13,
-	menuCanceled			= 14,
-	controlClicked			= 15,
-	mouseMoved				= 16,
-	windowChanged			= 17,
-	mMouseDown				= 18,	// middle mouse button
-	mMouseUp				= 19,
+	mouseDown				,	// left mouse button
+	mouseUp					,	// left mouse button
+	rMouseDown				,
+	rMouseUp				,
+	mMouseDown				,	// middle mouse button
+	mMouseUp				,
+	mouseMoved				,
+	keyDown					,	// key event
+	keyUp					,	// key event
+	autoKey					,	// key event
+	windowChanged			,	// window event
+	updateEvt				,	// window event
+	activateEvt				,	// window event
+	inactivateEvt			,	// window event
+	controlClicked			,	// window event
+	menuOpened				,	// menu event
+	menuSelected			,	// menu event
+	menuCanceled			,	// menu event
+	diskEvt					,	// DOS event
 } event_kind;
 
 
@@ -115,7 +115,8 @@ typedef enum event_mask
 
 typedef enum event_modifiers
 {
-	activeFlagBit			= 0,    // activate? (activateEvt and mouseDown)
+	noneFlagBit				= 0,    // no modifier
+	activeFlagBit			= 1,    // activate? (activateEvt and mouseDown)
 	btnStateBit				= 7,    // state of button?
 	foenixKeyBit			= 8,    // foenix key down?
 	shiftKeyBit				= 9,    // shift key down?
@@ -176,17 +177,47 @@ enum
 /*                                 Structs                                   */
 /*****************************************************************************/
 
+struct EventKeyboard {
+//	event_modifiers		modifiers_;	//! set for keyboard and mouse events
+	uint8_t				key_;		//! the key code of the key pushed. eg, KEY_BKSP (0x92), not CH_BKSP (0x08). Most useful for handling action keys such as cursors, DEL, BS, ESC, etc.
+	uint8_t				char_;		//! the character code resulting from the key, after mapping. e.g, 1 may return 49, ALT-1 may return 145, SHIFT-1 may return 33; backspace may return 8, etc.
+	uint8_t				modifiers_;	//! bit flags for shift, ctrl, meta, etc. 
+	uint8_t				source_;	//! 0=internal keyboard, 1=external ps/2 keyboard
+};
+
+struct EventMenu {
+	int16_t				selection_;	//! for menu events: the selected menu item ID
+	int16_t				x_;			//! for menu events: the global x position of mouse.
+	int16_t				y_;			//! for menu events: the global y position of mouse.
+};
+
+struct EventMouse {
+	event_modifiers		modifiers_;	//! set for keyboard and mouse events
+	int16_t				x_;			//! for mouse events: the global x position of mouse.
+	int16_t				y_;			//! for mouse events: the global y position of mouse.
+	Control*			control_;	//! for mouse events: the effected control
+};
+
+struct EventWindow {
+	event_modifiers		modifiers_;	//! set for keyboard and mouse events
+	int16_t				x_;			//! for window events: the new global x position of the window.
+	int16_t				y_;			//! for window events: the new global y position of the window.
+	int16_t				width_;		//! for window events: the new width of the window.
+	int16_t				height_;	//! for window events: the new height of the window.
+};
 
 struct EventRecord
 {
-	event_kind			what_;
-	uint32_t			code_;		//! For keydown, keyup: the key code. For windowChanged, the width in the high word, height in the low word.
 	uint32_t			when_;		//! ticks
-	Window*				window_;	//! not set for a diskEvt
-	Control*			control_;	//! not set for every event type. if not set on mouseDown/Up, pointer was not over a control
-	int16_t				x_;			//! for mouse events: the global x position of mouse. for windowChanged, the new global x posiiton of the window.
-	int16_t				y_;			//! for mouse events: the global y position of mouse. for windowChanged, the new global y posiiton of the window.
-	event_modifiers		modifiers_;	//! set for keyboard and mouse events
+	event_kind			what_;
+	Window*				window_;	//! The affected window (if any). May be NULL.
+	Control*			control_;	//! The affected control (if any). May be NULL.
+	union {
+		EventKeyboard	keyinfo_;
+		EventMouse		mouseinfo_;
+		EventWindow		windowinfo_;
+		EventMenu		menuinfo_;
+	};
 };
 
 struct EventManager
@@ -247,11 +278,25 @@ void EventManager_RemoveEventsForWindow(Window* the_window);
 //! returns NULL if no event (not the same as returning an event of type nullEvent)
 EventRecord* EventManager_NextEvent(void);
 
-//! Add a new event to the event queue
+//! Add a new mouse event to the event queue
 //! NOTE: this does not actually insert a new record, as the event queue is a circular buffer
-//! It overwrites whatever slot is next in line
-//! @param	the_window -- this may be set for non-mouse up/down events. For mouse up/down events, it will not be set, and X/Y will be used to find the window.
-void EventManager_AddEvent(event_kind the_what, uint32_t the_code, int16_t x, int16_t y, event_modifiers the_modifiers, Window* the_window, Control* the_control);
+//!   It overwrites whatever slot is next in line
+//! This is designed to be called from mouse IRQ, with minimimal information available
+//! @param	the_what -- specifies the type of event to add to the queue. only mouseDown/up/moved events supported
+//! The function will query VICKY for x,y and determine if the mouse is over a window, a control, etc. 
+void EventManager_AddMouseEvent(event_kind the_what);
+
+//! Add a new window event to the event queue
+//! NOTE: this does not actually insert a new record, as the event queue is a circular buffer
+//!   It overwrites whatever slot is next in line
+//! @param	the_what -- specifies the type of event to add to the queue. only window events such as windowChanged are supported
+void EventManager_AddWindowEvent(event_kind the_what, int16_t x, int16_t y, int16_t width, int16_t height, Window* the_window, Control* the_control);
+
+//! Add a new menu event to the event queue
+//! NOTE: this does not actually insert a new record, as the event queue is a circular buffer
+//!   It overwrites whatever slot is next in line
+//! @param	the_what -- specifies the type of event to add to the queue. only menu events such as windowChanged are supported
+void EventManager_AddMenuEvent(event_kind the_what, int16_t menu_selection,int16_t x, int16_t y, Window* the_window);
 
 //! Wait for an event to happen, do system-processing of it, then if appropriate, give the window responsible for the event a chance to do something with it
 void EventManager_WaitForEvent(void);

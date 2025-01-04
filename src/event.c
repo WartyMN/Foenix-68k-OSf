@@ -24,6 +24,7 @@
 // C includes
 #include <stdbool.h>
 #include <stdarg.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -73,14 +74,8 @@ void EventManager_GenerateRandomEvent(void);
 //! Make the passed event a nullEvent, blanking out all fields
 static void Event_SetNull(EventRecord* the_event)
 {
+	memset((void*)the_event, 0, sizeof(EventRecord));
 	the_event->what_ = nullEvent;
-	the_event->code_ = 0L;
-	the_event->when_ = 0L;
-	the_event->window_ = NULL;
-	the_event->control_ = NULL;
-	the_event->x_ = -1;
-	the_event->y_ = -1;
-	the_event->modifiers_ = 0;
 }
 
 // **** Debug functions *****
@@ -89,7 +84,6 @@ void Event_Print(EventRecord* the_event)
 {
 	DEBUG_OUT(("EventRecord print out: (%p)", the_event));
 	DEBUG_OUT(("  what_: %i", the_event->what_));
-	DEBUG_OUT(("  code_: %i", the_event->code_));
 	DEBUG_OUT(("  when_: %i", the_event->when_));
 	if (the_event->window_ != NULL)
 	{
@@ -100,9 +94,9 @@ void Event_Print(EventRecord* the_event)
 		DEBUG_OUT(("  window_: (NULL)"));
 	}
 	DEBUG_OUT(("  control_: %p", the_event->control_));
-	DEBUG_OUT(("  x_: %i", the_event->x_));
-	DEBUG_OUT(("  y_: %i", the_event->y_));
-	DEBUG_OUT(("  modifiers_: %x", the_event->modifiers_));
+// 	DEBUG_OUT(("  x_: %i", the_event->x_));
+// 	DEBUG_OUT(("  y_: %i", the_event->y_));
+// 	DEBUG_OUT(("  modifiers_: %x", the_event->modifiers_));
 }
 
 void EventManager_Print(EventManager* the_event_manager)
@@ -126,43 +120,45 @@ void EventManager_GenerateRandomEvent(void)
 	//   simulate having interrupts working, and doing an event loop
 	//   because no interrupts (of mine) are working, will fake that. 
 	
-	event_kind	the_event_type;
-	event_kind	max_event = mouseUp;
-	int16_t		x;
-	int16_t		y;
-// 	uint8_t		x_var;
-// 	uint8_t		y_var;
-	uint8_t		char_code;
+	return;
 	
-	the_event_type = (rand() * max_event) / RAND_MAX + 1;
-	DEBUG_OUT(("%s %d: Generating event of type %i", __func__, __LINE__, the_event_type));
-	
-	switch (the_event_type)
-	{
-		case nullEvent:
-			//EventManager_AddEvent(the_event_type, 0, -1, -1, 0L, NULL);
-			break;
-			
-		case keyDown:
-			char_code = (rand() * 256) / RAND_MAX;
-			EventManager_AddEvent(the_event_type, char_code, -1, -1, 0L, NULL, NULL);
-			EventManager_AddEvent(keyUp, char_code, -1, -1, 0L, NULL, NULL);
-			break;
-			
-		case mouseDown:
-		case mouseUp:
-			// pick a random spot, do a mouse down, then pick a random range +/- 10 from there for mouse up
-			x = (rand() * 640) / RAND_MAX;
-			y = (rand() * 480) / RAND_MAX;
-			EventManager_AddEvent(the_event_type, 0, x, y, 0L, NULL, NULL);
-// 				x_var = (rand() * 20) / RAND_MAX;
-// 				y_var = (rand() * 20) / RAND_MAX;
-// 				EventManager_AddEvent(mouseUp, 0, x + x_var - 10, y + y_var - 10, 0L, NULL, NULL);
-			break;
-			
-		default:
-			break;
-	}			
+// 	event_kind	the_event_type;
+// 	event_kind	max_event = mouseUp;
+// 	int16_t		x;
+// 	int16_t		y;
+// // 	uint8_t		x_var;
+// // 	uint8_t		y_var;
+// 	uint8_t		char_code;
+// 	
+// 	the_event_type = (rand() * max_event) / RAND_MAX + 1;
+// 	DEBUG_OUT(("%s %d: Generating event of type %i", __func__, __LINE__, the_event_type));
+// 	
+// 	switch (the_event_type)
+// 	{
+// 		case nullEvent:
+// 			//EventManager_AddEvent(the_event_type, 0, -1, -1, 0L, NULL);
+// 			break;
+// 			
+// 		case keyDown:
+// 			char_code = (rand() * 256) / RAND_MAX;
+// 			EventManager_AddEvent(the_event_type, char_code, -1, -1, 0L, NULL, NULL);
+// 			EventManager_AddEvent(keyUp, char_code, -1, -1, 0L, NULL, NULL);
+// 			break;
+// 			
+// 		case mouseDown:
+// 		case mouseUp:
+// 			// pick a random spot, do a mouse down, then pick a random range +/- 10 from there for mouse up
+// 			x = (rand() * 640) / RAND_MAX;
+// 			y = (rand() * 480) / RAND_MAX;
+// 			EventManager_AddEvent(the_event_type, 0, x, y, 0L, NULL, NULL);
+// // 				x_var = (rand() * 20) / RAND_MAX;
+// // 				y_var = (rand() * 20) / RAND_MAX;
+// // 				EventManager_AddEvent(mouseUp, 0, x + x_var - 10, y + y_var - 10, 0L, NULL, NULL);
+// 			break;
+// 			
+// 		default:
+// 			break;
+// 	}			
 }
 
 /*****************************************************************************/
@@ -184,6 +180,7 @@ EventRecord* Event_New(void)
 		goto error;
 	}
 	LOG_ALLOC(("%s %d:	__ALLOC__	the_event	%p	size	%i", __func__ , __LINE__, the_event, sizeof(EventRecord)));
+	TRACK_ALLOC((sizeof(EventRecord)));
 
 	Event_SetNull(the_event);
 		
@@ -207,6 +204,7 @@ bool Event_Destroy(EventRecord** the_event)
 	}
 
 	LOG_ALLOC(("%s %d:	__FREE__	*the_event	%p	size	%i", __func__ , __LINE__, *the_event, sizeof(EventRecord)));
+	TRACK_ALLOC((0 - sizeof(EventRecord)));
 	free(*the_event);
 	*the_event = NULL;
 	
@@ -230,6 +228,7 @@ EventManager* EventManager_New(void)
 		goto error;
 	}
 	LOG_ALLOC(("%s %d:	__ALLOC__	the_event_manager	%p	size	%i", __func__ , __LINE__, the_event_manager, sizeof(EventManager)));
+	TRACK_ALLOC((sizeof(EventManager)));
 
 	the_event_manager->write_idx_ = 0;
 	the_event_manager->read_idx_ = 0;
@@ -288,6 +287,7 @@ bool EventManager_Destroy(EventManager** the_event_manager)
 	}
 	
 	LOG_ALLOC(("%s %d:	__FREE__	*the_event_manager	%p	size	%i", __func__ , __LINE__, *the_event_manager, sizeof(EventManager)));
+	TRACK_ALLOC((0 - sizeof(EventManager)));
 	free(*the_event_manager);
 	*the_event_manager = NULL;
 	
@@ -371,8 +371,8 @@ EventRecord* EventManager_NextEvent(void)
 	
 	the_event = the_event_manager->queue_[the_event_manager->read_idx_];
 
-	//DEBUG_OUT(("%s %d: Next Event: type=%i", __func__, __LINE__, the_event->what_));
-	//EventManager_Print(the_event_manager);
+	DEBUG_OUT(("%s %d: Next Event: type=%i", __func__, __LINE__, the_event->what_));
+	EventManager_Print(the_event_manager);
 	//Event_Print(the_event);
 	
 	the_event_manager->read_idx_++;
@@ -391,64 +391,140 @@ EventRecord* EventManager_NextEvent(void)
 }
 
 
-//! Add a new event to the event queue
+//! Add a new mouse event to the event queue
 //! NOTE: this does not actually insert a new record, as the event queue is a circular buffer
-//! It overwrites whatever slot is next in line
-//! @param	the_window -- this may be set for non-mouse up/down events. For mouse up/down events, it will not be set, and X/Y will be used to find the window.
-void EventManager_AddEvent(event_kind the_what, uint32_t the_code, int16_t x, int16_t y, event_modifiers the_modifiers, Window* the_window, Control* the_control)
+//!   It overwrites whatever slot is next in line
+//! This is designed to be called from mouse IRQ, with minimimal information available
+//! @param	the_what -- specifies the type of event to add to the queue. mouseDown/up/moved events supported
+//! The function will query VICKY for x,y and determine if the mouse is over a window, a control, etc. 
+void EventManager_AddMouseEvent(event_kind the_what)
 {
+	// LOGIC:
+	//   IRQ handler (presumably) has sent us a mouseup, mousedown, or mouse move event
+	//   in all cases, we want to query VICKY for the current mouse location and build an event
+	//   then add it to the event queue.
+	//   if a mouseDown or mouseUp event (r/m/l), we also want to check for any windows or controls the mouse may have been over when clicked. 
+	
 	EventManager*	the_event_manager;
 	EventRecord*	the_event;
+	uint32_t		vicky_mouse_pos;
 
-	DEBUG_OUT(("%s %d: reached; the_what=%i, the_code=%i, x=%i, y=%i, the_window=%p", __func__, __LINE__, the_what, the_code, x, y, the_window));
+	DEBUG_OUT(("%s %d: reached; the_what=%i", __func__, __LINE__, the_what));
+	
+	if (the_what > mouseMoved) 
+	{
+		LOG_WARN(("%s %d: non-mouse event passed. the_what=%i", __func__, __LINE__, the_what));
+		return;
+	}
 	
 	the_event_manager = Sys_GetEventManager(global_system);
 	
 	the_event = the_event_manager->queue_[the_event_manager->write_idx_++];
 	the_event_manager->write_idx_ %= EVENT_QUEUE_SIZE;
 	
-	if (the_what == nullEvent)
+	vicky_mouse_pos = NR32(VICKYB_MOUSE_PTR_POS);
+	the_event->mouseinfo_.x_ = (vicky_mouse_pos & 0xffff0000) >> 16;
+	the_event->mouseinfo_.y_ = vicky_mouse_pos & 0x0000ffff;
+	the_event->mouseinfo_.modifiers_ = noneFlagBit;
+
+	the_event->when_ = sys_time_jiffies();
+	the_event->what_ = the_what;
+	
+	// do not even bother clearing out the window and mouse sub-records. for one thing, it's a union. for another, it won't get used. 
+	// TODO: check for window
+	// TODO: check for control
+	
+	if (the_what == mouseDown || the_what == mouseUp)
 	{
-		DEBUG_OUT(("%s %d: null event added", __func__, __LINE__));
-		Event_SetNull(the_event);
+		the_event->window_ = Sys_GetWindowAtXY(global_system, the_event->mouseinfo_.x_, the_event->mouseinfo_.y_);
+	}
+}
+
+
+//! Add a new window event to the event queue
+//! NOTE: this does not actually insert a new record, as the event queue is a circular buffer
+//!   It overwrites whatever slot is next in line
+//! @param	the_what -- specifies the type of event to add to the queue. only window events such as windowChanged are supported
+//! @param	x -- Global horizontal coordinate associated with the event. e.g., where the mouse was clicked, etc.
+//! @param	y -- Global vertical coordinate associated with the event
+//! @param	the_window -- this may be set for non-mouse up/down events. For mouse up/down events, it will not be set, and X/Y will be used to find the window.
+void EventManager_AddWindowEvent(event_kind the_what, int16_t x, int16_t y, int16_t width, int16_t height, Window* the_window, Control* the_control)
+{
+	EventManager*	the_event_manager;
+	EventRecord*	the_event;
+
+	DEBUG_OUT(("%s %d: reached; the_what=%i", __func__, __LINE__, the_what));
+	
+	if (the_what < windowChanged || the_what > controlClicked) 
+	{
+		LOG_WARN(("%s %d: non-window event passed. the_what=%i", __func__, __LINE__, the_what));
 		return;
 	}
 	
-	// LOGIC:
-	//   Because an interrupt will (most likely) be the thing creating this event
-	//   We accept only the minimum of info here and create the rest from that info
-	the_event->what_ = the_what;
-	the_event->code_ = the_code;
-	the_event->when_ = sys_time_jiffies();
-	the_event->x_ = x;
-	the_event->y_ = y;
-	the_event->modifiers_ = the_modifiers;
+	the_event_manager = Sys_GetEventManager(global_system);
+	
+	the_event = the_event_manager->queue_[the_event_manager->write_idx_++];
+	the_event_manager->write_idx_ %= EVENT_QUEUE_SIZE;
+	
 	the_event->window_ = the_window;
-	the_event->control_ = the_control;
-	
-	// check for a window and a control, using x and y
-	// LOGIC:
-	//   do not try to find window for a disk event
-	//   do not try to find window/control for a control clicked event, it will already have been set
-	//   for mouseup/down find window based on cursor pos (if window not already set, which it might have been)
-	//   for all other events, if window hadn't been set, set it to active window.
-	
-	if (the_what == diskEvt || the_what == controlClicked)
-	{
-		// twiddle thumbs
-	}
-	else if (the_what == mouseDown || the_what == mouseUp)
-	{
-		// might already have been set, if interrupt isn't what generated the event
-		if (the_event->window_ == NULL)
-		{
-			the_event->window_ = Sys_GetWindowAtXY(global_system, x, y);
-		}
-	}
-	else if (the_event->window_ == NULL)
+	the_event->control_ = NULL; // TODO: find control.
+	the_event->windowinfo_.modifiers_ = noneFlagBit;
+	the_event->windowinfo_.x_ = x;
+	the_event->windowinfo_.y_ = y;
+	the_event->windowinfo_.width_ = width;
+	the_event->windowinfo_.height_ = height;
+
+	if (the_window == NULL)
 	{
 		the_event->window_ = Sys_GetActiveWindow(global_system);
 	}	
+	else
+	{
+		the_event->window_ = the_window;
+	}
+
+	the_event->when_ = sys_time_jiffies();
+	the_event->what_ = the_what;
+}
+
+
+//! Add a new menu event to the event queue
+//! NOTE: this does not actually insert a new record, as the event queue is a circular buffer
+//!   It overwrites whatever slot is next in line
+//! @param	the_what -- specifies the type of event to add to the queue. only menu events such as windowChanged are supported
+void EventManager_AddMenuEvent(event_kind the_what, int16_t menu_selection,int16_t x, int16_t y, Window* the_window)
+{
+	EventManager*	the_event_manager;
+	EventRecord*	the_event;
+
+	DEBUG_OUT(("%s %d: reached; the_what=%i", __func__, __LINE__, the_what));
+	
+	if (the_what < menuOpened || the_what > menuCanceled) 
+	{
+		LOG_WARN(("%s %d: non-menu event passed. the_what=%i", __func__, __LINE__, the_what));
+		return;
+	}
+	
+	the_event_manager = Sys_GetEventManager(global_system);
+	
+	the_event = the_event_manager->queue_[the_event_manager->write_idx_++];
+	the_event_manager->write_idx_ %= EVENT_QUEUE_SIZE;
+	
+	the_event->menuinfo_.selection_ = menu_selection;
+	the_event->menuinfo_.x_ = x;
+	the_event->menuinfo_.y_ = y;
+
+	if (the_window == NULL)
+	{
+		the_event->window_ = Sys_GetActiveWindow(global_system);
+	}	
+	else
+	{
+		the_event->window_ = the_window;
+	}
+
+	the_event->when_ = sys_time_jiffies();
+	the_event->what_ = the_what;
 }
 
 
@@ -473,11 +549,11 @@ void EventManager_HandleMouseUp(EventManager* the_event_manager, EventRecord* th
 	starting_mode = Mouse_GetMode(the_event_manager->mouse_tracker_);
 
 	the_active_window = Sys_GetActiveWindow(global_system);
-	the_window = Sys_GetWindowAtXY(global_system, the_event->x_, the_event->y_);
+	the_window = Sys_GetWindowAtXY(global_system, the_event->mouseinfo_.x_, the_event->mouseinfo_.y_);
 
 	if (the_window == NULL)
 	{
-		LOG_ERR(("%s %d: no window found at %i, %i!", __func__, __LINE__, the_event->x_, the_event->y_));
+		LOG_ERR(("%s %d: no window found at %i, %i!", __func__, __LINE__, the_event->mouseinfo_.x_, the_event->mouseinfo_.y_));
 		goto error;
 	}
 	DEBUG_OUT(("%s %d: active window = '%s', clicked window = '%s'", __func__, __LINE__, the_active_window->title_, the_window->title_));
@@ -486,7 +562,7 @@ void EventManager_HandleMouseUp(EventManager* the_event_manager, EventRecord* th
 	clicked_window = Mouse_GetClickedWindow(the_event_manager->mouse_tracker_);
 	
 	// no matter what, reset the mouse history position flags
-	Mouse_AcceptUpdate(the_event_manager->mouse_tracker_, NULL, the_event->x_, the_event->y_, false);
+	Mouse_AcceptUpdate(the_event_manager->mouse_tracker_, NULL, the_event->mouseinfo_.x_, the_event->mouseinfo_.y_, false);
 
 	// get the delta between current and last clicked position
 	x_delta = Mouse_GetXDelta(the_event_manager->mouse_tracker_);
@@ -522,17 +598,15 @@ void EventManager_HandleMouseUp(EventManager* the_event_manager, EventRecord* th
 			int16_t	new_y;
 			int16_t	new_width;
 			int16_t	new_height;
-			int32_t	the_code;
 			
 			new_x = Window_GetX(clicked_window) + x_delta;
 			new_y = Window_GetY(clicked_window) + y_delta;
 			new_width = Window_GetWidth(clicked_window);
 			new_height = Window_GetHeight(clicked_window);
-			the_code = (new_width << 16) + new_height;
 			
 			DEBUG_OUT(("%s %d: adding movewindow evt with %i, %i", __func__, __LINE__, new_x, new_y));
 			
-			EventManager_AddEvent(windowChanged, the_code, new_x, new_y, 0L, clicked_window, NULL);
+			EventManager_AddWindowEvent(windowChanged, new_x, new_y, new_width, new_height, clicked_window, NULL);
 		}
 	}
 	else if (starting_mode >= mouseResizeUp) // this gets all the resize items
@@ -596,10 +670,7 @@ void EventManager_HandleMouseUp(EventManager* the_event_manager, EventRecord* th
 
 		if (change_made)
 		{
-			int32_t	the_code;
-			
-			the_code = (new_width << 16) + new_height;
-			EventManager_AddEvent(windowChanged, the_code, new_x, new_y, 0L, clicked_window, NULL);
+			EventManager_AddWindowEvent(windowChanged, new_x, new_y, new_width, new_height, clicked_window, NULL);
 		}
 	}
 	else if (starting_mode == mouseDownOnControl)
@@ -615,8 +686,8 @@ void EventManager_HandleMouseUp(EventManager* the_event_manager, EventRecord* th
 		else
 		{
 			// check for a control that was pressed, and is now released = it got clicked
-			local_x = the_event->x_;
-			local_y = the_event->y_;
+			local_x = the_event->mouseinfo_.x_;
+			local_y = the_event->mouseinfo_.y_;
 			Window_GlobalToLocal(the_event->window_, &local_x, &local_y);
 	
 			DEBUG_OUT(("%s %d: mouse up from mouseDownOnControl: fire off a control click in window '%s'!", __func__, __LINE__, the_window->title_));
@@ -629,7 +700,7 @@ void EventManager_HandleMouseUp(EventManager* the_event_manager, EventRecord* th
 				{
 					DEBUG_OUT(("%s %d: ** control '%s' (id=%i) was down, now up!", __func__, __LINE__, the_event->control_->caption_, the_event->control_->id_));
 					//Control_SetPressed(the_event->control_, CONTROL_NOT_PRESSED);
-					EventManager_AddEvent(controlClicked, -1, the_event->x_, the_event->y_, 0L, the_event->window_, the_event->control_);
+					EventManager_AddWindowEvent(controlClicked,the_event->mouseinfo_.x_, the_event->mouseinfo_.y_, 0, 0, the_event->window_, the_event->control_);
 				}
 				else
 				{
@@ -679,23 +750,23 @@ void EventManager_HandleMouseDown(EventManager* the_event_manager, EventRecord* 
 	//    Cancel this add queue for hte mouse down, and add another AFTER the 2 activate/inactivate events.
 
 	the_active_window = Sys_GetActiveWindow(global_system);
-	the_window = Sys_GetWindowAtXY(global_system, the_event->x_, the_event->y_);
+	the_window = Sys_GetWindowAtXY(global_system, the_event->mouseinfo_.x_, the_event->mouseinfo_.y_);
 
 	if (the_window == NULL)
 	{
-		LOG_ERR(("%s %d: no window found at %i, %i!", __func__, __LINE__, the_event->x_, the_event->y_));
+		LOG_ERR(("%s %d: no window found at %i, %i!", __func__, __LINE__, the_event->mouseinfo_.x_, the_event->mouseinfo_.y_));
 		goto error;
 	}
 	DEBUG_OUT(("%s %d: active window = '%s', clicked window = '%s'", __func__, __LINE__, the_active_window->title_, the_window->title_));
 
 	// update the mouse tracker so that if we end up dragging, we'll know where the original click was. (or if a future double click, what time the click was, etc.)
-	Mouse_AcceptUpdate(the_event_manager->mouse_tracker_, the_window, the_event->x_, the_event->y_, true);
+	Mouse_AcceptUpdate(the_event_manager->mouse_tracker_, the_window, the_event->mouseinfo_.x_, the_event->mouseinfo_.y_, true);
 	
-	//DEBUG_OUT(("%s %d: Mouse DOWN; event x/y=(%i, %i)", __func__, __LINE__, the_event->x_, the_event->y_));
+	//DEBUG_OUT(("%s %d: Mouse DOWN; event x/y=(%i, %i)", __func__, __LINE__, the_event->mouseinfo_.x_, the_event->mouseinfo_.y_));
 
 	// get local coords so we can check for drag and lasso
-	local_x = the_event->x_;
-	local_y = the_event->y_;
+	local_x = the_event->mouseinfo_.x_;
+	local_y = the_event->mouseinfo_.y_;
 	Window_GlobalToLocal(the_window, &local_x, &local_y);
 	
 	if (the_window != the_active_window)
@@ -707,11 +778,11 @@ void EventManager_HandleMouseDown(EventManager* the_event_manager, EventRecord* 
 		Sys_SetActiveWindow(global_system, the_window);
 		DEBUG_OUT(("%s %d: **** changed active window to = '%s'; redrawing all windows", __func__, __LINE__, the_window->title_));
 
-		EventManager_AddEvent(inactivateEvt, -1, -1, -1, 0L, the_active_window, NULL);
-		EventManager_AddEvent(activateEvt, -1, -1, -1, 0L, the_window, NULL);
+		EventManager_AddWindowEvent(inactivateEvt, -1, -1, 0, 0, the_active_window, NULL);
+		EventManager_AddWindowEvent(activateEvt, -1, -1, 0, 0, the_window, NULL);
 
 		//Sys_Render(global_system);
-		//EventManager_AddEvent(mouseDown, -1, the_event->x_, the_event->y_, 0L, the_window, NULL); // add the mouse down event back in, AFTER the 2 window events.
+		//EventManager_AddEvent(mouseDown, -1, the_event->mouseinfo_.x_, the_event->mouseinfo_.y_, 0L, the_window, NULL); // add the mouse down event back in, AFTER the 2 window events.
 	}
 	else
 	{
@@ -797,7 +868,7 @@ void EventManager_HandleRightMouseDown(EventManager* the_event_manager, EventRec
 
 	if (the_window == NULL)
 	{
-		LOG_ERR(("%s %d: no active window!? right mouse click at %i, %i!", __func__, __LINE__, the_event->x_, the_event->y_));
+		LOG_ERR(("%s %d: no active window!? right mouse click at %i, %i!", __func__, __LINE__, the_event->mouseinfo_.x_, the_event->mouseinfo_.y_));
 		goto error;
 	}
 
@@ -808,7 +879,7 @@ void EventManager_HandleRightMouseDown(EventManager* the_event_manager, EventRec
 	{
 		DEBUG_OUT(("%s %d: previous mode was mouseFree; creating open menu event", __func__, __LINE__));
 		//Mouse_SetMode(the_event_manager->mouse_tracker_, mouseMenuOpen);
-		EventManager_AddEvent(menuOpened, -1, the_event->x_, the_event->y_, 0L, the_window, NULL);
+		EventManager_AddMenuEvent(menuOpened, -1, the_event->mouseinfo_.x_, the_event->mouseinfo_.y_, the_window);
 	}
 	else if (starting_mode == mouseMenuOpen)
 	{
@@ -818,7 +889,7 @@ void EventManager_HandleRightMouseDown(EventManager* the_event_manager, EventRec
 		DEBUG_OUT(("%s %d: previous mode was mouseMenuOpen", __func__, __LINE__));
 		
 		the_menu = Sys_GetMenu(global_system);
-		menu_selection = Menu_AcceptClick(the_menu, the_event->x_, the_event->y_);
+		menu_selection = Menu_AcceptClick(the_menu, the_event->mouseinfo_.x_, the_event->mouseinfo_.y_);
 		
 		DEBUG_OUT(("%s %d: menu_selection=%i", __func__, __LINE__, menu_selection));
 		
@@ -829,7 +900,7 @@ void EventManager_HandleRightMouseDown(EventManager* the_event_manager, EventRec
 		
 		if (menu_selection != MENU_ID_NO_SELECTION)
 		{
-			EventManager_AddEvent(menuSelected, menu_selection, the_event->x_, the_event->y_, 0L, the_window, NULL);
+			EventManager_AddMenuEvent(menuSelected, menu_selection, the_event->mouseinfo_.x_, the_event->mouseinfo_.y_, the_window);
 		}
 	}
 	else
@@ -871,7 +942,7 @@ void EventManager_HandleMouseMoved(EventManager* the_event_manager, EventRecord*
 	the_window = the_event->window_;
 	
 	// update the mouse so it knows it's X/Y
-	Mouse_SetXY(the_event_manager->mouse_tracker_, the_event->x_, the_event->y_);
+	Mouse_SetXY(the_event_manager->mouse_tracker_, the_event->mouseinfo_.x_, the_event->mouseinfo_.y_);
 
 	// get the delta between current and last clicked position
 	x_delta = Mouse_GetXDelta(the_event_manager->mouse_tracker_);
@@ -899,7 +970,7 @@ void EventManager_HandleMouseMoved(EventManager* the_event_manager, EventRecord*
 		//     * Call Menu_Render() in all cases (will only do something if clip rect was added above)
 		
 		the_menu = Sys_GetMenu(global_system);
-		Menu_AcceptMouseMove(the_menu, the_event->x_, the_event->y_);
+		Menu_AcceptMouseMove(the_menu, the_event->mouseinfo_.x_, the_event->mouseinfo_.y_);
 	}
 	else if (starting_mode == mouseDragTitle)
 	{
@@ -1011,8 +1082,8 @@ void EventManager_HandleMouseMoved(EventManager* the_event_manager, EventRecord*
 		// if mouse is down on a control, and moves off the control, set the control to not-pressed, and re-render. do NOT change mouse mode. That only happens at mouse up. 
 
 		// get local coords so we can check for mouse movement over a control
-		local_x = the_event->x_;
-		local_y = the_event->y_;
+		local_x = the_event->mouseinfo_.x_;
+		local_y = the_event->mouseinfo_.y_;
 		Window_GlobalToLocal(the_window, &local_x, &local_y);
 
 		// check if mouse is over a control
@@ -1052,21 +1123,7 @@ void EventManager_WaitForEvent(void)
 	
 	the_event_manager = Sys_GetEventManager(global_system);
 	
-	//DEBUG_OUT(("%s %d: write_idx_=%i, read_idx_=%i, the_mask=%x", __func__, __LINE__, the_event_manager->write_idx_, the_event_manager->read_idx_, the_mask));
-
-	// TESTING: if no events in queue, add one to prime pump
-// 	if (the_event_manager->write_idx_ == the_event_manager->read_idx_)
-// 	{
-// 		EventManager_AddEvent(keyDown, 65, -1, -1, 0L, NULL, NULL);
-// 		EventManager_AddEvent(keyUp, 65, -1, -1, 0L, NULL, NULL);
-// 		EventManager_GenerateRandomEvent();
-// 	}
-	
-	// now process the queue as if it were happening in real time
-// 	
-// 	the_event = EventManager_NextEvent();
-// 	DEBUG_OUT(("%s %d: first event: %i", __func__, __LINE__, the_event->what_));
-// 	
+	DEBUG_OUT(("%s %d: write_idx_=%i, read_idx_=%i", __func__, __LINE__, the_event_manager->write_idx_, the_event_manager->read_idx_));
 
 	while ( (the_event = EventManager_NextEvent()) != NULL)
 	{
@@ -1092,63 +1149,63 @@ void EventManager_WaitForEvent(void)
 				break;
 		
 			case mouseMoved:				
-				DEBUG_OUT(("%s %d: mouse move event (%i, %i)", __func__, __LINE__, the_event->x_, the_event->y_));
+				DEBUG_OUT(("%s %d: mouse move event (%i, %i)", __func__, __LINE__, the_event->mouseinfo_.x_, the_event->mouseinfo_.y_));
 
 				EventManager_HandleMouseMoved(the_event_manager, the_event);
 	
 				break;
 				
 			case mouseDown:				
-				DEBUG_OUT(("%s %d: mouse down event (%i, %i)", __func__, __LINE__, the_event->x_, the_event->y_));
+				DEBUG_OUT(("%s %d: mouse down event (%i, %i)", __func__, __LINE__, the_event->mouseinfo_.x_, the_event->mouseinfo_.y_));
 
 				EventManager_HandleMouseDown(the_event_manager, the_event);
 				
 				break;
 
 			case mouseUp:
-				DEBUG_OUT(("%s %d: mouse up event (%i, %i)", __func__, __LINE__, the_event->x_, the_event->y_));
+				DEBUG_OUT(("%s %d: mouse up event (%i, %i)", __func__, __LINE__, the_event->mouseinfo_.x_, the_event->mouseinfo_.y_));
 
 				EventManager_HandleMouseUp(the_event_manager, the_event);
 				
 				break;
 
 			case rMouseDown:				
-				DEBUG_OUT(("%s %d: right mouse down event (%i, %i)", __func__, __LINE__, the_event->x_, the_event->y_));
+				DEBUG_OUT(("%s %d: right mouse down event (%i, %i)", __func__, __LINE__, the_event->mouseinfo_.x_, the_event->mouseinfo_.y_));
 
 				EventManager_HandleRightMouseDown(the_event_manager, the_event);
 				
 				break;
 
 			case rMouseUp:
-				DEBUG_OUT(("%s %d: right mouse up event (%i, %i)", __func__, __LINE__, the_event->x_, the_event->y_));
+				DEBUG_OUT(("%s %d: right mouse up event (%i, %i)", __func__, __LINE__, the_event->mouseinfo_.x_, the_event->mouseinfo_.y_));
 
 				// eat this event: we don't care about right mouse up: menu events are designed to fire on right mouse DOWN
 				
 				break;
 
 			case menuOpened:
-				DEBUG_OUT(("%s %d: menu opened event: %c", __func__, __LINE__, the_event->code_));
+				DEBUG_OUT(("%s %d: menu opened event: %c", __func__, __LINE__, the_event->menuinfo_.selection_));
 				// give window an event
 				(*the_event->window_->event_handler_)(the_event);
 		
 				break;
 				
 			case menuSelected:
-				DEBUG_OUT(("%s %d: menu item selected event: %c", __func__, __LINE__, the_event->code_));
+				DEBUG_OUT(("%s %d: menu item selected event: %c", __func__, __LINE__, the_event->menuinfo_.selection_));
 				// give window an event
 				(*the_event->window_->event_handler_)(the_event);
 		
 				break;
 				
 			case controlClicked:
-				DEBUG_OUT(("%s %d: control clicked event: %c", __func__, __LINE__, the_event->code_));
+				DEBUG_OUT(("%s %d: control clicked event: %c", __func__, __LINE__, the_event->control_->id_));
 				// give window an event
 				(*the_event->window_->event_handler_)(the_event);
 		
 				break;
 				
 			case keyDown:
-				DEBUG_OUT(("%s %d: key down event: '%c' (%x) mod (%x)", __func__, __LINE__, the_event->code_, the_event->code_, the_event->modifiers_));
+				DEBUG_OUT(("%s %d: key down event: '%c' (%x) mod (%x)", __func__, __LINE__, the_event->keyinfo_.key_, the_event->keyinfo_.key_, the_event->keyinfo_.modifiers_));
 
 				// give active window an event
 				the_active_window = Sys_GetActiveWindow(global_system);
@@ -1158,7 +1215,7 @@ void EventManager_WaitForEvent(void)
 				break;
 			
 			case keyUp:
-				DEBUG_OUT(("%s %d: key up event: '%c' (%x) mod (%x)", __func__, __LINE__, the_event->code_, the_event->code_, the_event->modifiers_));
+				DEBUG_OUT(("%s %d: key up event: '%c' (%x) mod (%x)", __func__, __LINE__, the_event->keyinfo_.key_, the_event->keyinfo_.key_, the_event->keyinfo_.modifiers_));
 
 				// give active window an event
 				the_active_window = Sys_GetActiveWindow(global_system);
