@@ -181,6 +181,7 @@ Font* Font_New(uint8_t* the_data, uint16_t data_size)
 		goto error;
 	}
 	LOG_ALLOC(("%s %d:	__ALLOC__	the_font	%p	size	%i", __func__ , __LINE__, the_font, sizeof(Font)));
+	TRACK_ALLOC((sizeof(Font)));
 
 	// copy in the font record
 	write_len = FONT_RECORD_SIZE;
@@ -211,6 +212,7 @@ Font* Font_New(uint8_t* the_data, uint16_t data_size)
 		goto error;
 	}
 	LOG_ALLOC(("%s %d:	__ALLOC__	the_font->image_table_	%p	size	%i", __func__ , __LINE__, the_font->image_table_, image_table_count * sizeof(uint16_t)));
+	TRACK_ALLOC((write_len));
 
 	// when doing memcpy with Calypsi, compared to VBCC, this failed. I think calypsi advanced the image table pointer by 1 for each byte from data
 	//  due to difference in pointer size. makes sense. worked around it by using an 8 bit pointer for the copy operations in this function.
@@ -231,6 +233,7 @@ Font* Font_New(uint8_t* the_data, uint16_t data_size)
 		goto error;
 	}
 	LOG_ALLOC(("%s %d:	__ALLOC__	the_font->loc_table_	%p	size	%i", __func__ , __LINE__, the_font->loc_table_, loc_table_count * sizeof(uint16_t)));
+	TRACK_ALLOC((write_len));
 
 // 	memcpy((char*)the_font->loc_table_, (char*)the_data, write_len);
 // 	the_data += write_len;
@@ -251,6 +254,7 @@ Font* Font_New(uint8_t* the_data, uint16_t data_size)
 		goto error;
 	}
 	LOG_ALLOC(("%s %d:	__ALLOC__	the_font->width_table_	%p	size	%i", __func__ , __LINE__, the_font->width_table_, width_table_count * sizeof(uint16_t)));
+	TRACK_ALLOC((write_len));
 
 // 	memcpy((char*)the_font->width_table_, (char*)the_data, write_len);
 // 	the_data +=write_len;
@@ -280,6 +284,7 @@ Font* Font_New(uint8_t* the_data, uint16_t data_size)
 			goto error;
 		}
 		LOG_ALLOC(("%s %d:	__ALLOC__	the_font->height_table_	%p	size	%i", __func__ , __LINE__, the_font->height_table_, height_table_count * sizeof(uint16_t)));
+		TRACK_ALLOC((write_len));
 
 		memcpy((char*)the_font->height_table_, (char*)the_data, write_len);
 		copy_ptr_8b = (uint8_t*)the_font->height_table_;
@@ -311,6 +316,8 @@ error:
 //! @return	Returns false if the pointer to the passed Font was NULL
 bool Font_Destroy(Font** the_font)
 {
+	int16_t			alloc_len;	// only used for alloc tracking. doing in int16 because that's what memTracker wants; 8mb will be enough!
+
 	if (*the_font == NULL)
 	{
 		LOG_ERR(("%s %d: passed class object was null", __func__ , __LINE__));
@@ -319,29 +326,37 @@ bool Font_Destroy(Font** the_font)
 
 	if ((*the_font)->image_table_)
 	{
-		LOG_ALLOC(("%s %d:	__FREE__	(*the_font)->image_table_	%p	size	?", __func__ , __LINE__, (*the_font)->image_table_));
+		alloc_len = (int16_t)(*the_font)->rowWords * (int16_t)(*the_font)->fRectHeight;
+		LOG_ALLOC(("%s %d:	__FREE__	(*the_font)->image_table_	%p	size	%i", __func__ , __LINE__, (*the_font)->image_table_, alloc_len));
+		TRACK_ALLOC((0 - alloc_len));
 		free((*the_font)->image_table_);
 	}
 	
+	// next 3 tables all use same number of bytes. 
 	if ((*the_font)->loc_table_)
 	{
-		LOG_ALLOC(("%s %d:	__FREE__	(*the_font)->loc_table_	%p	size	?", __func__ , __LINE__, (*the_font)->loc_table_));
+		alloc_len = ((int16_t)(*the_font)->lastChar - (int16_t)(*the_font)->firstChar) + 3;
+		LOG_ALLOC(("%s %d:	__FREE__	(*the_font)->loc_table_	%p	size	%i", __func__ , __LINE__, (*the_font)->loc_table_, alloc_len));
+		TRACK_ALLOC((0 - alloc_len));
 		free((*the_font)->loc_table_);
 	}
 	
 	if ((*the_font)->width_table_)
 	{
-		LOG_ALLOC(("%s %d:	__FREE__	(*the_font)->width_table_	%p	size	?", __func__ , __LINE__, (*the_font)->width_table_));
+		LOG_ALLOC(("%s %d:	__FREE__	(*the_font)->width_table_	%p	size	%i", __func__ , __LINE__, (*the_font)->width_table_, alloc_len));
+		TRACK_ALLOC((0 - alloc_len));
 		free((*the_font)->width_table_);
 	}
 	
 	if ((*the_font)->height_table_)
 	{
-		LOG_ALLOC(("%s %d:	__FREE__	(*the_font)->height_table_	%p	size	?", __func__ , __LINE__, (*the_font)->height_table_));
+		LOG_ALLOC(("%s %d:	__FREE__	(*the_font)->height_table_	%p	size	%i", __func__ , __LINE__, (*the_font)->height_table_, alloc_len));
+		TRACK_ALLOC((0 - alloc_len));
 		free((*the_font)->height_table_);
 	}
 
 	LOG_ALLOC(("%s %d:	__FREE__	*the_font	%p	size	%i", __func__ , __LINE__, *the_font, sizeof(Font)));
+	TRACK_ALLOC((0 - sizeof(Font)));
 	free(*the_font);
 	*the_font = NULL;
 	

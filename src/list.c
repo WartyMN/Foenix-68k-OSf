@@ -196,6 +196,7 @@ List* List_NewItem(void* the_payload)
 		return NULL;
 	}
 	LOG_ALLOC(("%s %d:	__ALLOC__	the_item	%p	size	%i", __func__ , __LINE__, the_item, sizeof(List)));
+	TRACK_ALLOC((sizeof(List)));
 
 	the_item->next_item_ = NULL;
 	the_item->prev_item_ = NULL;
@@ -218,6 +219,7 @@ void List_Destroy(List** list_head)
 
 		//List_DeleteItem(the_item);
 		LOG_ALLOC(("%s %d:	__FREE__	the_item	%p	size	%i", __func__ , __LINE__, the_item, sizeof(List)));
+		TRACK_ALLOC((0 - sizeof(List)));
 		free(the_item);
 		the_item = NULL;
 	}

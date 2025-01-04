@@ -328,7 +328,8 @@ char* General_StrlcpyWithAlloc(const char* src, size_t max_len)
 	{
 		General_Strlcpy(dst, src, max_len);
 	}
-	//LOG_ALLOC(("%s %d:	__ALLOC__	dst	%p	size	%i, string='%s'", __func__ , __LINE__, dst, General_Strnlen(src, max_len) + 1, dst));
+	LOG_ALLOC(("%s %d:	__ALLOC__	dst	%p	size	%i, string='%s'", __func__ , __LINE__, dst, alloc_len, dst));
+	TRACK_ALLOC((alloc_len));
 
 	return dst;
 }
@@ -773,6 +774,8 @@ char* General_ExtractPathToParentFolderWithAlloc(const char* the_file_path)
 		LOG_ERR(("%s %d: could not allocate memory for the directory path", __func__ , __LINE__));
 		return NULL;
 	}
+	LOG_ALLOC(("%s %d:	__ALLOC__	the_directory_path	%p	size	%i", __func__ , __LINE__, the_directory_path, FILE_MAX_PATHNAME_SIZE * sizeof(char)));
+	TRACK_ALLOC((FILE_MAX_PATHNAME_SIZE * sizeof(char)));
 	
 	path_len = (General_PathPart(the_file_path) - the_file_path) - 1;
 	
@@ -823,7 +826,8 @@ char* General_ExtractFilenameFromPathWithAlloc(const char* the_file_path)
 		{
 			General_Strlcpy(the_file_name, the_file_name_part, filename_len + 1);
 		}
-		LOG_ALLOC(("%s %d:	__ALLOC__	the_file_name	%p	size	%i", __func__ , __LINE__, the_file_name, FILE_MAX_PATHNAME_SIZE));
+		LOG_ALLOC(("%s %d:	__ALLOC__	the_file_name	%p	size	%i", __func__ , __LINE__, the_file_name, filename_len));
+		TRACK_ALLOC((filename_len)); // close enough
 	}
 
 	return the_file_name;

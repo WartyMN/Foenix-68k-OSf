@@ -79,7 +79,8 @@ MouseTracker* Mouse_New(void)
 		goto error;
 	}
 	LOG_ALLOC(("%s %d:	__ALLOC__	the_mouse	%p	size	%i", __func__ , __LINE__, the_mouse, sizeof(MouseTracker)));
-
+	TRACK_ALLOC((sizeof(MouseTracker)));
+	
 	// zero out, just in case
 	Mouse_Clear(the_mouse);
 	
@@ -102,6 +103,7 @@ void Mouse_Destroy(MouseTracker** the_mouse)
 	}
 
 	LOG_ALLOC(("%s %d:	__FREE__	*the_mouse	%p	size	%i", __func__ , __LINE__, *the_mouse, sizeof(MouseTracker)));
+	TRACK_ALLOC((0 - sizeof(MouseTracker)));
 	free(*the_mouse);
 	*the_mouse = NULL;
 	

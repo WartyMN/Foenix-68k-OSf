@@ -62,6 +62,7 @@
 								"[DEBUG]",
 								"[ALLOC]"
 							};
+	static const char*		kDebugMemTrackLabel = "[MEMTRACK]";
 
 	#ifndef USE_SERIAL_LOGGING
 		static FILE*			debug_log_file;
@@ -78,7 +79,9 @@
 
 extern System*			global_system;
 
-
+#if defined LOG_LEVEL_5
+	int32_t				global_total_allocated_mem = 0;
+#endif
 
 
 /*****************************************************************************/
@@ -364,11 +367,36 @@ extern System*			global_system;
 		
 		sprintf(debug_out_buffer, "%s %s\n", kDebugFlag[LogAlloc], debug_varargs_buffer);
 		the_len = strlen(debug_out_buffer);
-	
+		
 		#if defined USE_SERIAL_LOGGING
 			Serial_SendData(debug_out_buffer, the_len);
 		#else
 			fprintf(debug_log_file, "%s %s\n", kDebugFlag[LogAlloc], debug_varargs_buffer);
+		#endif
+	}
+	
+	// takes a positive number with number of bytes allocated, or negative if allocation is being freed
+	void General_TrackAlloc(int32_t the_allocation)
+	{
+		uint16_t	the_len;
+
+		global_total_allocated_mem += the_allocation;
+
+		if (the_allocation < 0)
+		{
+			sprintf(debug_out_buffer, "%s %i bytes freed, %i in use\n", kDebugMemTrackLabel, the_allocation, global_total_allocated_mem);
+		}
+		else
+		{
+			sprintf(debug_out_buffer, "%s %i bytes allocated, %i in use\n", kDebugMemTrackLabel, the_allocation, global_total_allocated_mem);
+		}
+
+		the_len = strlen(debug_out_buffer);
+		
+		#if defined USE_SERIAL_LOGGING
+			Serial_SendData(debug_out_buffer, the_len);
+		#else
+			fprintf(debug_log_file, "%s", debug_out_buffer);
 		#endif
 	}
 #endif

@@ -860,14 +860,16 @@ Window* Window_New(NewWinTemplate* the_win_template, void (* event_handler)(Even
 		goto error;
 	}
 	LOG_ALLOC(("%s %d:	__ALLOC__	the_window	%p	size	%i", __func__ , __LINE__, the_window, sizeof(Window)));
-
+	TRACK_ALLOC((sizeof(Window)));
+	
 	if ( (the_window->title_ = General_StrlcpyWithAlloc(the_win_template->title_, WINDOW_MAX_WINTITLE_SIZE)) == NULL)
 	{
 		LOG_ERR(("%s %d: could not allocate memory for the window name string", __func__ , __LINE__));
 		goto error;
 	}
 	LOG_ALLOC(("%s %d:	__ALLOC__	the_window->title_	%p	size	%i		'%s'", __func__ , __LINE__, the_window->title_, General_Strnlen(the_window->title_, WINDOW_MAX_WINTITLE_SIZE) + 1, the_window->title_));
-
+	TRACK_ALLOC((General_Strnlen(the_window->title_, WINDOW_MAX_WINTITLE_SIZE) + 1));
+	
 	// do check on the height, max height, min height, etc. 
 	Window_CheckDimensions(the_window, the_win_template);
 
@@ -1005,6 +1007,7 @@ bool Window_Destroy(Window** the_window)
 	if ((*the_window)->title_)
 	{
 		LOG_ALLOC(("%s %d:	__FREE__	(*the_window)->title_	%p	size	%i		'%s'", __func__ , __LINE__, (*the_window)->title_, General_Strnlen((*the_window)->title_, WINDOW_MAX_WINTITLE_SIZE) + 1, (*the_window)->title_));
+		TRACK_ALLOC((0 - (General_Strnlen((*the_window)->title_, WINDOW_MAX_WINTITLE_SIZE) + 1)));
 		free((*the_window)->title_);
 		(*the_window)->title_ = NULL;
 	}
@@ -1015,6 +1018,7 @@ bool Window_Destroy(Window** the_window)
 	}
 	
 	LOG_ALLOC(("%s %d:	__FREE__	*the_window	%p	size	%i", __func__ , __LINE__, *the_window, sizeof(Window)));
+	TRACK_ALLOC((0 - sizeof(Window)));
 	free(*the_window);
 	*the_window = NULL;
 	
@@ -1041,7 +1045,8 @@ NewWinTemplate* Window_GetNewWinTemplate(char* the_win_title)
 		goto error;
 	}
 	LOG_ALLOC(("%s %d:	__ALLOC__	the_win_template	%p	size	%i", __func__ , __LINE__, the_win_template, sizeof(NewWinTemplate)));
-
+	TRACK_ALLOC((sizeof(NewWinTemplate)));
+	
 	the_win_template->user_data_ = 0L;
 	the_win_template->title_ = the_win_title;
 	the_win_template->type_ = WIN_STANDARD;
@@ -1907,6 +1912,7 @@ void Window_SetTitle(Window* the_window, char* the_title)
 	if (the_window->title_)
 	{
 		LOG_ALLOC(("%s %d:	__FREE__	the_window->title_	%p	size	%i		'%s'", __func__ , __LINE__, the_window->title_, General_Strnlen(the_window->title_, WINDOW_MAX_WINTITLE_SIZE) + 1, the_window->title_));
+		TRACK_ALLOC((0 - (General_Strnlen(the_window->title_, WINDOW_MAX_WINTITLE_SIZE) + 1)));
 		free(the_window->title_);
 	}
 	
@@ -1916,6 +1922,7 @@ void Window_SetTitle(Window* the_window, char* the_title)
 		goto error;
 	}
 	LOG_ALLOC(("%s %d:	__ALLOC__	the_window->title_	%p	size	%i		'%s'", __func__ , __LINE__, the_window->title_, General_Strnlen(the_window->title_, WINDOW_MAX_WINTITLE_SIZE) + 1, the_window->title_));
+	TRACK_ALLOC((General_Strnlen(the_window->title_, WINDOW_MAX_WINTITLE_SIZE) + 1));
 	
 error:
 	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often

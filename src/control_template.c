@@ -105,6 +105,7 @@ ControlTemplate* ControlTemplate_New(void)
 		goto error;
 	}
 	LOG_ALLOC(("%s %d:	__ALLOC__	the_template	%p	size	%i", __func__ , __LINE__, the_template, sizeof(ControlTemplate)));
+	TRACK_ALLOC((sizeof(ControlTemplate)));
 
 		
 	return the_template;
@@ -128,6 +129,7 @@ bool ControlTemplate_Destroy(ControlTemplate** the_template)
 	}
 
 	LOG_ALLOC(("%s %d:	__FREE__	*the_template	%p	size	%i", __func__ , __LINE__, *the_template, sizeof(ControlTemplate)));
+	TRACK_ALLOC((0 - sizeof(ControlTemplate)));
 	free(*the_template);
 	*the_template = NULL;
 	

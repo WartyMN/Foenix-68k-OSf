@@ -598,7 +598,7 @@ void ShowWhatYouWantMessage(void)
 
 void AddControls(Window* the_window)
 {
-#define BTN_COUNT	14
+#define BTN_COUNT	5
 	Theme*				the_theme;
 	Control*			button[BTN_COUNT];
 	int16_t				x_offset;
@@ -865,95 +865,102 @@ void TestWindowEvents(void)
 	int16_t	tinywin_x = 10;
 	int16_t	tinywin_y = 400;
 	
+	int16_t total_events_handled = 0;
 	
 	ShowDescription("This is a demo of window event handling, including mouse clicks, window resizing, closing, and moving. Next action: Click on Window #1's titlebar to activate it (make it front-most window)");	
 	WaitForUser();
 
-	// click on window 0 to activate it.
-	EventManager_AddEvent(mouseDown, 0L, win0_x + titlebar_offset_x, win0_y + titlebar_offset_y, 0L, NULL, NULL);
-	EventManager_AddEvent(mouseUp, 0L, win0_x + titlebar_offset_x, win0_y + titlebar_offset_y, 0L, NULL, NULL);
-	DEBUG_OUT(("%s %d: about to wait for activate win 0 events", __func__, __LINE__));
-	EventManager_WaitForEvent();
-	
-	// click and release button on Window 0's maximize control when in norm size mode, original pos
-	ShowDescription("Next action: Click on Window #1's maximize button");	
-	WaitForUser();
+	while (total_events_handled < 25000)
+	{
+		EventManager_WaitForEvent();
+		total_events_handled++;
+	}
 
-	EventManager_AddEvent(mouseDown, 0L, win0_x + 290, win0_y + 12, 0L, NULL, NULL);
-	EventManager_AddEvent(mouseUp, 0L, win0_x + 290, win0_y + 12, 0L, NULL, NULL);
-	DEBUG_OUT(("%s %d: about to wait for max size events", __func__, __LINE__));
-	EventManager_WaitForEvent();
-	
-	// click and release button on Window 0's norm size control when in maximized mode
-	ShowDescription("Next action: Click on Window #1's normal/window size button");	
-	WaitForUser();
-
-	EventManager_AddEvent(mouseDown, 0L, 640-25, 12, 0L, NULL, NULL);
-	EventManager_AddEvent(mouseUp, 0L, 640-25, 12, 0L, NULL, NULL);
-	DEBUG_OUT(("%s %d: about to wait for norm size events", __func__, __LINE__));
-	EventManager_WaitForEvent();
-	
-	// click and release button on Window 0's close control
-	ShowDescription("Next action: Click on Window #1's close button");	
-	WaitForUser();
-
-	EventManager_AddEvent(mouseDown, 0L, win0_x + 12, win0_y + 12, 0L, NULL, NULL);
-	EventManager_AddEvent(mouseUp, 0L, win0_x + 12, win0_y + 12, 0L, NULL, NULL);
-	DEBUG_OUT(("%s %d: about to wait for close win 0 events", __func__, __LINE__));
-	EventManager_WaitForEvent();
-
-	// click and release the minimize button for the tiny window
-	ShowDescription("Next action: Click on the Tiny window's minimize button (this hides the window without closing it)");	
-	WaitForUser();
-
-	EventManager_AddEvent(mouseDown, 0L, tinywin_x + titlebar_offset_x, tinywin_y + titlebar_offset_y, 0L, NULL, NULL);
-	EventManager_AddEvent(mouseUp, 0L, tinywin_x + titlebar_offset_x, tinywin_y + titlebar_offset_y, 0L, NULL, NULL);
-	EventManager_AddEvent(mouseDown, 0L, tinywin_x + 50, tinywin_y + 10, 0L, NULL, NULL);	// one click to make it active window, second click to have control get action. first click could be anywhere in window.
-	EventManager_AddEvent(mouseUp, 0L, tinywin_x + 50, tinywin_y + 10, 0L, NULL, NULL);
-	DEBUG_OUT(("%s %d: about to wait for minimize tiny win events", __func__, __LINE__));
-	EventManager_WaitForEvent();
-	
-	// click and release one of the push buttons in window 2
-	ShowDescription("Next action: Click on one of the buttons in Window #2");	
-	WaitForUser();
-
-	int16_t	button_x_offset = 10 + 5; // 10,30 is upper left of first button
-	int16_t	button_y_offset = WIN_DEFAULT_TITLEBAR_HEIGHT + 15 + 5;
-	
-	EventManager_AddEvent(mouseDown, 0L, win1_x + titlebar_offset_x, win1_y + titlebar_offset_y, 0L, NULL, NULL);
-	EventManager_AddEvent(mouseUp, 0L, win1_x + titlebar_offset_x, win1_y + titlebar_offset_y, 0L, NULL, NULL);
-	EventManager_AddEvent(mouseDown, 0L,  win1_x + button_x_offset, win1_y + button_y_offset, 0L, NULL, NULL);	// one click to make it active window, second click to have control get action. first click could be anywhere in window.
-	EventManager_AddEvent(mouseUp, 0L,  win1_x + button_x_offset, win1_y + button_y_offset, 0L, NULL, NULL);
-	DEBUG_OUT(("%s %d: about to wait for win1 push button events", __func__, __LINE__));
-	EventManager_WaitForEvent();
-	
-	// drag window 1 to new place: click and hold on window 1's title bar, move it a little, let go.
-	ShowDescription("Next action: Click and drag Window #2 by its title bar. Red rectangles show future position of window as it is dragged. These are not erased currently because emulator does not support layer 1 transparency/composition, so they are drawn on layer 0.");	
-	WaitForUser();
-
-	EventManager_AddEvent(mouseDown, 0L, win1_x + titlebar_offset_x, win0_y + titlebar_offset_y, 0L, NULL, NULL);
-	EventManager_AddEvent(mouseMoved, 0L, win1_x + titlebar_offset_x + win1_x_dist - 20, win0_y + 0, 0L, NULL, NULL);
-	EventManager_AddEvent(mouseMoved, 0L, win1_x + titlebar_offset_x + win1_x_dist, win0_y + 9, 0L, NULL, NULL);
-	EventManager_AddEvent(mouseUp, 0L, win1_x + titlebar_offset_x + win1_x_dist, win0_y + 9, 0L, NULL, NULL);
-	DEBUG_OUT(("%s %d: about to wait for win1 drag move events", __func__, __LINE__));
-	EventManager_WaitForEvent();
-	
-	// resize window 1 by dragging left side of window to resize leftwards
-	ShowDescription("Next action: Resize Window #2 by clicking and dragging anywhere on the left edge of the window. Drag left/right/up/down plus down-right are supported. Green rectangles show future position/size of window as it is resized.");	
-	WaitForUser();
-
-	EventManager_AddEvent(mouseDown, 0L, win1_x + win1_x_dist + drag_zone_offset, win0_y + 24, 0L, NULL, NULL);
-	EventManager_AddEvent(mouseMoved, 0L, win1_x + win1_x_dist - drag_resize_amt - 5, win0_y + 34, 0L, NULL, NULL);
-	EventManager_AddEvent(mouseUp, 0L, win1_x + win1_x_dist - drag_resize_amt, win0_y + 34, 0L, NULL, NULL);
-	DEBUG_OUT(("%s %d: about to wait for win1 drag resize events", __func__, __LINE__));
-	EventManager_WaitForEvent();
-
-	EventManager_AddEvent(mouseDown, 0L, win1_x + win1_x_dist - drag_resize_amt, win0_y + 12, 0L, NULL, NULL);
-	EventManager_AddEvent(mouseUp, 0L, win1_x + win1_x_dist - drag_resize_amt + 1, win0_y + 9, 0L, NULL, NULL);
-	DEBUG_OUT(("%s %d: about to wait for events 3", __func__, __LINE__));
-	EventManager_WaitForEvent();
-	DEBUG_OUT(("%s %d: about to wait for events 4", __func__, __LINE__));
-	EventManager_WaitForEvent();
+// 	// click on window 0 to activate it.
+// 	EventManager_AddEvent(mouseDown, 0L, win0_x + titlebar_offset_x, win0_y + titlebar_offset_y, 0L, NULL, NULL);
+// 	EventManager_AddEvent(mouseUp, 0L, win0_x + titlebar_offset_x, win0_y + titlebar_offset_y, 0L, NULL, NULL);
+// 	DEBUG_OUT(("%s %d: about to wait for activate win 0 events", __func__, __LINE__));
+// 	EventManager_WaitForEvent();
+// 	
+// 	// click and release button on Window 0's maximize control when in norm size mode, original pos
+// 	ShowDescription("Next action: Click on Window #1's maximize button");	
+// 	WaitForUser();
+// 
+// 	EventManager_AddEvent(mouseDown, 0L, win0_x + 290, win0_y + 12, 0L, NULL, NULL);
+// 	EventManager_AddEvent(mouseUp, 0L, win0_x + 290, win0_y + 12, 0L, NULL, NULL);
+// 	DEBUG_OUT(("%s %d: about to wait for max size events", __func__, __LINE__));
+// 	EventManager_WaitForEvent();
+// 	
+// 	// click and release button on Window 0's norm size control when in maximized mode
+// 	ShowDescription("Next action: Click on Window #1's normal/window size button");	
+// 	WaitForUser();
+// 
+// 	EventManager_AddEvent(mouseDown, 0L, 640-25, 12, 0L, NULL, NULL);
+// 	EventManager_AddEvent(mouseUp, 0L, 640-25, 12, 0L, NULL, NULL);
+// 	DEBUG_OUT(("%s %d: about to wait for norm size events", __func__, __LINE__));
+// 	EventManager_WaitForEvent();
+// 	
+// 	// click and release button on Window 0's close control
+// 	ShowDescription("Next action: Click on Window #1's close button");	
+// 	WaitForUser();
+// 
+// 	EventManager_AddEvent(mouseDown, 0L, win0_x + 12, win0_y + 12, 0L, NULL, NULL);
+// 	EventManager_AddEvent(mouseUp, 0L, win0_x + 12, win0_y + 12, 0L, NULL, NULL);
+// 	DEBUG_OUT(("%s %d: about to wait for close win 0 events", __func__, __LINE__));
+// 	EventManager_WaitForEvent();
+// 
+// 	// click and release the minimize button for the tiny window
+// 	ShowDescription("Next action: Click on the Tiny window's minimize button (this hides the window without closing it)");	
+// 	WaitForUser();
+// 
+// 	EventManager_AddEvent(mouseDown, 0L, tinywin_x + titlebar_offset_x, tinywin_y + titlebar_offset_y, 0L, NULL, NULL);
+// 	EventManager_AddEvent(mouseUp, 0L, tinywin_x + titlebar_offset_x, tinywin_y + titlebar_offset_y, 0L, NULL, NULL);
+// 	EventManager_AddEvent(mouseDown, 0L, tinywin_x + 50, tinywin_y + 10, 0L, NULL, NULL);	// one click to make it active window, second click to have control get action. first click could be anywhere in window.
+// 	EventManager_AddEvent(mouseUp, 0L, tinywin_x + 50, tinywin_y + 10, 0L, NULL, NULL);
+// 	DEBUG_OUT(("%s %d: about to wait for minimize tiny win events", __func__, __LINE__));
+// 	EventManager_WaitForEvent();
+// 	
+// 	// click and release one of the push buttons in window 2
+// 	ShowDescription("Next action: Click on one of the buttons in Window #2");	
+// 	WaitForUser();
+// 
+// 	int16_t	button_x_offset = 10 + 5; // 10,30 is upper left of first button
+// 	int16_t	button_y_offset = WIN_DEFAULT_TITLEBAR_HEIGHT + 15 + 5;
+// 	
+// 	EventManager_AddEvent(mouseDown, 0L, win1_x + titlebar_offset_x, win1_y + titlebar_offset_y, 0L, NULL, NULL);
+// 	EventManager_AddEvent(mouseUp, 0L, win1_x + titlebar_offset_x, win1_y + titlebar_offset_y, 0L, NULL, NULL);
+// 	EventManager_AddEvent(mouseDown, 0L,  win1_x + button_x_offset, win1_y + button_y_offset, 0L, NULL, NULL);	// one click to make it active window, second click to have control get action. first click could be anywhere in window.
+// 	EventManager_AddEvent(mouseUp, 0L,  win1_x + button_x_offset, win1_y + button_y_offset, 0L, NULL, NULL);
+// 	DEBUG_OUT(("%s %d: about to wait for win1 push button events", __func__, __LINE__));
+// 	EventManager_WaitForEvent();
+// 	
+// 	// drag window 1 to new place: click and hold on window 1's title bar, move it a little, let go.
+// 	ShowDescription("Next action: Click and drag Window #2 by its title bar. Red rectangles show future position of window as it is dragged. These are not erased currently because emulator does not support layer 1 transparency/composition, so they are drawn on layer 0.");	
+// 	WaitForUser();
+// 
+// 	EventManager_AddEvent(mouseDown, 0L, win1_x + titlebar_offset_x, win0_y + titlebar_offset_y, 0L, NULL, NULL);
+// 	EventManager_AddEvent(mouseMoved, 0L, win1_x + titlebar_offset_x + win1_x_dist - 20, win0_y + 0, 0L, NULL, NULL);
+// 	EventManager_AddEvent(mouseMoved, 0L, win1_x + titlebar_offset_x + win1_x_dist, win0_y + 9, 0L, NULL, NULL);
+// 	EventManager_AddEvent(mouseUp, 0L, win1_x + titlebar_offset_x + win1_x_dist, win0_y + 9, 0L, NULL, NULL);
+// 	DEBUG_OUT(("%s %d: about to wait for win1 drag move events", __func__, __LINE__));
+// 	EventManager_WaitForEvent();
+// 	
+// 	// resize window 1 by dragging left side of window to resize leftwards
+// 	ShowDescription("Next action: Resize Window #2 by clicking and dragging anywhere on the left edge of the window. Drag left/right/up/down plus down-right are supported. Green rectangles show future position/size of window as it is resized.");	
+// 	WaitForUser();
+// 
+// 	EventManager_AddEvent(mouseDown, 0L, win1_x + win1_x_dist + drag_zone_offset, win0_y + 24, 0L, NULL, NULL);
+// 	EventManager_AddEvent(mouseMoved, 0L, win1_x + win1_x_dist - drag_resize_amt - 5, win0_y + 34, 0L, NULL, NULL);
+// 	EventManager_AddEvent(mouseUp, 0L, win1_x + win1_x_dist - drag_resize_amt, win0_y + 34, 0L, NULL, NULL);
+// 	DEBUG_OUT(("%s %d: about to wait for win1 drag resize events", __func__, __LINE__));
+// 	EventManager_WaitForEvent();
+// 
+// 	EventManager_AddEvent(mouseDown, 0L, win1_x + win1_x_dist - drag_resize_amt, win0_y + 12, 0L, NULL, NULL);
+// 	EventManager_AddEvent(mouseUp, 0L, win1_x + win1_x_dist - drag_resize_amt + 1, win0_y + 9, 0L, NULL, NULL);
+// 	DEBUG_OUT(("%s %d: about to wait for events 3", __func__, __LINE__));
+// 	EventManager_WaitForEvent();
+// 	DEBUG_OUT(("%s %d: about to wait for events 4", __func__, __LINE__));
+// 	EventManager_WaitForEvent();
 	
 }
 
@@ -970,110 +977,112 @@ void TestMenus(void)
 	ShowDescription("This is a demo of the menu system. Next step: open a menu by right-clicking near the middle of the screen (menus stay open until dismissed)");	
 	WaitForUser();
 
-	EventManager_AddEvent(rMouseDown, 0L, mouse_x, mouse_y, 0L, NULL, NULL);	// one click to open the menu
-	EventManager_AddEvent(rMouseUp, 0L, mouse_x, mouse_y, 0L, NULL, NULL);
-	DEBUG_OUT(("%s %d: about to wait for first open menu events", __func__, __LINE__));
-	EventManager_WaitForEvent();
-	EventManager_AddEvent(mouseMoved, 0L, mouse_x + 15, mouse_y + 10, 0L, NULL, NULL);
 	EventManager_WaitForEvent();
 
-	ShowDescription("Next action: Select first menu item by right- or left-clicking on the desired item");	
-	WaitForUser();
-
-	EventManager_AddEvent(rMouseDown, 0L, mouse_x + 15, mouse_y + 10, 0L, NULL, NULL);	// another click to select something
-	EventManager_AddEvent(rMouseUp, 0L, mouse_x + 15, mouse_y + 10, 0L, NULL, NULL);
-	DEBUG_OUT(("%s %d: about to wait for first select menu events", __func__, __LINE__));
-	EventManager_WaitForEvent();
-
-	// open a menu, release button, move right, move down, click and release r button again = select 3rd menu item
-	ShowDescription("Next action: Open a menu again from far right side -- menu will slide left to fit onto screen");	
-	WaitForUser();
-
-	mouse_x = 630;
-	mouse_y = 20;	
-
-	EventManager_AddEvent(rMouseDown, 0L, mouse_x, mouse_y, 0L, NULL, NULL);	// one click to open the menu
-	EventManager_AddEvent(rMouseUp, 0L, mouse_x, mouse_y, 0L, NULL, NULL);
-	DEBUG_OUT(("%s %d: about to wait for second open menu events", __func__, __LINE__));
-	EventManager_WaitForEvent();
-	mouse_x -= 67;
-	EventManager_AddEvent(mouseMoved, 0L, mouse_x + 15, mouse_y + 45, 0L, NULL, NULL);
-	EventManager_WaitForEvent();
-
-	ShowDescription("Next action: Select 3rd menu item - a submenu");	
-	WaitForUser();
-
-	EventManager_AddEvent(rMouseDown, 0L, mouse_x + 15, mouse_y + 45, 0L, NULL, NULL);	// another click to select something
-	EventManager_AddEvent(rMouseUp, 0L, mouse_x + 15, mouse_y + 45, 0L, NULL, NULL);
-	DEBUG_OUT(("%s %d: about to wait for second select menu events", __func__, __LINE__));
-	EventManager_WaitForEvent();
-
-	mouse_x -= 0;
-	mouse_y += 45;	
-
-	EventManager_AddEvent(mouseMoved, 0L, mouse_x + 15, mouse_y + 35, 0L, NULL, NULL);
-	EventManager_WaitForEvent();
-
-	ShowDescription("Next action: Select 2nd item from the submenu - close window");	
-	WaitForUser();
-
-	EventManager_AddEvent(rMouseDown, 0L, mouse_x + 15, mouse_y + 35, 0L, NULL, NULL);	// another click to select something
-	EventManager_AddEvent(rMouseUp, 0L, mouse_x + 15, mouse_y + 35, 0L, NULL, NULL);
-	DEBUG_OUT(("%s %d: about to wait for second select menu events", __func__, __LINE__));
-	EventManager_WaitForEvent();
-
-
-	// open a menu, open a submenu, click the back button to get back to the original menu, then pick something else
-	ShowDescription("Next action: Open and menu again from lower left corner -- menu will be slid up to fit onto screen");	
-	WaitForUser();
-
-	mouse_x = 20; // doesn't matter where you right-click: menu is always opened for the active window
-	mouse_y = 470;	
-
-	EventManager_AddEvent(rMouseDown, 0L, mouse_x, mouse_y, 0L, NULL, NULL);	// one click to open the menu
-	EventManager_AddEvent(rMouseUp, 0L, mouse_x, mouse_y, 0L, NULL, NULL);
-	DEBUG_OUT(("%s %d: about to wait for 3rd open menu events", __func__, __LINE__));
-	EventManager_WaitForEvent();
-	mouse_y -= 40; // amount menu window slide up from bottom so it all draws
-	EventManager_AddEvent(mouseMoved, 0L, mouse_x + 15, mouse_y + 40, 0L, NULL, NULL);
-	EventManager_WaitForEvent();
-
-
-	ShowDescription("Next action: Select 3rd menu item - a submenu");	
-	WaitForUser();
-
-	EventManager_AddEvent(rMouseDown, 0L, mouse_x + 15, mouse_y + 40, 0L, NULL, NULL);	// another click to select something
-	EventManager_AddEvent(rMouseUp, 0L, mouse_x + 15, mouse_y + 40, 0L, NULL, NULL);
-	DEBUG_OUT(("%s %d: about to wait for second select menu events", __func__, __LINE__));
-	EventManager_WaitForEvent();
-
-	mouse_x += 15; // window got opened at spot of last last, which was 15 to the right.
-	mouse_y -= 25;	
-
-	EventManager_AddEvent(mouseMoved, 0L, mouse_x + 15, mouse_y + 5, 0L, NULL, NULL);
-	EventManager_WaitForEvent();
-
-	ShowDescription("Next action: Go back to the parent menu without selecting anything");	
-	WaitForUser();
-
-	EventManager_AddEvent(rMouseDown, 0L, mouse_x + 15, mouse_y + 5, 0L, NULL, NULL);	// another click to select something
-	EventManager_AddEvent(rMouseUp, 0L, mouse_x + 15, mouse_y + 5, 0L, NULL, NULL);
-	DEBUG_OUT(("%s %d: about to wait for second select menu events", __func__, __LINE__));
-	EventManager_WaitForEvent();
-
-	mouse_x += 15; // window got opened at spot of last last, which was 15 to the right.
-	mouse_y += 5;	
-
-	EventManager_AddEvent(mouseMoved, 0L, mouse_x + 15, mouse_y + 20, 0L, NULL, NULL);
-	EventManager_WaitForEvent();
-
-	ShowDescription("Next action: Select 2nd menu item");	
-	WaitForUser();
-
-	EventManager_AddEvent(rMouseDown, 0L, mouse_x + 15, mouse_y + 20, 0L, NULL, NULL);	// another click to select something
-	EventManager_AddEvent(rMouseUp, 0L, mouse_x + 15, mouse_y + 20, 0L, NULL, NULL);
-	DEBUG_OUT(("%s %d: about to wait for 3rd select menu events", __func__, __LINE__));
-	EventManager_WaitForEvent();
+// 	EventManager_AddEvent(rMouseDown, 0L, mouse_x, mouse_y, 0L, NULL, NULL);	// one click to open the menu
+// 	EventManager_AddEvent(rMouseUp, 0L, mouse_x, mouse_y, 0L, NULL, NULL);
+// 	DEBUG_OUT(("%s %d: about to wait for first open menu events", __func__, __LINE__));
+// 	EventManager_WaitForEvent();
+// 	EventManager_AddEvent(mouseMoved, 0L, mouse_x + 15, mouse_y + 10, 0L, NULL, NULL);
+// 	EventManager_WaitForEvent();
+// 
+// 	ShowDescription("Next action: Select first menu item by right- or left-clicking on the desired item");	
+// 	WaitForUser();
+// 
+// 	EventManager_AddEvent(rMouseDown, 0L, mouse_x + 15, mouse_y + 10, 0L, NULL, NULL);	// another click to select something
+// 	EventManager_AddEvent(rMouseUp, 0L, mouse_x + 15, mouse_y + 10, 0L, NULL, NULL);
+// 	DEBUG_OUT(("%s %d: about to wait for first select menu events", __func__, __LINE__));
+// 	EventManager_WaitForEvent();
+// 
+// 	// open a menu, release button, move right, move down, click and release r button again = select 3rd menu item
+// 	ShowDescription("Next action: Open a menu again from far right side -- menu will slide left to fit onto screen");	
+// 	WaitForUser();
+// 
+// 	mouse_x = 630;
+// 	mouse_y = 20;	
+// 
+// 	EventManager_AddEvent(rMouseDown, 0L, mouse_x, mouse_y, 0L, NULL, NULL);	// one click to open the menu
+// 	EventManager_AddEvent(rMouseUp, 0L, mouse_x, mouse_y, 0L, NULL, NULL);
+// 	DEBUG_OUT(("%s %d: about to wait for second open menu events", __func__, __LINE__));
+// 	EventManager_WaitForEvent();
+// 	mouse_x -= 67;
+// 	EventManager_AddEvent(mouseMoved, 0L, mouse_x + 15, mouse_y + 45, 0L, NULL, NULL);
+// 	EventManager_WaitForEvent();
+// 
+// 	ShowDescription("Next action: Select 3rd menu item - a submenu");	
+// 	WaitForUser();
+// 
+// 	EventManager_AddEvent(rMouseDown, 0L, mouse_x + 15, mouse_y + 45, 0L, NULL, NULL);	// another click to select something
+// 	EventManager_AddEvent(rMouseUp, 0L, mouse_x + 15, mouse_y + 45, 0L, NULL, NULL);
+// 	DEBUG_OUT(("%s %d: about to wait for second select menu events", __func__, __LINE__));
+// 	EventManager_WaitForEvent();
+// 
+// 	mouse_x -= 0;
+// 	mouse_y += 45;	
+// 
+// 	EventManager_AddEvent(mouseMoved, 0L, mouse_x + 15, mouse_y + 35, 0L, NULL, NULL);
+// 	EventManager_WaitForEvent();
+// 
+// 	ShowDescription("Next action: Select 2nd item from the submenu - close window");	
+// 	WaitForUser();
+// 
+// 	EventManager_AddEvent(rMouseDown, 0L, mouse_x + 15, mouse_y + 35, 0L, NULL, NULL);	// another click to select something
+// 	EventManager_AddEvent(rMouseUp, 0L, mouse_x + 15, mouse_y + 35, 0L, NULL, NULL);
+// 	DEBUG_OUT(("%s %d: about to wait for second select menu events", __func__, __LINE__));
+// 	EventManager_WaitForEvent();
+// 
+// 
+// 	// open a menu, open a submenu, click the back button to get back to the original menu, then pick something else
+// 	ShowDescription("Next action: Open and menu again from lower left corner -- menu will be slid up to fit onto screen");	
+// 	WaitForUser();
+// 
+// 	mouse_x = 20; // doesn't matter where you right-click: menu is always opened for the active window
+// 	mouse_y = 470;	
+// 
+// 	EventManager_AddEvent(rMouseDown, 0L, mouse_x, mouse_y, 0L, NULL, NULL);	// one click to open the menu
+// 	EventManager_AddEvent(rMouseUp, 0L, mouse_x, mouse_y, 0L, NULL, NULL);
+// 	DEBUG_OUT(("%s %d: about to wait for 3rd open menu events", __func__, __LINE__));
+// 	EventManager_WaitForEvent();
+// 	mouse_y -= 40; // amount menu window slide up from bottom so it all draws
+// 	EventManager_AddEvent(mouseMoved, 0L, mouse_x + 15, mouse_y + 40, 0L, NULL, NULL);
+// 	EventManager_WaitForEvent();
+// 
+// 
+// 	ShowDescription("Next action: Select 3rd menu item - a submenu");	
+// 	WaitForUser();
+// 
+// 	EventManager_AddEvent(rMouseDown, 0L, mouse_x + 15, mouse_y + 40, 0L, NULL, NULL);	// another click to select something
+// 	EventManager_AddEvent(rMouseUp, 0L, mouse_x + 15, mouse_y + 40, 0L, NULL, NULL);
+// 	DEBUG_OUT(("%s %d: about to wait for second select menu events", __func__, __LINE__));
+// 	EventManager_WaitForEvent();
+// 
+// 	mouse_x += 15; // window got opened at spot of last last, which was 15 to the right.
+// 	mouse_y -= 25;	
+// 
+// 	EventManager_AddEvent(mouseMoved, 0L, mouse_x + 15, mouse_y + 5, 0L, NULL, NULL);
+// 	EventManager_WaitForEvent();
+// 
+// 	ShowDescription("Next action: Go back to the parent menu without selecting anything");	
+// 	WaitForUser();
+// 
+// 	EventManager_AddEvent(rMouseDown, 0L, mouse_x + 15, mouse_y + 5, 0L, NULL, NULL);	// another click to select something
+// 	EventManager_AddEvent(rMouseUp, 0L, mouse_x + 15, mouse_y + 5, 0L, NULL, NULL);
+// 	DEBUG_OUT(("%s %d: about to wait for second select menu events", __func__, __LINE__));
+// 	EventManager_WaitForEvent();
+// 
+// 	mouse_x += 15; // window got opened at spot of last last, which was 15 to the right.
+// 	mouse_y += 5;	
+// 
+// 	EventManager_AddEvent(mouseMoved, 0L, mouse_x + 15, mouse_y + 20, 0L, NULL, NULL);
+// 	EventManager_WaitForEvent();
+// 
+// 	ShowDescription("Next action: Select 2nd menu item");	
+// 	WaitForUser();
+// 
+// 	EventManager_AddEvent(rMouseDown, 0L, mouse_x + 15, mouse_y + 20, 0L, NULL, NULL);	// another click to select something
+// 	EventManager_AddEvent(rMouseUp, 0L, mouse_x + 15, mouse_y + 20, 0L, NULL, NULL);
+// 	DEBUG_OUT(("%s %d: about to wait for 3rd select menu events", __func__, __LINE__));
+// 	EventManager_WaitForEvent();
 	
 }
 
@@ -1110,10 +1119,10 @@ void SharedEventHandler(EventRecord* the_event)
 
 				if (Window_IsBackdrop(the_window) == false)
 				{
-					Window_SetPenXYFromGlobal(the_window, the_event->x_, the_event->y_);
+					Window_SetPenXYFromGlobal(the_window, the_event->mouseinfo_.x_, the_event->mouseinfo_.y_);
 					Window_DrawBox(the_window, 5, 5, SYS_COLOR_GREEN1, true);
-					the_rect.MinX = the_event->x_ - the_window->x_;
-					the_rect.MinY = the_event->y_ - the_window->y_;
+					the_rect.MinX = the_event->mouseinfo_.x_ - the_window->x_;
+					the_rect.MinY = the_event->mouseinfo_.y_ - the_window->y_;
 					the_rect.MaxX = the_rect.MinX + 5;
 					the_rect.MaxY = the_rect.MinY + 5;
 					Window_AddClipRect(the_window, &the_rect);
@@ -1128,10 +1137,10 @@ void SharedEventHandler(EventRecord* the_event)
 				
 				if (Window_IsBackdrop(the_window) == false)
 				{
-					Window_SetPenXYFromGlobal(the_window, the_event->x_, the_event->y_);
+					Window_SetPenXYFromGlobal(the_window, the_event->mouseinfo_.x_, the_event->mouseinfo_.y_);
 					Window_DrawBox(the_window, 5, 5, SYS_COLOR_RED1, true);
-					the_rect.MinX = the_event->x_ - the_window->x_;
-					the_rect.MinY = the_event->y_ - the_window->y_;
+					the_rect.MinX = the_event->mouseinfo_.x_ - the_window->x_;
+					the_rect.MinY = the_event->mouseinfo_.y_ - the_window->y_;
 					the_rect.MaxX = the_rect.MinX + 5;
 					the_rect.MaxY = the_rect.MinY + 5;
 					Window_AddClipRect(the_window, &the_rect);
@@ -1149,32 +1158,32 @@ void SharedEventHandler(EventRecord* the_event)
 				break;
 			
 			case keyDown:
-				DEBUG_OUT(("%s %d: key down event: '%c' (%x)", __func__, __LINE__, the_event->code_, the_event->code_));
+				DEBUG_OUT(("%s %d: key down event: '%c' (%x)", __func__, __LINE__, the_event->keyinfo_.key_, the_event->keyinfo_.key_));
 				//return App_HandleKeyDown(the_event);
 				break;
 			
 			case keyUp:
-				DEBUG_OUT(("%s %d: key up event: '%c' (%x)", __func__, __LINE__, the_event->code_, the_event->code_));
+				DEBUG_OUT(("%s %d: key up event: '%c' (%x)", __func__, __LINE__, the_event->keyinfo_.key_, the_event->keyinfo_.key_));
 				//return App_HandleKeyUp(the_event);
 				break;
 
 			case updateEvt:
-				DEBUG_OUT(("%s %d: updateEvt event: %c", __func__, __LINE__, the_event->code_));
+				DEBUG_OUT(("%s %d: updateEvt event: %c", __func__, __LINE__, the_event->windowinfo_.x_));
 
 				break;
 			
 			case activateEvt:
-				DEBUG_OUT(("%s %d: activateEvt event: %c", __func__, __LINE__, the_event->code_));
+				DEBUG_OUT(("%s %d: activateEvt event: %c", __func__, __LINE__, the_event->windowinfo_.x_));
 				
 				break;
 			
 			case inactivateEvt:
-				DEBUG_OUT(("%s %d: inactivateEvt event: %c", __func__, __LINE__, the_event->code_));
+				DEBUG_OUT(("%s %d: inactivateEvt event: %c", __func__, __LINE__, the_event->windowinfo_.x_));
 				
 				break;
 			
 			case menuOpened:
-				DEBUG_OUT(("%s %d: menu opened event: %i", __func__, __LINE__, the_event->code_));
+				DEBUG_OUT(("%s %d: menu opened event: %i", __func__, __LINE__, the_event->menuinfo_.selection_));
 				
 				// the event record's x/y properties will have the location of the mouse when menu was opened, and the event's window will have the (at the time) active window's pointer
 				// this event is the window's opportunity to create a contextual menu and open it
@@ -1201,26 +1210,26 @@ void SharedEventHandler(EventRecord* the_event)
 				}
 
 				the_menu = Sys_GetMenu(global_system);
-				Menu_Open(the_menu, &MyAppMenu, the_event->x_, the_event->y_);
+				Menu_Open(the_menu, &MyAppMenu, the_event->menuinfo_.x_, the_event->menuinfo_.y_);
 	
 				break;
 				
 			case menuSelected:
-				DEBUG_OUT(("%s %d: menu selected event: %i", __func__, __LINE__, the_event->code_));
+				DEBUG_OUT(("%s %d: menu selected event: %i", __func__, __LINE__, the_event->menuinfo_.selection_));
 				
 				// the event records 'code' property will have the ID value of the selected menu item
 				// the event manager will not pass on non-valid / non-existent menu item codes: if the user clicked off the menu, you will never hear about that menu event at all
 				// if the item selected is a submenu, you call Menu_Open() with the submenu menugroup.
 				
 				
-				if (the_event->code_ == MENU_ROOT_GROUP_ID)
+				if (the_event->menuinfo_.selection_ == MENU_ROOT_GROUP_ID)
 				{
 					DEBUG_OUT(("%s %d: 'back' action selected from a sub menu -> showing root menu again", __func__, __LINE__));
 
 					the_menu = Sys_GetMenu(global_system);
-					Menu_Open(the_menu, &MyAppMenu, the_event->x_, the_event->y_);
+					Menu_Open(the_menu, &MyAppMenu, the_event->menuinfo_.x_, the_event->menuinfo_.y_);
 				}
-				else if (the_event->code_ == WindowSubmenu.id_)
+				else if (the_event->menuinfo_.selection_ == WindowSubmenu.id_)
 				{
 					DEBUG_OUT(("%s %d: Window submenu selected from the menu!", __func__, __LINE__));
 
@@ -1232,14 +1241,14 @@ void SharedEventHandler(EventRecord* the_event)
 					MyWindowSubMenu.num_menu_items_ = 4;
 
 					the_menu = Sys_GetMenu(global_system);
-					Menu_Open(the_menu, &MyWindowSubMenu, the_event->x_, the_event->y_);
+					Menu_Open(the_menu, &MyWindowSubMenu, the_event->menuinfo_.x_, the_event->menuinfo_.y_);
 				}
-				else if (the_event->code_ == CloseWindow.id_)
+				else if (the_event->menuinfo_.selection_ == CloseWindow.id_)
 				{
 					DEBUG_OUT(("%s %d: Close Window selected from the menu!", __func__, __LINE__));
 					Sys_CloseOneWindow(global_system, the_event->window_);
 				}
-				else if (the_event->code_ == SwitchTheme.id_)
+				else if (the_event->menuinfo_.selection_ == SwitchTheme.id_)
 				{
 					DEBUG_OUT(("%s %d: Switch Theme selected from the menu!", __func__, __LINE__));
 					
@@ -1266,15 +1275,15 @@ void SharedEventHandler(EventRecord* the_event)
 					}
 					Theme_Activate(new_theme);
 				}
-				else if (the_event->code_ == OpenMoreWindows.id_)
+				else if (the_event->menuinfo_.selection_ == OpenMoreWindows.id_)
 				{
 					DEBUG_OUT(("%s %d: Open More Windows selected from the menu!", __func__, __LINE__));
 				}
-				else if (the_event->code_ == ShowAllWindows.id_)
+				else if (the_event->menuinfo_.selection_ == ShowAllWindows.id_)
 				{
 					DEBUG_OUT(("%s %d: Show All Windows selected from the menu!", __func__, __LINE__));
 				}
-				else if (the_event->code_ == SayHi.id_)
+				else if (the_event->menuinfo_.selection_ == SayHi.id_)
 				{
 					DEBUG_OUT(("%s %d: 'Say Hi!' selected from the menu!", __func__, __LINE__));
 				}
@@ -1286,7 +1295,7 @@ void SharedEventHandler(EventRecord* the_event)
 				break;
 				
 			case controlClicked:
-				DEBUG_OUT(("%s %d: controlClicked event: %c", __func__, __LINE__, the_event->code_));
+				DEBUG_OUT(("%s %d: controlClicked event: %c", __func__, __LINE__, the_event->windowinfo_.x_));
 				
 				Control*			the_control;
 				int16_t				the_control_id;
@@ -1335,7 +1344,7 @@ void SharedEventHandler(EventRecord* the_event)
 				break;
 				
 			case windowChanged:
-				DEBUG_OUT(("%s %d: windowChanged event: %x", __func__, __LINE__, the_event->code_));
+				DEBUG_OUT(("%s %d: windowChanged event: %i,%i", __func__, __LINE__, the_event->windowinfo_.width_, the_event->windowinfo_.height_));
 				
 				// window size and/or position has changed
 				// code will contain new proposed size. width in upper word, height in lower word
@@ -1349,10 +1358,10 @@ void SharedEventHandler(EventRecord* the_event)
 					int16_t	new_width;
 					int16_t	new_height;
 					
-					new_x = the_event->x_;
-					new_y = the_event->y_;
-					new_width = (the_event->code_ >> 16) & 0xffff;
-					new_height = the_event->code_ & 0xffff;
+					new_x = the_event->windowinfo_.x_;
+					new_y = the_event->windowinfo_.y_;
+					new_width = the_event->windowinfo_.width_;
+					new_height = the_event->windowinfo_.height_;
 					
 					DEBUG_OUT(("%s %d: ** new x,y=%i,%i; new w/h=%i,%i", __func__, __LINE__, new_x, new_y, new_width, new_height));
 					
@@ -1395,25 +1404,25 @@ void RunDemo(void)
 	//Sys_SetModeGraphics(global_system);
  	//Sys_SetModeText(global_system, true);
 	
-	ShowWhatYouWantMessage();
+// 	ShowWhatYouWantMessage();
 	
-	OpenMultipleWindows();
+// 	OpenMultipleWindows();
 	ShowDescription("This is a demo of various system functionality. When you see this text-mode message overlaid on the screen, click any key to proceed to the next step.");	
 	WaitForUser();
 
 	
 	Open2Windows();
 
-	OpenMultipleWindows();
-
-	OpenTinyWindow();
+// 	OpenMultipleWindows();
+// 
+// 	OpenTinyWindow();
 
 	// temporary until event handler is written: tell system to render the screen and all windows
 	Sys_Render(global_system);
 
 
 	// test window click, titlebar drag, window resize, etc.
-	//TestWindowEvents();
+	TestWindowEvents();
 
 	// test menu system. Expects some kind of window to be open, but doesn't care what.	
 	TestMenus();

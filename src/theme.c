@@ -2873,6 +2873,7 @@ ControlTemplate* Theme_CreateDefaultControlTemplateClose(void)
 		return NULL;
 	}
 	LOG_ALLOC(("%s %d:	__ALLOC__	the_template	%p	size	%i", __func__ , __LINE__, the_template, sizeof(ControlTemplate)));
+	TRACK_ALLOC((sizeof(ControlTemplate)));
 	
 	for (is_active = 0; is_active < 2; is_active++)
 	{
@@ -2928,6 +2929,7 @@ ControlTemplate* Theme_CreateDefaultControlTemplateMinimize(void)
 		return NULL;
 	}
 	LOG_ALLOC(("%s %d:	__ALLOC__	the_template	%p	size	%i", __func__ , __LINE__, the_template, sizeof(ControlTemplate)));
+	TRACK_ALLOC((sizeof(ControlTemplate)));
 	
 	for (is_active = 0; is_active < 2; is_active++)
 	{
@@ -2984,6 +2986,7 @@ ControlTemplate* Theme_CreateDefaultControlTemplateNormSize(void)
 		return NULL;
 	}
 	LOG_ALLOC(("%s %d:	__ALLOC__	the_template	%p	size	%i", __func__ , __LINE__, the_template, sizeof(ControlTemplate)));
+	TRACK_ALLOC((sizeof(ControlTemplate)));
 	
 	for (is_active = 0; is_active < 2; is_active++)
 	{
@@ -3039,6 +3042,7 @@ ControlTemplate* Theme_CreateDefaultControlTemplateMaximize(void)
 		return NULL;
 	}
 	LOG_ALLOC(("%s %d:	__ALLOC__	the_template	%p	size	%i", __func__ , __LINE__, the_template, sizeof(ControlTemplate)));
+	TRACK_ALLOC((sizeof(ControlTemplate)));
 	
 	for (is_active = 0; is_active < 2; is_active++)
 	{
@@ -3104,6 +3108,7 @@ ControlTemplate* Theme_CreateControlTemplateFlexWidth(Theme* the_theme, control_
 		return NULL;
 	}
 	LOG_ALLOC(("%s %d:	__ALLOC__	the_template	%p	size	%i", __func__ , __LINE__, the_template, sizeof(ControlTemplate)));
+	TRACK_ALLOC((sizeof(ControlTemplate)));
 	
 	for (is_active = 0; is_active < 2; is_active++)
 	{
@@ -3162,6 +3167,7 @@ ControlTemplate* Theme_CreateControlTemplateFlexWidth(Theme* the_theme, control_
 // 		return NULL;
 // 	}
 // 	LOG_ALLOC(("%s %d:	__ALLOC__	the_template	%p	size	%i", __func__ , __LINE__, the_template, sizeof(ControlTemplate)));
+// 	TRACK_ALLOC((sizeof(ControlTemplate)));
 // 	
 // 	for (is_active = 0; is_active < 2; is_active++)
 // 	{
@@ -3263,6 +3269,7 @@ Theme* Theme_New(void)
 		goto error;
 	}
 	LOG_ALLOC(("%s %d:	__ALLOC__	the_theme	%p	size	%i", __func__ , __LINE__, the_theme, sizeof(Theme)));
+	TRACK_ALLOC((sizeof(Theme)));
 	
 	return the_theme;
 	
@@ -3313,6 +3320,7 @@ bool Theme_Destroy(Theme** the_theme)
 	}
 	
 	LOG_ALLOC(("%s %d:	__FREE__	*the_theme	%p	size	%i", __func__ , __LINE__, *the_theme, sizeof(Theme)));
+	TRACK_ALLOC((0 - sizeof(Theme)));
 	free(*the_theme);
 	*the_theme = NULL;
 	
@@ -4069,6 +4077,7 @@ ControlTemplate* Theme_CreateGreenControlTemplateClose(void)
 		return NULL;
 	}
 	LOG_ALLOC(("%s %d:	__ALLOC__	the_template	%p	size	%i", __func__ , __LINE__, the_template, sizeof(ControlTemplate)));
+	TRACK_ALLOC((sizeof(ControlTemplate)));
 	
 	for (is_active = 0; is_active < 2; is_active++)
 	{
@@ -4145,6 +4154,7 @@ ControlTemplate* Theme_CreateGreenControlTemplateMinimize(void)
 		return NULL;
 	}
 	LOG_ALLOC(("%s %d:	__ALLOC__	the_template	%p	size	%i", __func__ , __LINE__, the_template, sizeof(ControlTemplate)));
+	TRACK_ALLOC((sizeof(ControlTemplate)));
 	
 	for (is_active = 0; is_active < 2; is_active++)
 	{
@@ -4200,6 +4210,7 @@ ControlTemplate* Theme_CreateGreenControlTemplateNormSize(void)
 		return NULL;
 	}
 	LOG_ALLOC(("%s %d:	__ALLOC__	the_template	%p	size	%i", __func__ , __LINE__, the_template, sizeof(ControlTemplate)));
+	TRACK_ALLOC((sizeof(ControlTemplate)));
 	
 	for (is_active = 0; is_active < 2; is_active++)
 	{
@@ -4255,6 +4266,7 @@ ControlTemplate* Theme_CreateGreenControlTemplateMaximize(void)
 		return NULL;
 	}
 	LOG_ALLOC(("%s %d:	__ALLOC__	the_template	%p	size	%i", __func__ , __LINE__, the_template, sizeof(ControlTemplate)));
+	TRACK_ALLOC((sizeof(ControlTemplate)));
 	
 	for (is_active = 0; is_active < 2; is_active++)
 	{

@@ -11,12 +11,12 @@ DEBUG_DEF_1=LOG_LEVEL_1
 DEBUG_DEF_2=LOG_LEVEL_2
 DEBUG_DEF_3=LOG_LEVEL_3
 DEBUG_DEF_4=LOG_LEVEL_4
-# DEBUG_DEF_5=LOG_LEVEL_5
+DEBUG_DEF_5=LOG_LEVEL_5
 # DEBUG_DEF_1=NO_LOG_LEVEL_1
 # DEBUG_DEF_2=NO_LOG_LEVEL_2
 # DEBUG_DEF_3=NO_LOG_LEVEL_3
 # DEBUG_DEF_4=NO_LOG_LEVEL_4
-DEBUG_DEF_5=NO_LOG_LEVEL_5
+# DEBUG_DEF_5=NO_LOG_LEVEL_5
 
 # whether disk or serial debug will be used, IF debug is actually on
 # defining serial debug means serial will be used, not defining it means disk will be used. 
@@ -79,11 +79,11 @@ tests:	$(TEST_OBJS)
 
 demos:	$(DEMO_OBJS)
 	@echo "Building demos..."
-	ln68k -o $(BUILD_PGZ)/demo_sys.pgz obj/sys_demo.o a2560k_osf.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=$(BUILD_LST)/demo_sys.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=1000000 --stack-size=30000 
-	ln68k -o $(BUILD_PGZ)/demo_font.pgz obj/font_demo.o a2560k_osf.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=$(BUILD_LST)/demo_font.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=1000000 --stack-size=30000 
-	ln68k -o $(BUILD_PGZ)/demo_window.pgz obj/window_demo.o a2560k_osf.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=$(BUILD_LST)/demo_window.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=1000000 --stack-size=30000 
-	ln68k -o $(BUILD_PGZ)/demo_bitmap.pgz obj/bitmap_demo.o a2560k_osf.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=$(BUILD_LST)/demo_bitmap.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=1000000 --stack-size=30000 
-	ln68k -o $(BUILD_PGZ)/demo_text.pgz obj/text_demo.o a2560k_osf.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=$(BUILD_LST)/demo_text.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=1000000 --stack-size=30000 
+	ln68k -o $(BUILD_PGZ)/demo_sys.pgz obj/sys_demo.o a2560k_osf.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=$(BUILD_LST)/demo_sys.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=4000000 --stack-size=30000 
+	ln68k -o $(BUILD_PGZ)/demo_font.pgz obj/font_demo.o a2560k_osf.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=$(BUILD_LST)/demo_font.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=2000000 --stack-size=30000 
+	ln68k -o $(BUILD_PGZ)/demo_window.pgz obj/window_demo.o a2560k_osf.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=$(BUILD_LST)/demo_window.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=2000000 --stack-size=30000 
+	ln68k -o $(BUILD_PGZ)/demo_bitmap.pgz obj/bitmap_demo.o a2560k_osf.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=$(BUILD_LST)/demo_bitmap.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=2000000 --stack-size=30000 
+	ln68k -o $(BUILD_PGZ)/demo_text.pgz obj/text_demo.o a2560k_osf.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=$(BUILD_LST)/demo_text.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=2000000 --stack-size=30000 
 
 demohex:	$(DEMO_OBJS)
 	@echo "Building demos..."

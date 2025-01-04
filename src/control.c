@@ -241,10 +241,11 @@ Control* Control_New(ControlTemplate* the_template, Window* the_window, Rectangl
 	
 	if ( (the_control = (Control*)calloc(1, sizeof(Control)) ) == NULL)
 	{
-		LOG_ERR(("%s %d: could not allocate memory to create new font record", __func__ , __LINE__));
+		LOG_ERR(("%s %d: could not allocate memory to create new control record", __func__ , __LINE__));
 		goto error;
 	}
 	LOG_ALLOC(("%s %d:	__ALLOC__	the_control	%p	size	%i", __func__ , __LINE__, the_control, sizeof(Control)));
+	TRACK_ALLOC((sizeof(Control)));
 
 	// copy caption; not all controls will have a caption
 	if (the_template->caption_ != NULL)
@@ -319,11 +320,13 @@ bool Control_Destroy(Control** the_control)
 	if ((*the_control)->caption_ != NULL)
 	{
 		LOG_ALLOC(("%s %d:	__FREE__	(*the_control)->caption_	%p	size	%i		'%s'", __func__ , __LINE__, (*the_control)->caption_, General_Strnlen((*the_control)->caption_, CONTROL_MAX_CAPTION_SIZE) + 1, (*the_control)->caption_));
+		TRACK_ALLOC((0 - General_Strnlen((*the_control)->caption_, CONTROL_MAX_CAPTION_SIZE) + 1));
 		free((*the_control)->caption_);
 		(*the_control)->caption_ = NULL;
 	}
 	
 	LOG_ALLOC(("%s %d:	__FREE__	*the_control	%p	size	%i", __func__ , __LINE__, *the_control, sizeof(Control)));
+	TRACK_ALLOC((0 - sizeof(Control)));
 	free(*the_control);
 	*the_control = NULL;
 	

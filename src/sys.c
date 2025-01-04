@@ -647,6 +647,7 @@ System* Sys_New(void)
 		goto error;
 	}
 	LOG_ALLOC(("%s %d:	__ALLOC__	the_system	%p	size	%i", __func__ , __LINE__, the_system, sizeof(System)));
+	TRACK_ALLOC((sizeof(System)));
 	
 	DEBUG_OUT(("%s %d: System object created ok...", __func__ , __LINE__));
 	
@@ -676,6 +677,7 @@ bool Sys_Destroy(System** the_system)
 		if ((*the_system)->screen_[i])
 		{
 			LOG_ALLOC(("%s %d:	__FREE__	(*the_system)->screen_[i]	%p	size	%i", __func__ , __LINE__, (*the_system)->screen_[i], sizeof(Screen)));
+			TRACK_ALLOC((0 - sizeof(Screen)));
 			free((*the_system)->screen_[i]);
 			(*the_system)->screen_[i] = NULL;
 		}
@@ -708,6 +710,7 @@ bool Sys_Destroy(System** the_system)
 
 
 	LOG_ALLOC(("%s %d:	__FREE__	*the_system	%p	size	%i", __func__ , __LINE__, *the_system, sizeof(System)));
+	TRACK_ALLOC((0 - sizeof(System)));
 	free(*the_system);
 	*the_system = NULL;
 	
@@ -724,6 +727,9 @@ void Sys_Exit(System** the_system, bool error_condition)
 	// clean up system objects
 	Sys_Destroy(the_system);
 	
+	// clear the mouse interrupt so it doesn't call code that is no longer in RAM
+	sys_int_register(INT_MOUSE, NULL);
+
 	// call MCP exit to return control to it
 	if (error_condition == PARAM_EXIT_ON_ERROR)
 	{
@@ -760,6 +766,8 @@ bool Sys_InitSystem(System* the_system)
 		LOG_ERR(("%s %d: could not allocate memory to create the temp text buffer", __func__ , __LINE__));
 		goto error;
 	}
+	LOG_ALLOC(("%s %d:	__ALLOC__	text_temp_buffer_	%p	size	%i", __func__ , __LINE__, the_system->text_temp_buffer_, sizeof(Control)));
+	TRACK_ALLOC((WORD_WRAP_MAX_LEN + 1));
 
 	DEBUG_OUT(("%s %d: Sys temp text buffer created ok...", __func__ , __LINE__));
 
@@ -791,6 +799,7 @@ bool Sys_InitSystem(System* the_system)
 			goto error;
 		}
 		LOG_ALLOC(("%s %d:	__ALLOC__	the_system->screen_[%i]	%p	size	%i", __func__ , __LINE__, i, the_system->screen_[i], sizeof(Screen)));
+		TRACK_ALLOC((sizeof(Screen)));
 		
 		the_system->screen_[i]->id_ = i;
 	}
@@ -1414,6 +1423,7 @@ bool Sys_AddToWindowList(System* the_system, Window* the_new_window)
 			goto error;
 		}
 		LOG_ALLOC(("%s %d:	__ALLOC__	the_system->list_windows_	%p	size	%i", __func__ , __LINE__, the_system->list_windows_, sizeof(List*)));
+		TRACK_ALLOC((sizeof(List*)));
 		
 		*the_system->list_windows_ = the_new_item;
 	}
@@ -1892,6 +1902,7 @@ void Sys_CloseOneWindow(System* the_system, Window* the_window)
 	--the_system->window_count_;
 	List_RemoveItem(the_system->list_windows_, this_window_item);
 	LOG_ALLOC(("%s %d:	__FREE__	the_item	%p	size	%i", __func__ , __LINE__, this_window_item, sizeof(List)));
+	TRACK_ALLOC((0 - sizeof(List)));
 	free(this_window_item);
 	this_window_item = NULL;
 	

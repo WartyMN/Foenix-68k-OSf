@@ -37,6 +37,7 @@
 
 // C includes
 #include <stdbool.h>
+#include <stdint.h>
 
 // F256 includes
 
@@ -67,8 +68,10 @@
 #endif
 #ifdef LOG_LEVEL_5
 	#define LOG_ALLOC(x) General_LogAlloc x
+	#define TRACK_ALLOC(x)	General_TrackAlloc x
 #else
 	#define LOG_ALLOC(x)
+	#define TRACK_ALLOC(x)
 #endif
 
 
@@ -117,6 +120,7 @@ void General_DebugOut(const char* format, ...);
 void General_LogAlloc(const char* format, ...);
 bool General_LogInitialize(void);
 void General_LogCleanUp(void);
+void General_TrackAlloc(int32_t the_allocation);
 
 
 

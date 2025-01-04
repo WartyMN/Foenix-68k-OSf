@@ -276,6 +276,8 @@ Bitmap* Bitmap_New(int16_t width, int16_t height, Font* the_font, bool in_vram)
 		LOG_ERR(("%s %d: Couldn't allocate space for bitmap struc", __func__, __LINE__));
 		goto error;
 	}
+	LOG_ALLOC(("%s %d:	__ALLOC__	the_bitmap struct	%p	size	%i", __func__ , __LINE__, the_bitmap, sizeof(Bitmap)));
+	TRACK_ALLOC((sizeof(Bitmap)));
 
 	if (in_vram == false)
 	{
@@ -286,6 +288,8 @@ Bitmap* Bitmap_New(int16_t width, int16_t height, Font* the_font, bool in_vram)
 			LOG_ERR(("%s %d: Couldn't instantiate a bitmap", __func__, __LINE__));
 			goto error;
 		}
+		LOG_ALLOC(("%s %d:	__ALLOC__	the_bitmap data	%p	size	%i", __func__ , __LINE__, the_bitmap, sizeof(uint8_t) * width * height));
+		TRACK_ALLOC((sizeof(uint8_t) * width * height));
 		
 		the_bitmap->addr_int_ = (uint32_t)the_bitmap->addr_;
 	}
@@ -341,13 +345,16 @@ bool Bitmap_Destroy(Bitmap** the_bitmap)
 
 	if ((*the_bitmap)->addr_)
 	{
-		if ((*the_bitmap)->in_vram_)
+		if ((*the_bitmap)->in_vram_ == false)
 		{
+			LOG_ALLOC(("%s %d:	__FREE__	the_bitmap->addr_	%p	size	%i", __func__ , __LINE__, (*the_bitmap)->addr_, (*the_bitmap)->width_ * (*the_bitmap)->height_));
+			TRACK_ALLOC((0 - (*the_bitmap)->width_ * (*the_bitmap)->height_));
 			free((*the_bitmap)->addr_);
 		}
 	}
 
 	LOG_ALLOC(("%s %d:	__FREE__	*the_bitmap	%p	size	%i", __func__ , __LINE__, *the_bitmap, sizeof(Bitmap)));
+	TRACK_ALLOC((0 - sizeof(Bitmap)));
 	free(*the_bitmap);
 	*the_bitmap = NULL;
 	
@@ -387,14 +394,18 @@ bool Bitmap_Resize(Bitmap* the_bitmap, int16_t width, int16_t height)
 	{
 		if (the_bitmap->addr_)
 		{
+			LOG_ALLOC(("%s %d:	__FREE__	the_bitmap->addr_	%p	size	%i", __func__ , __LINE__, the_bitmap->addr_, old_size));
+			TRACK_ALLOC((0 - old_size));
 			free(the_bitmap->addr_);
 		}
 		
-		if ((the_bitmap->addr_ = calloc(sizeof(uint8_t), width * height)) == NULL)
+		if ((the_bitmap->addr_ = calloc(sizeof(uint8_t), new_size)) == NULL)
 		{
 			LOG_ERR(("%s %d: Couldn't instantiate a bitmap", __func__, __LINE__));
 			return false;
 		}
+		LOG_ALLOC(("%s %d:	__ALLOC__	the_bitmap->addr_	%p	size	%i", __func__ , __LINE__, the_bitmap->addr_, new_size));
+		TRACK_ALLOC((new_size));
 		
 		the_bitmap->addr_int_ = (uint32_t)the_bitmap->addr_;
 	}

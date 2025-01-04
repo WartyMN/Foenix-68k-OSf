@@ -544,9 +544,11 @@
 #define VICKYA_CURSOR_POS_A2560K	(VICKY_A_BASE_ADDRESS + 0x14)	// vicky III channel A cursor position register (x pos is lower word, y pos is upper word)
 #define VICKYA_MOUSE_GRAPHIC_A2560K	0xfec40400		// vicky III channel A mouse pointer graphic stored here (16x16 ARGB) - 4byte, WO
 #define VICKYA_MOUSE_CTRL_A2560K	0xfec40c00		// vicky III channel A mouse pointer control register. set to 1 to enable mouse. +2 to do whatever "pointer choice" does. W16, R32
-#define VICKYA_PS2_MOUSE_BYTE_0		0xfec40c0a				// PS/2 mouse movement byte 0 for VICKY to interpret. W16.
-#define VICKYA_PS2_MOUSE_BYTE_1		0xfec40c0c				// PS/2 mouse movement byte 1 for VICKY to interpret. W16.
-#define VICKYA_PS2_MOUSE_BYTE_2		0xfec40c0e				// PS/2 mouse movement byte 2 for VICKY to interpret. W16.
+#define VICKYA_MOUSE_PTR_POS		0xfec40c04		// vicky III channel B mouse pointer position (Y pos in upper 16 bits, x in lower)
+
+#define VICKYA_PS2_MOUSE_BYTE_0		0xfec40c0a		// PS/2 mouse movement byte 0 for VICKY to interpret. W16.
+#define VICKYA_PS2_MOUSE_BYTE_1		0xfec40c0c		// PS/2 mouse movement byte 1 for VICKY to interpret. W16.
+#define VICKYA_PS2_MOUSE_BYTE_2		0xfec40c0e		// PS/2 mouse movement byte 2 for VICKY to interpret. W16.
 
 // VICKY III - Channel B - Text and Graphics
 #define VICKY_BITMAP_MAX_H_RES		800		// VICKY in A2560K supports a max resolution of 800x600 for graphics
@@ -600,7 +602,7 @@
 #define VICKYB_BITMAP_L0_CTRL		0xfec80100				// vicky III channel B bitmap layer 0 control register (1=enable, +2=LUT0, +4=LUT1, +8=LUT2
 #define VICKYB_MOUSE_GRAPHIC_A2560K	0xfec80400				// vicky III channel B mouse pointer graphic stored here (16x16 ARGB) - 4byte, WO
 #define VICKYB_MOUSE_CTRL_A2560K	0xfec80c00				// vicky III channel B mouse pointer control register. set to 1 to enable mouse. +2 to do whatever "pointer choice" does. W16, R32
-#define VICKYB_MOUSE_PTR_POS_A2560K	0xfec80c04				// vicky III channel B mouse pointer position (Y pos in upper 16 bits, x in lower)
+#define VICKYB_MOUSE_PTR_POS		0xfec80c04				// vicky III channel B mouse pointer position (Y pos in upper 16 bits, x in lower)
 #define VICKYB_PS2_MOUSE_BYTE_0		0xfec80c0a				// PS/2 mouse movement byte 0 for VICKY to interpret. W16.
 #define VICKYB_PS2_MOUSE_BYTE_1		0xfec80c0c				// PS/2 mouse movement byte 1 for VICKY to interpret. W16.
 #define VICKYB_PS2_MOUSE_BYTE_2		0xfec80c0e				// PS/2 mouse movement byte 2 for VICKY to interpret. W16.
@@ -1344,6 +1346,10 @@ typedef struct System System;					// defined in lib_sys.h
 typedef struct Bitmap Bitmap;					// defined in bitmap.h
 typedef struct List List;						// defined in list.h
 typedef struct EventRecord EventRecord;			// defined in event.h
+typedef struct EventKeyboard EventKeyboard;		// defined in event.h
+typedef struct EventMenu EventMenu;				// defined in event.h
+typedef struct EventMouse EventMouse;			// defined in event.h
+typedef struct EventWindow EventWindow;			// defined in event.h
 typedef struct EventManager EventManager;		// defined in event.h
 typedef struct MouseTracker MouseTracker;		// defined in mouse.h
 typedef struct MenuItem MenuItem;				// defined in menu.h
