@@ -224,7 +224,7 @@ void Menu_LayoutMenu(Menu* the_menu)
 			Bitmap_SetXY(the_menu->bitmap_, MENU_MARGIN + the_menu->inner_width_ - 1 - FONT_CHAR_MENU_RIGHT_WIDTH, MENU_MARGIN + back_row_height + (row_height * i));
 			pixels_used = Font_DrawChar(the_menu->bitmap_, FONT_CHAR_MENU_RIGHT, the_font);
 			
-			DEBUG_OUT(("%s %d: menu id %i was a submenu, > drawn at %i, %i; %i pixels used", __func__, __LINE__, this_menu_item->id_, MENU_MARGIN + the_menu->inner_width_ - 1 - FONT_CHAR_MENU_RIGHT_WIDTH, MENU_MARGIN + (row_height * i)));
+			DEBUG_OUT(("%s %d: menu id %i was a submenu, > drawn at %i, %i; %i pixels used", __func__, __LINE__, this_menu_item->id_, MENU_MARGIN + the_menu->inner_width_ - 1 - FONT_CHAR_MENU_RIGHT_WIDTH, MENU_MARGIN + (row_height * i), pixels_used));
 		}
 		
 		this_menu_item->selection_rect_.MinX = MENU_MARGIN;
@@ -568,6 +568,8 @@ void Menu_Render(Menu* the_menu)
 		LOG_ERR(("%s %d: passed class object was null", __func__ , __LINE__));
 		goto error;
 	}
+	
+	DEBUG_OUT(("%s %d: menu visible=%u, invalidated=u", __func__, __LINE__, the_menu->visible_, the_menu->invalidated_));
 	
 	if (the_menu->visible_ == false)
 	{

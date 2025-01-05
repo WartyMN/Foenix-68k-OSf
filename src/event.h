@@ -85,6 +85,7 @@ typedef enum event_kind
 	menuSelected			,	// menu event
 	menuCanceled			,	// menu event
 	diskEvt					,	// DOS event
+	invalidEvent			,	// marker for last event type supported
 } event_kind;
 
 

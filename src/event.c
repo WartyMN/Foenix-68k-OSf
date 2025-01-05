@@ -94,10 +94,25 @@ void Event_Print(EventRecord* the_event)
 		DEBUG_OUT(("  window_: (NULL)"));
 	}
 	DEBUG_OUT(("  control_: %p", the_event->control_));
-// 	DEBUG_OUT(("  x_: %i", the_event->x_));
-// 	DEBUG_OUT(("  y_: %i", the_event->y_));
-// 	DEBUG_OUT(("  modifiers_: %x", the_event->modifiers_));
+	
+	if (the_event->what_ >= mouseDown && the_event->what_ <= mouseMoved)
+	{
+		DEBUG_OUT(("  mouse_ x,y: %i, %i", the_event->mouseinfo_.x_, the_event->mouseinfo_.y_));
+	}
+	else if (the_event->what_ >= keyDown && the_event->what_ <= autoKey)
+	{
+		DEBUG_OUT(("  key_ key,char,modifiers,src: %x, %x, %x, %x", the_event->keyinfo_.key_, the_event->keyinfo_.char_, the_event->keyinfo_.modifiers_, the_event->keyinfo_.source_));
+	}
+	else if (the_event->what_ >= windowChanged && the_event->what_ <= controlClicked)
+	{
+		DEBUG_OUT(("  window_ x,y,width,height: %i, %i, %i, %i", the_event->windowinfo_.x_, the_event->windowinfo_.y_, the_event->windowinfo_.width_, the_event->windowinfo_.height_));
+	}
+	else if (the_event->what_ >= menuOpened && the_event->what_ <= menuCanceled)
+	{
+		DEBUG_OUT(("  menu_ x,y,selection: %i, %i, %i", the_event->menuinfo_.x_, the_event->menuinfo_.y_, the_event->menuinfo_.selection_));
+	}
 }
+
 
 void EventManager_Print(EventManager* the_event_manager)
 {
@@ -365,15 +380,15 @@ EventRecord* EventManager_NextEvent(void)
 	
 	if (the_event_manager->read_idx_ == the_event_manager->write_idx_)
 	{
-		DEBUG_OUT(("%s %d: read_idx_=%i SAME AS write_idx_=%i", __func__, __LINE__, the_event_manager->read_idx_, the_event_manager->write_idx_));
+		//DEBUG_OUT(("%s %d: read_idx_=%i SAME AS write_idx_=%i", __func__, __LINE__, the_event_manager->read_idx_, the_event_manager->write_idx_));
 		return NULL;
 	}
 	
 	the_event = the_event_manager->queue_[the_event_manager->read_idx_];
 
-	DEBUG_OUT(("%s %d: Next Event: type=%i", __func__, __LINE__, the_event->what_));
-	EventManager_Print(the_event_manager);
-	//Event_Print(the_event);
+	DEBUG_OUT(("%s %d: Next Event: type=%i, ptr=%p", __func__, __LINE__, the_event->what_, the_event));
+	//EventManager_Print(the_event_manager);
+	Event_Print(the_event);
 	
 	the_event_manager->read_idx_++;
 	the_event_manager->read_idx_ %= EVENT_QUEUE_SIZE;
@@ -423,8 +438,12 @@ void EventManager_AddMouseEvent(event_kind the_what)
 	the_event_manager->write_idx_ %= EVENT_QUEUE_SIZE;
 	
 	vicky_mouse_pos = NR32(VICKYB_MOUSE_PTR_POS);
-	the_event->mouseinfo_.x_ = (vicky_mouse_pos & 0xffff0000) >> 16;
-	the_event->mouseinfo_.y_ = vicky_mouse_pos & 0x0000ffff;
+	// mb: 2025-01-04: this is producing "DEADBEEF". Probably from the FPGA. feature may not be ready yet. use temp hard-coded butlegal values until fix.
+	DEBUG_OUT(("%s %d: vicky_mouse_pos=%u, %x", __func__, __LINE__, vicky_mouse_pos, vicky_mouse_pos));
+	//the_event->mouseinfo_.x_ = (int16_t)((vicky_mouse_pos & 0xffff0000) >> 16);
+	//the_event->mouseinfo_.y_ = (int16_t)vicky_mouse_pos & 0x0000ffff;
+	the_event->mouseinfo_.x_ = 50;
+	the_event->mouseinfo_.y_ = 50;
 	the_event->mouseinfo_.modifiers_ = noneFlagBit;
 
 	the_event->when_ = sys_time_jiffies();
@@ -467,7 +486,7 @@ void EventManager_AddWindowEvent(event_kind the_what, int16_t x, int16_t y, int1
 	the_event_manager->write_idx_ %= EVENT_QUEUE_SIZE;
 	
 	the_event->window_ = the_window;
-	the_event->control_ = NULL; // TODO: find control.
+	the_event->control_ = the_control;
 	the_event->windowinfo_.modifiers_ = noneFlagBit;
 	the_event->windowinfo_.x_ = x;
 	the_event->windowinfo_.y_ = y;
@@ -549,12 +568,17 @@ void EventManager_HandleMouseUp(EventManager* the_event_manager, EventRecord* th
 	starting_mode = Mouse_GetMode(the_event_manager->mouse_tracker_);
 
 	the_active_window = Sys_GetActiveWindow(global_system);
-	the_window = Sys_GetWindowAtXY(global_system, the_event->mouseinfo_.x_, the_event->mouseinfo_.y_);
+	// MB: 2025-01-04: getting maybe stack corruption sometimes. x not getting to other end, sometimes. trying to see if local var will help.
+	//the_window = Sys_GetWindowAtXY(global_system, the_event->mouseinfo_.x_, the_event->mouseinfo_.y_);
+	local_x = the_event->mouseinfo_.x_;
+	local_y = the_event->mouseinfo_.y_;
+	the_window = Sys_GetWindowAtXY(global_system, local_x, local_y);
 
 	if (the_window == NULL)
 	{
-		LOG_ERR(("%s %d: no window found at %i, %i!", __func__, __LINE__, the_event->mouseinfo_.x_, the_event->mouseinfo_.y_));
-		goto error;
+		LOG_ERR(("%s %d: no window found at %i, %i, reverting to backdrop win", __func__, __LINE__, the_event->mouseinfo_.x_, the_event->mouseinfo_.y_));
+		the_window = Sys_GetBackdropWindow(global_system);
+		//goto error;
 	}
 	DEBUG_OUT(("%s %d: active window = '%s', clicked window = '%s'", __func__, __LINE__, the_active_window->title_, the_window->title_));
 	
@@ -829,6 +853,7 @@ void EventManager_HandleMouseDown(EventManager* the_event_manager, EventRecord* 
 	// check for click in a draggable region
 	MouseMode	possible_drag_mode;
 	
+	DEBUG_OUT(("%s %d: about to call Window_CheckForDragZone; event win=%p, lx=%i, ly=%i", __func__, __LINE__, the_event->window_, local_x, local_y));
 	possible_drag_mode = Window_CheckForDragZone(the_event->window_, local_x, local_y);
 	
 	if (possible_drag_mode != mouseFree)
@@ -1120,196 +1145,207 @@ void EventManager_WaitForEvent(void)
 {
 	EventManager*	the_event_manager;
 	EventRecord*	the_event;
+	bool			exit_loop = false;
 	
 	the_event_manager = Sys_GetEventManager(global_system);
 	
-	DEBUG_OUT(("%s %d: write_idx_=%i, read_idx_=%i", __func__, __LINE__, the_event_manager->write_idx_, the_event_manager->read_idx_));
+	//DEBUG_OUT(("%s %d: write_idx_=%i, read_idx_=%i", __func__, __LINE__, the_event_manager->write_idx_, the_event_manager->read_idx_));
 
-	while ( (the_event = EventManager_NextEvent()) != NULL)
+	//while ( (the_event = EventManager_NextEvent()) != NULL)	// mb: this is getting a real event pointer, but the pointer shows 0 for some reason. 
+	while ( !exit_loop)
 	{
 		MouseMode		starting_mode;
 		Window*			the_active_window;
 		
-		DEBUG_OUT(("%s %d: Received Event Event: type=%i", __func__, __LINE__, the_event->what_));
-		//Event_Print(the_event);
+		the_event = EventManager_NextEvent();	// MB 2025: in theory, this should return NULLs some time, but it is always returnning NULL, even tho pointer works. See Event_Print()
 		
-		starting_mode = Mouse_GetMode(the_event_manager->mouse_tracker_);
-		
-		// LOGIC:
-		//   event could be for:
-		//   1. a mouse event. Will sort out non-app window click vs main window click vs about window click in the specific handler
-		//   2. an update event. need to detect and route for main window vs about window
-		//   3. an activate event. need to detect and route for main window vs about window
-		//   4. a keyboard event. need to check for menu shortcuts and activate menus. no other keyboard input needed.
-
-		switch (the_event->what_)
+		if (the_event->what_ == nullEvent || the_event->what_ >= invalidEvent)
 		{
-			case nullEvent:
-				DEBUG_OUT(("%s %d: null event", __func__, __LINE__));
-				break;
-		
-			case mouseMoved:				
-				DEBUG_OUT(("%s %d: mouse move event (%i, %i)", __func__, __LINE__, the_event->mouseinfo_.x_, the_event->mouseinfo_.y_));
-
-				EventManager_HandleMouseMoved(the_event_manager, the_event);
+			exit_loop = true;
+		}
+		else
+		{
+			DEBUG_OUT(("%s %d: Received Event: type=%i", __func__, __LINE__, the_event->what_));
+			//Event_Print(the_event);
+			
+			starting_mode = Mouse_GetMode(the_event_manager->mouse_tracker_);
+			
+			// LOGIC:
+			//   event could be for:
+			//   1. a mouse event. Will sort out non-app window click vs main window click vs about window click in the specific handler
+			//   2. an update event. need to detect and route for main window vs about window
+			//   3. an activate event. need to detect and route for main window vs about window
+			//   4. a keyboard event. need to check for menu shortcuts and activate menus. no other keyboard input needed.
 	
-				break;
-				
-			case mouseDown:				
-				DEBUG_OUT(("%s %d: mouse down event (%i, %i)", __func__, __LINE__, the_event->mouseinfo_.x_, the_event->mouseinfo_.y_));
-
-				EventManager_HandleMouseDown(the_event_manager, the_event);
-				
-				break;
-
-			case mouseUp:
-				DEBUG_OUT(("%s %d: mouse up event (%i, %i)", __func__, __LINE__, the_event->mouseinfo_.x_, the_event->mouseinfo_.y_));
-
-				EventManager_HandleMouseUp(the_event_manager, the_event);
-				
-				break;
-
-			case rMouseDown:				
-				DEBUG_OUT(("%s %d: right mouse down event (%i, %i)", __func__, __LINE__, the_event->mouseinfo_.x_, the_event->mouseinfo_.y_));
-
-				EventManager_HandleRightMouseDown(the_event_manager, the_event);
-				
-				break;
-
-			case rMouseUp:
-				DEBUG_OUT(("%s %d: right mouse up event (%i, %i)", __func__, __LINE__, the_event->mouseinfo_.x_, the_event->mouseinfo_.y_));
-
-				// eat this event: we don't care about right mouse up: menu events are designed to fire on right mouse DOWN
-				
-				break;
-
-			case menuOpened:
-				DEBUG_OUT(("%s %d: menu opened event: %c", __func__, __LINE__, the_event->menuinfo_.selection_));
-				// give window an event
-				(*the_event->window_->event_handler_)(the_event);
+			switch (the_event->what_)
+			{
+				case nullEvent:
+					DEBUG_OUT(("%s %d: null event", __func__, __LINE__));
+					break;
+			
+				case mouseMoved:				
+					DEBUG_OUT(("%s %d: mouse move event (%i, %i)", __func__, __LINE__, the_event->mouseinfo_.x_, the_event->mouseinfo_.y_));
+	
+					EventManager_HandleMouseMoved(the_event_manager, the_event);
 		
-				break;
-				
-			case menuSelected:
-				DEBUG_OUT(("%s %d: menu item selected event: %c", __func__, __LINE__, the_event->menuinfo_.selection_));
-				// give window an event
-				(*the_event->window_->event_handler_)(the_event);
-		
-				break;
-				
-			case controlClicked:
-				DEBUG_OUT(("%s %d: control clicked event: %c", __func__, __LINE__, the_event->control_->id_));
-				// give window an event
-				(*the_event->window_->event_handler_)(the_event);
-		
-				break;
-				
-			case keyDown:
-				DEBUG_OUT(("%s %d: key down event: '%c' (%x) mod (%x)", __func__, __LINE__, the_event->keyinfo_.key_, the_event->keyinfo_.key_, the_event->keyinfo_.modifiers_));
-
-				// give active window an event
-				the_active_window = Sys_GetActiveWindow(global_system);
-
-				(*the_active_window->event_handler_)(the_event);				
-
-				break;
+					break;
+					
+				case mouseDown:				
+					DEBUG_OUT(("%s %d: mouse down event (%i, %i)", __func__, __LINE__, the_event->mouseinfo_.x_, the_event->mouseinfo_.y_));
+	
+					EventManager_HandleMouseDown(the_event_manager, the_event);
+					
+					break;
+	
+				case mouseUp:
+					DEBUG_OUT(("%s %d: mouse up event (%i, %i)", __func__, __LINE__, the_event->mouseinfo_.x_, the_event->mouseinfo_.y_));
+	
+					EventManager_HandleMouseUp(the_event_manager, the_event);
+					
+					break;
+	
+				case rMouseDown:				
+					DEBUG_OUT(("%s %d: right mouse down event (%i, %i)", __func__, __LINE__, the_event->mouseinfo_.x_, the_event->mouseinfo_.y_));
+	
+					EventManager_HandleRightMouseDown(the_event_manager, the_event);
+					
+					break;
+	
+				case rMouseUp:
+					DEBUG_OUT(("%s %d: right mouse up event (%i, %i)", __func__, __LINE__, the_event->mouseinfo_.x_, the_event->mouseinfo_.y_));
+	
+					// eat this event: we don't care about right mouse up: menu events are designed to fire on right mouse DOWN
+					
+					break;
+	
+				case menuOpened:
+					DEBUG_OUT(("%s %d: menu opened event: %c", __func__, __LINE__, the_event->menuinfo_.selection_));
+					// give window an event
+					(*the_event->window_->event_handler_)(the_event);
 			
-			case keyUp:
-				DEBUG_OUT(("%s %d: key up event: '%c' (%x) mod (%x)", __func__, __LINE__, the_event->keyinfo_.key_, the_event->keyinfo_.key_, the_event->keyinfo_.modifiers_));
-
-				// give active window an event
-				the_active_window = Sys_GetActiveWindow(global_system);
-
-				(*the_active_window->event_handler_)(the_event);				
-
-				break;
-
-			case updateEvt:
-				DEBUG_OUT(("%s %d: updateEvt event", __func__, __LINE__));
-
-				// give window an event
-				(*the_event->window_->event_handler_)(the_event);				
-
-// 				// Get a RSS surface pointer from the message
-// 				//  LOGIC: the_window will be 0 in some cases
-// 				//    for activateEvt and updateEvt, message will be WindowPtr
-// 				//    (see EventRecord)
-// 			
-// 				affected_app_window = (RSSWindow*)GetWRefCon((WindowPtr)the_event->message);
-// 
-// 				if (affected_app_window == global_app->main_window_)
-// 				{
-// 					the_surface = (RSSWindow*)affected_app_window;
-// 					Window_HandleUpdateEvent(the_surface, the_event);
-// 				}
-// 				else
-// 				{
-// 					// maybe it was an About window that got the event? 	
-// 					if (affected_app_window == global_app->about_window_)
-// 					{
-// 						the_about_window = (RSSAboutWindow*)affected_app_window;
-// 						AboutWindow_HandleUpdateEvent(the_about_window, the_event);
-// 					}
-// 				}
-// 			
-// 				return kUIMsgTypeNonRelevant;
-				break;
+					break;
+					
+				case menuSelected:
+					DEBUG_OUT(("%s %d: menu item selected event: %c", __func__, __LINE__, the_event->menuinfo_.selection_));
+					// give window an event
+					(*the_event->window_->event_handler_)(the_event);
 			
-			case activateEvt:
-				DEBUG_OUT(("%s %d: activateEvt event", __func__, __LINE__));
-
-				// give window an event
-				(*the_event->window_->event_handler_)(the_event);				
-
-				
-				// tell window to make its active_ state
-				//Window_SetActive(the_event->window_, true); // now this is done as part of Sys_SetActiveWindow
-
-				// do what, exactly? 
-				//Sys_SetActiveWindow(global_system, the_event->window_); // don't set here, set in the mouse down thing that caused it
-				//Sys_Render(global_system);
-
-				//Sys_SetActiveWindow(global_system, the_event->window_);
-				//DEBUG_OUT(("%s %d: **** changed active window to = '%s'; redrawing all windows", __func__, __LINE__, the_event->window_));
-				
-				
-				// need to make system move the window to the front
-				// but also need to give app a chance to get this activate event before system does that. 
-				//Window_Activate(the_event->window_);
-				
-				break;
+					break;
+					
+				case controlClicked:
+					DEBUG_OUT(("%s %d: control clicked event: %c", __func__, __LINE__, the_event->control_->id_));
+					// give window an event
+					(*the_event->window_->event_handler_)(the_event);
 			
-			case inactivateEvt:
-				DEBUG_OUT(("%s %d: inactivateEvt event", __func__, __LINE__));
-				// do what, exactly? 
-				//Sys_SetActiveWindow(global_system, the_event->window_);
+					break;
+					
+				case keyDown:
+					DEBUG_OUT(("%s %d: key down event: '%c' (%x) mod (%x)", __func__, __LINE__, the_event->keyinfo_.key_, the_event->keyinfo_.key_, the_event->keyinfo_.modifiers_));
+	
+					// give active window an event
+					the_active_window = Sys_GetActiveWindow(global_system);
+	
+					(*the_active_window->event_handler_)(the_event);				
+	
+					break;
 				
-				// tell window to make its active_ state
-				Window_SetActive(the_event->window_, false); // now this is done as part of Sys_SetActiveWindow
-				//Sys_Render(global_system);
-
-				// give window an event
-				(*the_event->window_->event_handler_)(the_event);				
-
+				case keyUp:
+					DEBUG_OUT(("%s %d: key up event: '%c' (%x) mod (%x)", __func__, __LINE__, the_event->keyinfo_.key_, the_event->keyinfo_.key_, the_event->keyinfo_.modifiers_));
+	
+					// give active window an event
+					the_active_window = Sys_GetActiveWindow(global_system);
+	
+					(*the_active_window->event_handler_)(the_event);				
+	
+					break;
+	
+				case updateEvt:
+					DEBUG_OUT(("%s %d: updateEvt event", __func__, __LINE__));
+	
+					// give window an event
+					(*the_event->window_->event_handler_)(the_event);				
+	
+	// 				// Get a RSS surface pointer from the message
+	// 				//  LOGIC: the_window will be 0 in some cases
+	// 				//    for activateEvt and updateEvt, message will be WindowPtr
+	// 				//    (see EventRecord)
+	// 			
+	// 				affected_app_window = (RSSWindow*)GetWRefCon((WindowPtr)the_event->message);
+	// 
+	// 				if (affected_app_window == global_app->main_window_)
+	// 				{
+	// 					the_surface = (RSSWindow*)affected_app_window;
+	// 					Window_HandleUpdateEvent(the_surface, the_event);
+	// 				}
+	// 				else
+	// 				{
+	// 					// maybe it was an About window that got the event? 	
+	// 					if (affected_app_window == global_app->about_window_)
+	// 					{
+	// 						the_about_window = (RSSAboutWindow*)affected_app_window;
+	// 						AboutWindow_HandleUpdateEvent(the_about_window, the_event);
+	// 					}
+	// 				}
+	// 			
+	// 				return kUIMsgTypeNonRelevant;
+					break;
 				
-				// need to make system move the window to the front
-				// but also need to give app a chance to get this activate event before system does that. 
-				//Window_Inactivate(the_event->window_);
+				case activateEvt:
+					DEBUG_OUT(("%s %d: activateEvt event", __func__, __LINE__));
+	
+					// give window an event
+					(*the_event->window_->event_handler_)(the_event);				
+	
+					
+					// tell window to make its active_ state
+					//Window_SetActive(the_event->window_, true); // now this is done as part of Sys_SetActiveWindow
+	
+					// do what, exactly? 
+					//Sys_SetActiveWindow(global_system, the_event->window_); // don't set here, set in the mouse down thing that caused it
+					//Sys_Render(global_system);
+	
+					//Sys_SetActiveWindow(global_system, the_event->window_);
+					//DEBUG_OUT(("%s %d: **** changed active window to = '%s'; redrawing all windows", __func__, __LINE__, the_event->window_));
+					
+					
+					// need to make system move the window to the front
+					// but also need to give app a chance to get this activate event before system does that. 
+					//Window_Activate(the_event->window_);
+					
+					break;
 				
-				break;
-
-			case windowChanged:
-				DEBUG_OUT(("%s %d: windowChanged event", __func__, __LINE__));
-
-				// give window an event
-				(*the_event->window_->event_handler_)(the_event);				
-
-				break;
-			
-			default:
-				DEBUG_OUT(("%s %d: other event: %i", __func__, __LINE__, the_event->what_));
+				case inactivateEvt:
+					DEBUG_OUT(("%s %d: inactivateEvt event", __func__, __LINE__));
+					// do what, exactly? 
+					//Sys_SetActiveWindow(global_system, the_event->window_);
+					
+					// tell window to make its active_ state
+					Window_SetActive(the_event->window_, false); // now this is done as part of Sys_SetActiveWindow
+					//Sys_Render(global_system);
+	
+					// give window an event
+					(*the_event->window_->event_handler_)(the_event);				
+	
+					
+					// need to make system move the window to the front
+					// but also need to give app a chance to get this activate event before system does that. 
+					//Window_Inactivate(the_event->window_);
+					
+					break;
+	
+				case windowChanged:
+					DEBUG_OUT(("%s %d: windowChanged event", __func__, __LINE__));
+	
+					// give window an event
+					(*the_event->window_->event_handler_)(the_event);				
+	
+					break;
 				
-				break;
+				default:
+					DEBUG_OUT(("%s %d: other event: %i", __func__, __LINE__, the_event->what_));
+					
+					break;
+			}
 		}
 		
 		//DEBUG_OUT(("%s %d: r idx=%i, w idx=%i, meets_mask will be=%x", __func__, __LINE__, the_event_manager->write_idx_, the_event_manager->read_idx_, the_event->what_ & the_mask));

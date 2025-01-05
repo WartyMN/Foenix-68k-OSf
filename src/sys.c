@@ -241,6 +241,8 @@ void Sys_RenumberWindows(System* the_system)
 	
 // 	DEBUG_OUT(("%s %d: win count=%i", __func__ , __LINE__, the_system->window_count_));
 // 	List_Print(the_system->list_windows_, (void*)&Window_PrintBrief);
+	DEBUG_OUT(("%s %d: window list:", __func__, __LINE__));
+	List_Print(the_system->list_windows_, (void*)&Window_PrintBrief);
 	
 	the_item = *(the_system->list_windows_);
 
@@ -1738,11 +1740,13 @@ Window* Sys_GetWindowAtXY(System* the_system, int16_t x, int16_t y)
 	
 	if (the_system->window_count_ < 1)
 	{
+		DEBUG_OUT(("%s %d: system window count <1", __func__ , __LINE__));
 		return NULL;
 	}
 	
 	if (x < 0 || y < 0)
 	{
+		DEBUG_OUT(("%s %d: either x (%i) or y was negative (%i).", __func__ , __LINE__, x, y));
 		return NULL;
 	}
 	
@@ -1759,6 +1763,8 @@ Window* Sys_GetWindowAtXY(System* the_system, int16_t x, int16_t y)
 		Window*		this_window = (Window*)(the_item->payload_);
 		
 		in_this_win = General_PointInRect(x, y, this_window->global_rect_);
+		
+		DEBUG_OUT(("%s %d: in_this_win=%u, x/y=%i,%i, win rect=%i,%i", __func__ , __LINE__, in_this_win, x, y, this_window->global_rect_.MaxX, this_window->global_rect_.MaxY));
 		
 		if (in_this_win)
 		{

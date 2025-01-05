@@ -801,7 +801,7 @@ void Open2Windows(void)
 	Window*				the_window[2];
 	NewWinTemplate*		the_win_template;
 	int16_t				max_width = 300;
-	int16_t				max_height = 460;
+	int16_t				max_height = 350;
 	char				title_buff[WINDOW_MAX_WINTITLE_SIZE];
 	char*				the_win_title = title_buff;
 	int16_t				win_num;
@@ -832,17 +832,14 @@ printf("Could not get a new window template \n");
 		if ( (the_window[win_num] = Window_New(the_win_template, &SharedEventHandler)) == NULL)
 		{
 			DEBUG_OUT(("%s %d: Couldn't instantiate a window", __func__, __LINE__));
-printf("Couldn't instantiate a window \n");
 			return;
 		}
 		
 		// add controls to the window
 		AddControls(the_window[win_num]);
-printf("added controls to the window \n");
 	
 		// declare the window to be visible
 		Window_SetVisible(the_window[win_num], true);
-printf("declared the window to be visible \n");
 	}
 }
 
@@ -865,12 +862,12 @@ void TestWindowEvents(void)
 	int16_t	tinywin_x = 10;
 	int16_t	tinywin_y = 400;
 	
-	int16_t total_events_handled = 0;
+	int16_t total_events_handled = 1;
 	
-	ShowDescription("This is a demo of window event handling, including mouse clicks, window resizing, closing, and moving. Next action: Click on Window #1's titlebar to activate it (make it front-most window)");	
-	WaitForUser();
+	//ShowDescription("This is a demo of window event handling, including mouse clicks, window resizing, closing, and moving. Next action: Click on Window #1's titlebar to activate it (make it front-most window)");	
+	//WaitForUser();
 
-	while (total_events_handled < 25000)
+	while (1==1)	// run forever
 	{
 		EventManager_WaitForEvent();
 		total_events_handled++;
@@ -1097,7 +1094,7 @@ void SharedEventHandler(EventRecord* the_event)
 	Window*				the_window;
 	static Rectangle	the_rect;
 	
-// 	DEBUG_OUT(("%s %d: reached", __func__, __LINE__));
+	DEBUG_OUT(("%s %d: reached", __func__, __LINE__));
 
 	the_window = the_event->window_;
 
@@ -1157,6 +1154,13 @@ void SharedEventHandler(EventRecord* the_event)
 				
 				break;
 			
+			case mMouseDown:
+				
+				DEBUG_OUT(("%s %d: middle mouse down event, using as signal to quit", __func__, __LINE__));
+				Sys_Exit(&global_system, PARAM_EXIT_NO_ERROR);				
+				
+				break;
+
 			case keyDown:
 				DEBUG_OUT(("%s %d: key down event: '%c' (%x)", __func__, __LINE__, the_event->keyinfo_.key_, the_event->keyinfo_.key_));
 				//return App_HandleKeyDown(the_event);
@@ -1412,7 +1416,8 @@ void RunDemo(void)
 
 	
 	Open2Windows();
-
+	CreateMenuSystem();
+	
 // 	OpenMultipleWindows();
 // 
 // 	OpenTinyWindow();
@@ -1425,7 +1430,7 @@ void RunDemo(void)
 	TestWindowEvents();
 
 	// test menu system. Expects some kind of window to be open, but doesn't care what.	
-	TestMenus();
+	//TestMenus();
 
 // 	// delay a bit before switching
 // 	General_DelaySeconds(3);
