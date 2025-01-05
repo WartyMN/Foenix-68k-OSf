@@ -197,6 +197,9 @@ ControlTemplate* Theme_GetMaximizeControlTemplate(Theme* the_theme);
 //! Create a control template for a flexible-width control
 ControlTemplate* Theme_CreateControlTemplateFlexWidth(Theme* the_theme, control_type the_type, int16_t width, int16_t height, int16_t x_offset, int16_t y_offset, h_align_type h_align, v_align_type v_align, char* caption);
 
+//! Create a control template for a fixed-width control with no background
+ControlTemplate* Theme_CreateControlTemplateFixedWidth(Theme* the_theme, control_type the_type, int16_t width, int16_t height, int16_t x_offset, int16_t y_offset, h_align_type h_align, v_align_type v_align, char* caption);
+
 Bitmap* Theme_GetDesktopPattern(Theme* the_theme);
 
 ColorIdx Theme_GetTitlebarColor(Theme* the_theme);

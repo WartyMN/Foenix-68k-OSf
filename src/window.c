@@ -1491,10 +1491,22 @@ Control* Window_AddNewControl(Window* the_window, control_type the_type, int16_t
 	
 	the_theme = Sys_GetTheme(global_system);
 	
-	if ( (the_template = Theme_CreateControlTemplateFlexWidth(the_theme, the_type, width, height, x_offset, y_offset, the_h_align, the_v_align, the_caption)) == NULL)
+	if (the_type != LABEL)
 	{
-		LOG_ERR(("%s %d: Failed to create the control template", __func__, __LINE__));
-		return NULL;
+		if ( (the_template = Theme_CreateControlTemplateFlexWidth(the_theme, the_type, width, height, x_offset, y_offset, the_h_align, the_v_align, the_caption)) == NULL)
+		{
+			LOG_ERR(("%s %d: Failed to create the control template", __func__, __LINE__));
+			return NULL;
+		}
+	}
+	else
+	{
+		// labels are not flex width
+		if ( (the_template = Theme_CreateControlTemplateFixedWidth(the_theme, the_type, width, height, x_offset, y_offset, the_h_align, the_v_align, the_caption)) == NULL)
+		{
+			LOG_ERR(("%s %d: Failed to create the control template", __func__, __LINE__));
+			return NULL;
+		}
 	}
 	
 	the_control = Window_AddNewControlFromTemplate(the_window, the_template, the_id, group_id);

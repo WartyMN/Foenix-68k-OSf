@@ -3148,6 +3148,77 @@ ControlTemplate* Theme_CreateControlTemplateFlexWidth(Theme* the_theme, control_
 }
 
 
+//! Create a control template for a fixed-width control with no background
+ControlTemplate* Theme_CreateControlTemplateFixedWidth(Theme* the_theme, control_type the_type, int16_t width, int16_t height, int16_t x_offset, int16_t y_offset, h_align_type h_align, v_align_type v_align, char* caption)
+{
+	ControlTemplate*	the_template;
+	int8_t				is_active;
+	int8_t				is_pushed;
+	Bitmap*				the_bitmap;
+
+	// LOGIC:
+	//   until we have a file system in f68/MCP, need to load from ROM (memory)
+	//   perhaps even after we have file system, in case user borks their system resources
+	//   unlike buttons, etc., labels only use ONE bitmap for all states (active/inactive, pushed, not pushed)
+	//   we only need to allocate one bitmap, and reference it for all state bitmaps
+	
+	if (the_theme == NULL)
+	{
+		LOG_ERR(("%s %d: passed class object was null", __func__ , __LINE__));
+		return NULL;
+	}
+	
+	if (the_type == TEXT_BUTTON || the_type == TEXT_FIELD)
+	{
+		LOG_ERR(("%s %d: control_type %i is is not a fixed-width control", __func__ , __LINE__));
+		return NULL;
+	}
+	
+	if ( (the_template = ControlTemplate_New()) == NULL)
+	{
+		LOG_ERR(("%s %d: could not allocate memory to create new ControlTemplate", __func__ , __LINE__));
+		return NULL;
+	}
+	LOG_ALLOC(("%s %d:	__ALLOC__	the_template	%p	size	%i", __func__ , __LINE__, the_template, sizeof(ControlTemplate)));
+	TRACK_ALLOC((sizeof(ControlTemplate)));
+	
+	// create one bitmap, use in all states
+	if ( (the_bitmap = Bitmap_New(width, height, NULL, PARAM_NOT_IN_VRAM) ) == NULL)
+	{
+		LOG_ERR(("%s %d: could not create new Bitmap", __func__ , __LINE__));
+		return NULL;
+	}
+
+	// fill with the background tile for the theme
+	Bitmap_FillMemory(the_bitmap, the_theme->standard_back_color_);
+
+	// set this common bitmap for all states
+	for (is_active = 0; is_active < 2; is_active++)
+	{
+		for (is_pushed = 0; is_pushed < 2; is_pushed++)
+		{
+			the_template->image_[is_active][is_pushed] = the_bitmap;
+		}
+	}
+
+	the_template->type_ = the_type;
+	the_template->h_align_ = h_align;
+	the_template->v_align_ = v_align;
+	the_template->x_offset_ = x_offset;
+	the_template->y_offset_ = y_offset;
+	the_template->width_ = width;
+	the_template->height_ = height;
+	the_template->min_ = 0;
+	the_template->max_ = 1;
+	the_template->caption_ = caption;
+	the_template->avail_text_width_ = width;
+	
+	//ControlTemplate_Print(the_template);
+	
+	return the_template;
+}
+
+
 
 // this is kind of dumb. you might as well just not do this, with all the params passed. 
 // better to just make a Bitmap_NewFromMemory() function that wraps around Bitmap_New, and copies in. but even then, you aren't saving much.
