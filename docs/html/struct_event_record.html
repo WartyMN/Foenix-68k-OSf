@@ -103,30 +103,19 @@ $(document).ready(function(){initNavTree('struct_event_record.html',''); initRes
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Data Fields</h2></td></tr>
-<tr class="memitem:ae5bedaeb16c23659516527b96127664b"><td class="memItemLeft" align="right" valign="top"><a id="ae5bedaeb16c23659516527b96127664b" name="ae5bedaeb16c23659516527b96127664b"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>when_</b></td></tr>
-<tr class="memdesc:ae5bedaeb16c23659516527b96127664b"><td class="mdescLeft">&#160;</td><td class="mdescRight">For keydown, keyup: the key code. For windowChanged, the width in the high word, height in the low word. <br /></td></tr>
-<tr class="separator:ae5bedaeb16c23659516527b96127664b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aac4aa42e68858fcfe9e6f9bf4f47d63d"><td class="memItemLeft" align="right" valign="top"><a id="aac4aa42e68858fcfe9e6f9bf4f47d63d" name="aac4aa42e68858fcfe9e6f9bf4f47d63d"></a>
-<a class="el" href="struct_window.html">Window</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>window_</b></td></tr>
-<tr class="memdesc:aac4aa42e68858fcfe9e6f9bf4f47d63d"><td class="mdescLeft">&#160;</td><td class="mdescRight">ticks <br /></td></tr>
-<tr class="separator:aac4aa42e68858fcfe9e6f9bf4f47d63d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae46009b16d10420c07ee1d507c540a20"><td class="memItemLeft" align="right" valign="top"><a id="ae46009b16d10420c07ee1d507c540a20" name="ae46009b16d10420c07ee1d507c540a20"></a>
+event_kind&#160;</td><td class="memItemRight" valign="bottom"><b>what_</b></td></tr>
+<tr class="memdesc:ae46009b16d10420c07ee1d507c540a20"><td class="mdescLeft">&#160;</td><td class="mdescRight">ticks <br /></td></tr>
+<tr class="separator:ae46009b16d10420c07ee1d507c540a20"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a471735ee1c1980f2e3b4c6da660f3d0b"><td class="memItemLeft" align="right" valign="top"><a id="a471735ee1c1980f2e3b4c6da660f3d0b" name="a471735ee1c1980f2e3b4c6da660f3d0b"></a>
 <a class="el" href="struct_control.html">Control</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>control_</b></td></tr>
-<tr class="memdesc:a471735ee1c1980f2e3b4c6da660f3d0b"><td class="mdescLeft">&#160;</td><td class="mdescRight">not set for a diskEvt <br /></td></tr>
+<tr class="memdesc:a471735ee1c1980f2e3b4c6da660f3d0b"><td class="mdescLeft">&#160;</td><td class="mdescRight">The affected window (if any). May be NULL. <br /></td></tr>
 <tr class="separator:a471735ee1c1980f2e3b4c6da660f3d0b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a93fda04b0130c985451a6d13b0ad045c"><td class="memItemLeft" align="right" valign="top"><a id="a93fda04b0130c985451a6d13b0ad045c" name="a93fda04b0130c985451a6d13b0ad045c"></a>
-int16_t&#160;</td><td class="memItemRight" valign="bottom"><b>x_</b></td></tr>
-<tr class="memdesc:a93fda04b0130c985451a6d13b0ad045c"><td class="mdescLeft">&#160;</td><td class="mdescRight">not set for every event type. if not set on mouseDown/Up, pointer was not over a control <br /></td></tr>
-<tr class="separator:a93fda04b0130c985451a6d13b0ad045c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad6ac6ddc507646288a46ae321944e9c4"><td class="memItemLeft" align="right" valign="top"><a id="ad6ac6ddc507646288a46ae321944e9c4" name="ad6ac6ddc507646288a46ae321944e9c4"></a>
-int16_t&#160;</td><td class="memItemRight" valign="bottom"><b>y_</b></td></tr>
-<tr class="memdesc:ad6ac6ddc507646288a46ae321944e9c4"><td class="mdescLeft">&#160;</td><td class="mdescRight">for mouse events: the global x position of mouse. for windowChanged, the new global x posiiton of the window. <br /></td></tr>
-<tr class="separator:ad6ac6ddc507646288a46ae321944e9c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7dc9078273180e64a1dd433d589420dd"><td class="memItemLeft" align="right" valign="top"><a id="a7dc9078273180e64a1dd433d589420dd" name="a7dc9078273180e64a1dd433d589420dd"></a>
-event_modifiers&#160;</td><td class="memItemRight" valign="bottom"><b>modifiers_</b></td></tr>
-<tr class="memdesc:a7dc9078273180e64a1dd433d589420dd"><td class="mdescLeft">&#160;</td><td class="mdescRight">for mouse events: the global y position of mouse. for windowChanged, the new global y posiiton of the window. <br /></td></tr>
-<tr class="separator:a7dc9078273180e64a1dd433d589420dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af94b6460ff1ec13649c3d27c4164cb1c"><td class="memItemLeft" ><a id="af94b6460ff1ec13649c3d27c4164cb1c" name="af94b6460ff1ec13649c3d27c4164cb1c"></a>
+union {</td></tr>
+<tr class="memitem:af94b6460ff1ec13649c3d27c4164cb1c"><td class="memItemLeft" valign="top">};&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="memdesc:af94b6460ff1ec13649c3d27c4164cb1c"><td class="mdescLeft">&#160;</td><td class="mdescRight">The affected control (if any). May be NULL. <br /></td></tr>
+<tr class="separator:af94b6460ff1ec13649c3d27c4164cb1c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <hr/>The documentation for this struct was generated from the following file:<ul>
 <li><a class="el" href="event_8h_source.html">event.h</a></li>

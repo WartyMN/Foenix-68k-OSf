@@ -3,12 +3,11 @@
 Provides various functions for using the Foenix A2560's graphics mode. See below for the list of functionality.
 
 ## Status
-50% complete. Next phase: Start writing code.  
+75% complete. Next phase: Wait for A2560 FPGA updates to improve the 
 I do not have any hardware yet. I'm doing all development against the f68 emulator, but that itself is also a tool in development. 
 
 ## Why you might want this:
-If you have, or are considering acquiring an A2560K or GenX (68040 OR 486 + 65816), and want a simple library to work with bitmap graphics in your C programs.  
-Note: **NO ONE SHOULD USE THIS, OR EVEN LOOK IN ITS DIRECTION!** (until I get some real hardware and can complete the job).
+If you have, or are considering acquiring an A2560K or GenX (68040 + 65816), and want a simple library to work with bitmap graphics in your C programs.  
 
 ## How to use it
 The A2560 kernel/OS doesn't support dynamically linked libraries yet, so for now, it is only available as a static library. In the "for_vbcc" folder, you will file a header file, and the library. Add these to your $VBCC "targets/a2560-elf" folder.  

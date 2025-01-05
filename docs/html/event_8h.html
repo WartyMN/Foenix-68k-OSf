@@ -109,6 +109,14 @@ $(document).ready(function(){initNavTree('event_8h.html',''); initResizable(); }
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Data Structures</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_event_keyboard.html">EventKeyboard</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_event_menu.html">EventMenu</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_event_mouse.html">EventMouse</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_event_window.html">EventWindow</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_event_record.html">EventRecord</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_event_manager.html">EventManager</a></td></tr>
@@ -132,23 +140,29 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>EventManager_RemoveEv
 <a class="el" href="struct_event_record.html">EventRecord</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>EventManager_NextEvent</b> (void)</td></tr>
 <tr class="memdesc:a9701a53a907a72002b4675b702015f88"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks to see if there is an event in the queue returns NULL if no event (not the same as returning an event of type nullEvent) <br /></td></tr>
 <tr class="separator:a9701a53a907a72002b4675b702015f88"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae5744033a61b1efd7fff24e7b151587b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="event_8h.html#ae5744033a61b1efd7fff24e7b151587b">EventManager_AddEvent</a> (event_kind the_what, uint32_t the_code, int16_t x, int16_t y, event_modifiers the_modifiers, <a class="el" href="struct_window.html">Window</a> *the_window, <a class="el" href="struct_control.html">Control</a> *the_control)</td></tr>
-<tr class="memdesc:ae5744033a61b1efd7fff24e7b151587b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add a new event to the event queue NOTE: this does not actually insert a new record, as the event queue is a circular buffer It overwrites whatever slot is next in line.  <a href="event_8h.html#ae5744033a61b1efd7fff24e7b151587b">More...</a><br /></td></tr>
-<tr class="separator:ae5744033a61b1efd7fff24e7b151587b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aed4579c9ed79373cfbbabac76bfeeed0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="event_8h.html#aed4579c9ed79373cfbbabac76bfeeed0">EventManager_AddMouseEvent</a> (event_kind the_what)</td></tr>
+<tr class="memdesc:aed4579c9ed79373cfbbabac76bfeeed0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add a new mouse event to the event queue NOTE: this does not actually insert a new record, as the event queue is a circular buffer It overwrites whatever slot is next in line This is designed to be called from mouse IRQ, with minimimal information available.  <a href="event_8h.html#aed4579c9ed79373cfbbabac76bfeeed0">More...</a><br /></td></tr>
+<tr class="separator:aed4579c9ed79373cfbbabac76bfeeed0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad5dea495fbf6cdb1bb74c1144b74a20c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="event_8h.html#ad5dea495fbf6cdb1bb74c1144b74a20c">EventManager_AddWindowEvent</a> (event_kind the_what, int16_t x, int16_t y, int16_t width, int16_t height, <a class="el" href="struct_window.html">Window</a> *the_window, <a class="el" href="struct_control.html">Control</a> *the_control)</td></tr>
+<tr class="memdesc:ad5dea495fbf6cdb1bb74c1144b74a20c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add a new window event to the event queue NOTE: this does not actually insert a new record, as the event queue is a circular buffer It overwrites whatever slot is next in line.  <a href="event_8h.html#ad5dea495fbf6cdb1bb74c1144b74a20c">More...</a><br /></td></tr>
+<tr class="separator:ad5dea495fbf6cdb1bb74c1144b74a20c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6e3edae1948ed16fa59044b1e98d67de"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="event_8h.html#a6e3edae1948ed16fa59044b1e98d67de">EventManager_AddMenuEvent</a> (event_kind the_what, int16_t menu_selection, int16_t x, int16_t y, <a class="el" href="struct_window.html">Window</a> *the_window)</td></tr>
+<tr class="memdesc:a6e3edae1948ed16fa59044b1e98d67de"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add a new menu event to the event queue NOTE: this does not actually insert a new record, as the event queue is a circular buffer It overwrites whatever slot is next in line.  <a href="event_8h.html#a6e3edae1948ed16fa59044b1e98d67de">More...</a><br /></td></tr>
+<tr class="separator:a6e3edae1948ed16fa59044b1e98d67de"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5780fc80f9b9dfcf6ece825aaa4848fd"><td class="memItemLeft" align="right" valign="top"><a id="a5780fc80f9b9dfcf6ece825aaa4848fd" name="a5780fc80f9b9dfcf6ece825aaa4848fd"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>EventManager_WaitForEvent</b> (void)</td></tr>
 <tr class="memdesc:a5780fc80f9b9dfcf6ece825aaa4848fd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wait for an event to happen, do system-processing of it, then if appropriate, give the window responsible for the event a chance to do something with it. <br /></td></tr>
 <tr class="separator:a5780fc80f9b9dfcf6ece825aaa4848fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="ae5744033a61b1efd7fff24e7b151587b" name="ae5744033a61b1efd7fff24e7b151587b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae5744033a61b1efd7fff24e7b151587b">&#9670;&#160;</a></span>EventManager_AddEvent()</h2>
+<a id="a6e3edae1948ed16fa59044b1e98d67de" name="a6e3edae1948ed16fa59044b1e98d67de"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6e3edae1948ed16fa59044b1e98d67de">&#9670;&#160;</a></span>EventManager_AddMenuEvent()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void EventManager_AddEvent </td>
+          <td class="memname">void EventManager_AddMenuEvent </td>
           <td>(</td>
           <td class="paramtype">event_kind&#160;</td>
           <td class="paramname"><em>the_what</em>, </td>
@@ -156,8 +170,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>EventManager_WaitForE
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">uint32_t&#160;</td>
-          <td class="paramname"><em>the_code</em>, </td>
+          <td class="paramtype">int16_t&#160;</td>
+          <td class="paramname"><em>menu_selection</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -174,8 +188,91 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>EventManager_WaitForE
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">event_modifiers&#160;</td>
-          <td class="paramname"><em>the_modifiers</em>, </td>
+          <td class="paramtype"><a class="el" href="struct_window.html">Window</a> *&#160;</td>
+          <td class="paramname"><em>the_window</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Add a new menu event to the event queue NOTE: this does not actually insert a new record, as the event queue is a circular buffer It overwrites whatever slot is next in line. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">the_what</td><td>&ndash; specifies the type of event to add to the queue. only menu events such as windowChanged are supported </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="aed4579c9ed79373cfbbabac76bfeeed0" name="aed4579c9ed79373cfbbabac76bfeeed0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aed4579c9ed79373cfbbabac76bfeeed0">&#9670;&#160;</a></span>EventManager_AddMouseEvent()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void EventManager_AddMouseEvent </td>
+          <td>(</td>
+          <td class="paramtype">event_kind&#160;</td>
+          <td class="paramname"><em>the_what</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Add a new mouse event to the event queue NOTE: this does not actually insert a new record, as the event queue is a circular buffer It overwrites whatever slot is next in line This is designed to be called from mouse IRQ, with minimimal information available. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">the_what</td><td>&ndash; specifies the type of event to add to the queue. only mouseDown/up/moved events supported The function will query VICKY for x,y and determine if the mouse is over a window, a control, etc. <br  />
+</td></tr>
+    <tr><td class="paramname">the_what</td><td>&ndash; specifies the type of event to add to the queue. mouseDown/up/moved events supported The function will query VICKY for x,y and determine if the mouse is over a window, a control, etc. <br  />
+ </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ad5dea495fbf6cdb1bb74c1144b74a20c" name="ad5dea495fbf6cdb1bb74c1144b74a20c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad5dea495fbf6cdb1bb74c1144b74a20c">&#9670;&#160;</a></span>EventManager_AddWindowEvent()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void EventManager_AddWindowEvent </td>
+          <td>(</td>
+          <td class="paramtype">event_kind&#160;</td>
+          <td class="paramname"><em>the_what</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int16_t&#160;</td>
+          <td class="paramname"><em>x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int16_t&#160;</td>
+          <td class="paramname"><em>y</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int16_t&#160;</td>
+          <td class="paramname"><em>width</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int16_t&#160;</td>
+          <td class="paramname"><em>height</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -197,9 +294,13 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>EventManager_WaitForE
       </table>
 </div><div class="memdoc">
 
-<p>Add a new event to the event queue NOTE: this does not actually insert a new record, as the event queue is a circular buffer It overwrites whatever slot is next in line. </p>
+<p>Add a new window event to the event queue NOTE: this does not actually insert a new record, as the event queue is a circular buffer It overwrites whatever slot is next in line. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
+    <tr><td class="paramname">the_what</td><td>&ndash; specifies the type of event to add to the queue. only window events such as windowChanged are supported</td></tr>
+    <tr><td class="paramname">the_what</td><td>&ndash; specifies the type of event to add to the queue. only window events such as windowChanged are supported </td></tr>
+    <tr><td class="paramname">x</td><td>&ndash; Global horizontal coordinate associated with the event. e.g., where the mouse was clicked, etc. </td></tr>
+    <tr><td class="paramname">y</td><td>&ndash; Global vertical coordinate associated with the event </td></tr>
     <tr><td class="paramname">the_window</td><td>&ndash; this may be set for non-mouse up/down events. For mouse up/down events, it will not be set, and X/Y will be used to find the window. </td></tr>
   </table>
   </dd>

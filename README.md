@@ -19,8 +19,7 @@ This is (currently) a one-person project to build a new OS and file manager for 
 
 ## Why you might want this:
 
-If you have, or are considering acquiring an A2560K or GenX (68040 OR 486 + 65816), and want to make or port applications (as opposed to games). As a development framework, it is primarily geared towards application development, but mouse- and text-based games would be viable candidates for building/porting under this framework. If you are making a fast action game, you will most likely want to bang directly on the hardware.
-Note: **NO ONE SHOULD USE THIS, OR EVEN LOOK IN ITS DIRECTION!** (until I get some real hardware and can complete the job).
+If you have, or are considering acquiring an A2560K or GenX (68040 + 65816), and want to make or port applications (as opposed to games). As a development framework, it is primarily geared towards application development, but mouse- and text-based games would be viable candidates for building/porting under this framework. If you are making a fast action game, you will most likely want to bang directly on the hardware.
 
 ## How to use it
 
@@ -31,16 +30,24 @@ Currently, for the A2560s and GenXs, (almost) all development is cross-compiling
 ### Setting up your development tool chain
 
 There are at least three tool chains you can use (not including the native GCC C compiler mentioned above):
+1. Calypsi [Calypsi](https://github.com/hth313/Calypsi-m68k-Foenix)
 1. VBCC with A2560 target [A2560 VBCC target](https://github.com/daschewie/Foenix_vbcc_target)
-2. Calypsi [Calypsi](https://github.com/hth313/Calypsi-m68k-Foenix)
-3. GCC
-4. ? LLVM - requires experimental backend
+1. GCC
+1. ? LLVM - requires experimental backend
 
-VBCC was the first compiler used on the Foenix 68K platforms, but today, most developers have moved to Calypsi. The Calypsi developer is an active participant and regularly updates the package with Foenix-specific features. 
+VBCC was the first compiler used on the Foenix 68K platforms, but today, most developers have moved to Calypsi. The Calypsi developer is an active participant and regularly updates the package with Foenix-specific features. This project is now aimed at the Calypsi build chain, so if you want to use one of the other tools, you will likely need to make some adjustments. 
 
 #### Using Calypsi
 
-(Needs to be written up)
+Note: The A2560 kernel/OS doesn't support dynamically linked libraries yet, so for now, it is only available as a static library. An example is included for 68040 machines: "lib_a2560k_68040/a2560_sys.a". If you are using a 68060, or a Gen X, you will likely need to build the library yourself. Adjust the makefile for your target CPU.
+
+1. Download and install the 68K package for [Calypsi] (https://www.calypsi.cc)
+1. Clone this repo.
+1. Adjust the makefile as necessary for your target machine and environment.
+1. cd into the repo directory
+1. Do either "make" (will make library and all tests and demos), OR "make lib" and then "make hello"
+1. Transfer the hello.pgz file from the build_pgz directory, to your A2560K, boot it, and run it from the MCP CLI with "hello.pgz" as the command.
+1. You may wish to run the demo_xxxx.pgz files as well on your A2560, to get a feel for the library capabilities and use model. See the Doyxgen docs for details.
 
 #### Using VBCC
 

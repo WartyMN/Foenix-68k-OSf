@@ -37,8 +37,9 @@ var searchData=
   ['text_5fshowfontchars_34',['Text_ShowFontChars',['../text_8h.html#a0ff658ed17d7c2204d62a71db1e86c58',1,'text.c']]],
   ['text_5fupdatefontdata_35',['Text_UpdateFontData',['../text_8h.html#a638a21db1ebfdf39b5cd790a716ca9e0',1,'text.c']]],
   ['theme_5factivate_36',['Theme_Activate',['../theme_8h.html#a91a695e7df317ea7415050cd1755ab2a',1,'theme.c']]],
-  ['theme_5fcreatecontroltemplateflexwidth_37',['Theme_CreateControlTemplateFlexWidth',['../theme_8h.html#a123211f15fd9d51d41ea929e5634be5f',1,'theme.c']]],
-  ['theme_5fcreatedefaulttheme_38',['Theme_CreateDefaultTheme',['../theme_8h.html#aa3e26878b88ab31b283057db8701383c',1,'theme.c']]],
-  ['theme_5fcreategreentheme_39',['Theme_CreateGreenTheme',['../theme_8h.html#afd5434cf6f45ff8de7d9e7ed599877d8',1,'theme.c']]],
-  ['theme_5fnew_40',['Theme_New',['../theme_8h.html#ae5baf3aa6f5018d844f29ec074a28014',1,'theme.c']]]
+  ['theme_5fcreatecontroltemplatefixedwidth_37',['Theme_CreateControlTemplateFixedWidth',['../theme_8h.html#a47d0be191e65bb3fcab1724454ecce7e',1,'theme.c']]],
+  ['theme_5fcreatecontroltemplateflexwidth_38',['Theme_CreateControlTemplateFlexWidth',['../theme_8h.html#a123211f15fd9d51d41ea929e5634be5f',1,'theme.c']]],
+  ['theme_5fcreatedefaulttheme_39',['Theme_CreateDefaultTheme',['../theme_8h.html#aa3e26878b88ab31b283057db8701383c',1,'theme.c']]],
+  ['theme_5fcreategreentheme_40',['Theme_CreateGreenTheme',['../theme_8h.html#afd5434cf6f45ff8de7d9e7ed599877d8',1,'theme.c']]],
+  ['theme_5fnew_41',['Theme_New',['../theme_8h.html#ae5baf3aa6f5018d844f29ec074a28014',1,'theme.c']]]
 ];

@@ -5,11 +5,10 @@ Provides bitmapped proportional-width font functionality for the A2560. No suppo
 Macintosh-compatible fonts can be used, if they are in "FONT" type resources. This means that you can create and edit fonts on any Macintosh (system 6-9) emulator. 
 
 ## Status
-25% complete. Next phase: clean up, unit testing, documentation  
+75% complete. Next phase: clean up, unit testing, documentation  
 
 ## Why you might want this:
-If you have, or are considering acquiring an A2560K or GenX (68040 OR 486 + 65816), and want to be able to use proportional and/or bitmap fonts in your C programs.  If your program is ok limiting itself to aligning text on the 8x8 text cell grid of the A2560, consider using the Text class instead, or directly hitting the A2560's text RAM with text overlay mode.
-Note: **NO ONE SHOULD USE THIS, OR EVEN LOOK IN ITS DIRECTION!** (until I get some real hardware and can complete the job).
+If you have, or are considering acquiring an A2560K or GenX (68040 + 65816), and want to be able to use proportional and/or bitmap fonts in your C programs.  If your program is ok limiting itself to aligning text on the 8x8 text cell grid of the A2560, consider using the Text class instead, or directly hitting the A2560's text RAM with text overlay mode.
 
 ## Expected final functionality
  * load a font from disk
@@ -37,8 +36,7 @@ Note: **NO ONE SHOULD USE THIS, OR EVEN LOOK IN ITS DIRECTION!** (until I get so
  * measure the width of string in pixels
 
 ## ToDo
- * load a font from disk (no disk support yet in the f68 emulator)
+ * load a font from disk
  * optimization
- * ~~make some decisions about when to pass font vs bitmap vs screen, and refactor~~
  * documentation
  * unit testing
