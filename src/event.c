@@ -410,7 +410,7 @@ EventRecord* EventManager_NextEvent(void)
 //! NOTE: this does not actually insert a new record, as the event queue is a circular buffer
 //!   It overwrites whatever slot is next in line
 //! This is designed to be called from mouse IRQ, with minimimal information available
-//! @param	the_what -- specifies the type of event to add to the queue. mouseDown/up/moved events supported
+//! @param	the_what -- specifies the type of event to add to the queue. only mouseDown/up/moved events supported
 //! The function will query VICKY for x,y and determine if the mouse is over a window, a control, etc. 
 void EventManager_AddMouseEvent(event_kind the_what)
 {
@@ -466,7 +466,10 @@ void EventManager_AddMouseEvent(event_kind the_what)
 //! @param	the_what -- specifies the type of event to add to the queue. only window events such as windowChanged are supported
 //! @param	x -- Global horizontal coordinate associated with the event. e.g., where the mouse was clicked, etc.
 //! @param	y -- Global vertical coordinate associated with the event
-//! @param	the_window -- this may be set for non-mouse up/down events. For mouse up/down events, it will not be set, and X/Y will be used to find the window.
+//! @param	width -- If the window size was changed, the new width in pixels
+//! @param	height -- If the window size was changed, the new height in pixels
+//! @param	the_window -- a valid window object for the window where the event originated
+//! @param	the_control -- for controlclick type events, a valid control object
 void EventManager_AddWindowEvent(event_kind the_what, int16_t x, int16_t y, int16_t width, int16_t height, Window* the_window, Control* the_control)
 {
 	EventManager*	the_event_manager;
@@ -510,8 +513,12 @@ void EventManager_AddWindowEvent(event_kind the_what, int16_t x, int16_t y, int1
 //! Add a new menu event to the event queue
 //! NOTE: this does not actually insert a new record, as the event queue is a circular buffer
 //!   It overwrites whatever slot is next in line
-//! @param	the_what -- specifies the type of event to add to the queue. only menu events such as windowChanged are supported
-void EventManager_AddMenuEvent(event_kind the_what, int16_t menu_selection,int16_t x, int16_t y, Window* the_window)
+//! @param	the_what -- specifies the type of event to add to the queue. only menu events such as menuOpened are supported
+//! @param	menu_selection -- the ID of the specific menu item that was under the mouse at the time of the event. If no menu item is relevant (e.g, for an open menu event no menu was open so no menu item could have been selected, pass -1.
+//! @param	x -- Global horizontal coordinate associated with the event. e.g., where the mouse was clicked, etc.
+//! @param	y -- Global vertical coordinate associated with the event
+//! @param	the_window -- the window that was the active window at the time of the event
+void EventManager_AddMenuEvent(event_kind the_what, int16_t menu_selection, int16_t x, int16_t y, Window* the_window)
 {
 	EventManager*	the_event_manager;
 	EventRecord*	the_event;

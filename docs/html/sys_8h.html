@@ -148,7 +148,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>Sys_InitSystem</b> (<
 <tr class="memdesc:a0cc43e2be125e57916a9df424f909f60"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enable or disable the hardware cursor in text mode, for the specified screen.  <a href="sys_8h.html#a0cc43e2be125e57916a9df424f909f60">More...</a><br /></td></tr>
 <tr class="separator:a0cc43e2be125e57916a9df424f909f60"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a778bccb543d85ec2968f45917b1fbaec"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="sys_8h.html#a778bccb543d85ec2968f45917b1fbaec">Sys_SetBorderSize</a> (<a class="el" href="struct_system.html">System</a> *the_system, <a class="el" href="struct_screen.html">Screen</a> *the_screen, uint8_t border_width, uint8_t border_height)</td></tr>
-<tr class="memdesc:a778bccb543d85ec2968f45917b1fbaec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the left/right and top/bottom borders This will reset the visible text columns as a side effect.  <a href="sys_8h.html#a778bccb543d85ec2968f45917b1fbaec">More...</a><br /></td></tr>
+<tr class="memdesc:a778bccb543d85ec2968f45917b1fbaec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the left/right and top/bottom borders This will reset the visible text columns as a side effect Grotesquely large values will be accepted as is!  <a href="sys_8h.html#a778bccb543d85ec2968f45917b1fbaec">More...</a><br /></td></tr>
 <tr class="separator:a778bccb543d85ec2968f45917b1fbaec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a31b4b6b8f93b4daabde4662d62ed66d9"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="sys_8h.html#a31b4b6b8f93b4daabde4662d62ed66d9">Sys_AddToWindowList</a> (<a class="el" href="struct_system.html">System</a> *the_system, <a class="el" href="struct_window.html">Window</a> *the_new_window)</td></tr>
 <tr class="memdesc:a31b4b6b8f93b4daabde4662d62ed66d9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add this window to the list of windows and make it the currently active window.  <a href="sys_8h.html#a31b4b6b8f93b4daabde4662d62ed66d9">More...</a><br /></td></tr>
@@ -341,15 +341,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>Sys_CollectDamageRect
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>returns false on any error/invalid input.</dd></dl>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">the_system</td><td>&ndash; valid pointer to system object </td></tr>
-    <tr><td class="paramname">the_screen</td><td>&ndash; valid pointer to the target screen to operate on </td></tr>
-    <tr><td class="paramname">enable_it</td><td>&ndash; If true, turns the hardware blinking cursor on. If false, hides the hardware cursor; </td></tr>
-  </table>
-  </dd>
-</dl>
+<dl class="section return"><dt>Returns</dt><dd>returns false on any error/invalid input. </dd></dl>
 
 </div>
 </div>
@@ -852,16 +844,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>Sys_CollectDamageRect
       </table>
 </div><div class="memdoc">
 
-<p>Set the left/right and top/bottom borders This will reset the visible text columns as a side effect. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">border_width</td><td>&ndash; width in pixels of the border on left and right side of the screen. Total border used with be the double of this. </td></tr>
-    <tr><td class="paramname">border_height</td><td>&ndash; height in pixels of the border on top and bottom of the screen. Total border used with be the double of this. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>returns false on any error/invalid input.</dd></dl>
-<p>Set the left/right and top/bottom borders This will reset the visible text columns as a side effect.</p>
+<p>Set the left/right and top/bottom borders This will reset the visible text columns as a side effect Grotesquely large values will be accepted as is! </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">border_width</td><td>&ndash; width in pixels of the border on left and right side of the screen. Total border used with be the double of this. </td></tr>
@@ -967,14 +950,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>Sys_CollectDamageRect
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>returns false on any error/invalid input.</dd></dl>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">the_system</td><td>&ndash; valid pointer to system object </td></tr>
-    <tr><td class="paramname">as_overlay</td><td>&ndash; If true, sets text overlay mode (text over graphics). If false, sets full text mode (no graphics); </td></tr>
-  </table>
-  </dd>
-</dl>
+<dl class="section return"><dt>Returns</dt><dd>returns false on any error/invalid input. </dd></dl>
 
 </div>
 </div>

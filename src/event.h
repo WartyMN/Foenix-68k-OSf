@@ -291,12 +291,22 @@ void EventManager_AddMouseEvent(event_kind the_what);
 //! NOTE: this does not actually insert a new record, as the event queue is a circular buffer
 //!   It overwrites whatever slot is next in line
 //! @param	the_what -- specifies the type of event to add to the queue. only window events such as windowChanged are supported
+//! @param	x -- Global horizontal coordinate associated with the event. e.g., where the mouse was clicked, etc.
+//! @param	y -- Global vertical coordinate associated with the event
+//! @param	width -- If the window size was changed, the new width in pixels
+//! @param	height -- If the window size was changed, the new height in pixels
+//! @param	the_window -- a valid window object for the window where the event originated
+//! @param	the_control -- for controlclick type events, a valid control object
 void EventManager_AddWindowEvent(event_kind the_what, int16_t x, int16_t y, int16_t width, int16_t height, Window* the_window, Control* the_control);
 
 //! Add a new menu event to the event queue
 //! NOTE: this does not actually insert a new record, as the event queue is a circular buffer
 //!   It overwrites whatever slot is next in line
-//! @param	the_what -- specifies the type of event to add to the queue. only menu events such as windowChanged are supported
+//! @param	the_what -- specifies the type of event to add to the queue. only menu events such as menuOpened are supported
+//! @param	menu_selection -- the ID of the specific menu item that was under the mouse at the time of the event. If no menu item is relevant (e.g, for an open menu event no menu was open so no menu item could have been selected, pass -1.
+//! @param	x -- Global horizontal coordinate associated with the event. e.g., where the mouse was clicked, etc.
+//! @param	y -- Global vertical coordinate associated with the event
+//! @param	the_window -- the window that was the active window at the time of the event
 void EventManager_AddMenuEvent(event_kind the_what, int16_t menu_selection,int16_t x, int16_t y, Window* the_window);
 
 //! Wait for an event to happen, do system-processing of it, then if appropriate, give the window responsible for the event a chance to do something with it

@@ -159,18 +159,13 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>Theme_Activate</b> (<
 </div><div class="memdoc">
 
 <p>create default <a class="el" href="struct_theme.html">Theme</a>. </p>
-<p >used in cases where a custom theme is not specified or is not available Note: set the minimal_resources flag to true when running on a C256, as this framework does not yet have full support on that platform. Controls will not be available! </p><dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">minimal_resources</td><td>&ndash; if true, control templates will not be created.</td></tr>
-  </table>
-  </dd>
-</dl>
-<p>used in cases where a custom theme is not specified or is not available Note: set the minimal_resources flag to true when running on a C256, as this framework does not yet have full support on that platform. Themes created with the minimal resource flag will 1) not have control templates, 2) will only support one font, the system font (control_font_). </p><dl class="params"><dt>Parameters</dt><dd>
+<p >used in cases where a custom theme is not specified or is not available Note: set the minimal_resources flag to true when running on a C256, as this framework does not yet have full support on that platform. Themes created with the minimal resource flag will 1) not have control templates, 2) will only support one font, the system font (control_font_). </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">minimal_resources</td><td>&ndash; if true, control templates will not be created. </td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>Returns an allocated, configured theme representing the default theme. </dd></dl>
 
 </div>
 </div>

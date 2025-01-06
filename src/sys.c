@@ -1060,39 +1060,10 @@ error:
 }
 
 
-// //! Switch machine into graphics mode
-// //! @param	the_system -- valid pointer to system object
-// bool Sys_SetModeGraphics(System* the_system)
-// {	
-// 	if (the_system == NULL)
-// 	{
-// 		LOG_ERR(("%s %d: passed class object was NULL", __func__, __LINE__));
-// 		goto error;
-// 	}
-// 	
-// 	// LOGIC:
-// 	//   On an A2560K or X, the only screen that has a text/graphics mode is the Channel B screen
-// 	
-// 	// switch to graphics mode by setting graphics mode bit, and setting bitmap engine enable bit
-// 
-// 	// enable bitmap layers 0 and 1
-// 		//*the_screen->vicky_ = (*the_screen->vicky_ & GRAPHICS_MODE_MASK | (GRAPHICS_MODE_GRAPHICS) | GRAPHICS_MODE_EN_BITMAP);
-// 	R32(the_system->screen_[ID_CHANNEL_B]->vicky_) = (*the_system->screen_[ID_CHANNEL_B]->vicky_ & GRAPHICS_MODE_MASK | GRAPHICS_MODE_GRAPHICS | GRAPHICS_MODE_EN_BITMAP);
-// 
-// 	R32(the_system->screen_[ID_CHANNEL_B]->vicky_ + BITMAP_L0_CTRL_L) = 0x01;
-// 	R32(the_system->screen_[ID_CHANNEL_B]->vicky_ + BITMAP_L1_CTRL_L) = 0x01;	
-// 	
-// 	return true;
-// 	
-// error:
-// 	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
-// 	return false;
-// }
-
-
 //! Switch machine into text mode
 //! @param	the_system -- valid pointer to system object
 //! @param	as_overlay -- If true, sets text overlay mode (text over graphics). If false, sets full text mode (no graphics);
+//! @return	returns false on any error/invalid input.
 bool Sys_SetModeText(System* the_system, bool as_overlay)
 {	
 	if (the_system == NULL)
@@ -1323,6 +1294,7 @@ error:
 //! @param	the_system -- valid pointer to system object
 //! @param	the_screen -- valid pointer to the target screen to operate on
 //! @param	enable_it -- If true, turns the hardware blinking cursor on. If false, hides the hardware cursor;
+//! @return	returns false on any error/invalid input.
 bool Sys_EnableTextModeCursor(System* the_system, Screen* the_screen, bool enable_it)
 {
 	if (the_screen == NULL)
@@ -1350,7 +1322,7 @@ error:
 
 //! Set the left/right and top/bottom borders
 //! This will reset the visible text columns as a side effect
-//! Grotesquely large values will be accepted as is: use at your own risk!
+//! Grotesquely large values will be accepted as is!
 //! @param	border_width -- width in pixels of the border on left and right side of the screen. Total border used with be the double of this.
 //! @param	border_height -- height in pixels of the border on top and bottom of the screen. Total border used with be the double of this.
 //! @return	returns false on any error/invalid input.

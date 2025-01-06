@@ -502,6 +502,7 @@ bool Text_DrawStringAtXY(Screen* the_screen, int16_t x, int16_t y, char* the_str
 //! @param	x2 - the rightmost horizontal position, between 0 and the screen's text_cols_vis_ - 1
 //! @param	y2 - the lowermost vertical position, between 0 and the screen's text_rows_vis_ - 1
 //! @param	the_string - the null-terminated string to be displayed.
+//! @param	work_buffer - pointer to a pointer to a char buffer that will be used for temporary work. Has to be large enough to contain the entire string passed
 //! @param	fore_color - Index to the desired foreground color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
 //! @param	back_color - Index to the desired background color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
 //! @param	continue_function - optional hook to a function that will be called if the provided text cannot fit into the specified box. If provided, the function will be called each time text exceeds available space. If the function returns true, another chunk of text will be displayed, replacing the first. If the function returns false, processing will stop. If no function is provided, processing will stop at the point text exceeds the available space.

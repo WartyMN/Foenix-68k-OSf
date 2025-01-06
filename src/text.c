@@ -509,7 +509,7 @@ int16_t General_StrFindNextLineBreak(const char* the_string, int16_t max_search_
 //! @param	max_chars_to_format - the length of the string to format (in characters). If max_chars_to_format is less than the length of string, processing will stop after that many characters.
 //! @param	max_width - the width into which the text must fit, in pixels. 
 //! @param	max_height - the height into which the text must fit, in pixels. Pass a 0 to disable the governor on vertical space. 
-//! @param	one_char_width - the width in pixels, of one character. NOTE: This is only used for fixed-width, text mode operations. 
+//! @param	one_char_width - the width in pixels, of one character. NOTE - This is only used for fixed-width, text mode operations. 
 //! @param	one_row_height - the height in pixels, of one row of text, including any leading. 
 //! @param	the_font - the font object to be used in measuring width. This is optional and ignore if called for text mode operations.
 //! @param	measure_function - pointer to the function responsible for measuring the graphical width of a string 
@@ -1945,6 +1945,7 @@ bool Text_DrawStringAtXY(Screen* the_screen, int16_t x, int16_t y, char* the_str
 //! @param	x2 - the rightmost horizontal position, between 0 and the screen's text_cols_vis_ - 1
 //! @param	y2 - the lowermost vertical position, between 0 and the screen's text_rows_vis_ - 1
 //! @param	the_string - the null-terminated string to be displayed.
+//! @param	work_buffer - pointer to a pointer to a char buffer that will be used for temporary work. Has to be large enough to contain the entire string passed
 //! @param	fore_color - Index to the desired foreground color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
 //! @param	back_color - Index to the desired background color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified.
 //! @param	continue_function - optional hook to a function that will be called if the provided text cannot fit into the specified box. If provided, the function will be called each time text exceeds available space. If the function returns true, another chunk of text will be displayed, replacing the first. If the function returns false, processing will stop. If no function is provided, processing will stop at the point text exceeds the available space.

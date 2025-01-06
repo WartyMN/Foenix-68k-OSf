@@ -6,8 +6,7 @@ var searchData=
   ['rectangle_3',['Rectangle',['../struct_rectangle.html',1,'']]],
   ['reserved1x_4',['RESERVED1x',['../control_8h.html#a8d0ec0ac6c53b09d8759c8c35b96434dacf8b148cbc0a22e38a225d7bb9cb8930',1,'control.h']]],
   ['reserved2x_5',['RESERVED2x',['../control_8h.html#a8d0ec0ac6c53b09d8759c8c35b96434dae84025be35047daa35f8259a69917256',1,'control.h']]],
-  ['reserved3x_6',['RESERVED3x',['../control_8h.html#a8d0ec0ac6c53b09d8759c8c35b96434da3a0579588ea3a583585be078a7fa1bf2',1,'control.h']]],
-  ['reserved_5f_7',['reserved_',['../struct_bitmap.html#aa1c5322a2e3429b96df3176c96a92aee',1,'Bitmap']]],
-  ['right_5fwidth_5f_8',['right_width_',['../struct_control_backdrop.html#af5a22ac9c78cf1919ecca3decd44246c',1,'ControlBackdrop']]],
-  ['rowwords_9',['rowWords',['../struct_font.html#a53a6f1a54cfe6b60e1c7260398c73c29',1,'Font']]]
+  ['reserved_5f_6',['reserved_',['../struct_bitmap.html#aa1c5322a2e3429b96df3176c96a92aee',1,'Bitmap']]],
+  ['right_5fwidth_5f_7',['right_width_',['../struct_control_backdrop.html#af5a22ac9c78cf1919ecca3decd44246c',1,'ControlBackdrop']]],
+  ['rowwords_8',['rowWords',['../struct_font.html#a53a6f1a54cfe6b60e1c7260398c73c29',1,'Font']]]
 ];

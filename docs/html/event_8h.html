@@ -202,7 +202,11 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>EventManager_WaitForE
 <p>Add a new menu event to the event queue NOTE: this does not actually insert a new record, as the event queue is a circular buffer It overwrites whatever slot is next in line. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">the_what</td><td>&ndash; specifies the type of event to add to the queue. only menu events such as windowChanged are supported </td></tr>
+    <tr><td class="paramname">the_what</td><td>&ndash; specifies the type of event to add to the queue. only menu events such as menuOpened are supported </td></tr>
+    <tr><td class="paramname">menu_selection</td><td>&ndash; the ID of the specific menu item that was under the mouse at the time of the event. If no menu item is relevant (e.g, for an open menu event no menu was open so no menu item could have been selected, pass -1. </td></tr>
+    <tr><td class="paramname">x</td><td>&ndash; Global horizontal coordinate associated with the event. e.g., where the mouse was clicked, etc. </td></tr>
+    <tr><td class="paramname">y</td><td>&ndash; Global vertical coordinate associated with the event </td></tr>
+    <tr><td class="paramname">the_window</td><td>&ndash; the window that was the active window at the time of the event </td></tr>
   </table>
   </dd>
 </dl>
@@ -229,8 +233,6 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>EventManager_WaitForE
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">the_what</td><td>&ndash; specifies the type of event to add to the queue. only mouseDown/up/moved events supported The function will query VICKY for x,y and determine if the mouse is over a window, a control, etc. <br  />
-</td></tr>
-    <tr><td class="paramname">the_what</td><td>&ndash; specifies the type of event to add to the queue. mouseDown/up/moved events supported The function will query VICKY for x,y and determine if the mouse is over a window, a control, etc. <br  />
  </td></tr>
   </table>
   </dd>
@@ -297,11 +299,13 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>EventManager_WaitForE
 <p>Add a new window event to the event queue NOTE: this does not actually insert a new record, as the event queue is a circular buffer It overwrites whatever slot is next in line. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">the_what</td><td>&ndash; specifies the type of event to add to the queue. only window events such as windowChanged are supported</td></tr>
     <tr><td class="paramname">the_what</td><td>&ndash; specifies the type of event to add to the queue. only window events such as windowChanged are supported </td></tr>
     <tr><td class="paramname">x</td><td>&ndash; Global horizontal coordinate associated with the event. e.g., where the mouse was clicked, etc. </td></tr>
     <tr><td class="paramname">y</td><td>&ndash; Global vertical coordinate associated with the event </td></tr>
-    <tr><td class="paramname">the_window</td><td>&ndash; this may be set for non-mouse up/down events. For mouse up/down events, it will not be set, and X/Y will be used to find the window. </td></tr>
+    <tr><td class="paramname">width</td><td>&ndash; If the window size was changed, the new width in pixels </td></tr>
+    <tr><td class="paramname">height</td><td>&ndash; If the window size was changed, the new height in pixels </td></tr>
+    <tr><td class="paramname">the_window</td><td>&ndash; a valid window object for the window where the event originated </td></tr>
+    <tr><td class="paramname">the_control</td><td>&ndash; for controlclick type events, a valid control object </td></tr>
   </table>
   </dd>
 </dl>

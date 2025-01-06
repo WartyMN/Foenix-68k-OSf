@@ -116,7 +116,7 @@ Font* Font_New(uint8_t* the_data, uint16_t data_size);
 
 // destructor
 // frees all allocated memory associated with the passed object, and the object itself
-//! @param	the_template -- pointer to the pointer for the Font object to be destroyed
+//! @param	the_font -- pointer to the pointer for the Font object to be destroyed
 //! @return	Returns false if the pointer to the passed Font was NULL
 bool Font_Destroy(Font** the_font);
 

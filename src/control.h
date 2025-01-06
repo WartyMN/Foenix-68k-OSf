@@ -81,20 +81,20 @@ typedef enum control_pushed_state
 
 typedef enum control_type
 {
-	CONTROL_TYPE_ERROR = -1,
+	CONTROL_TYPE_ERROR = -1,	//! for functions that return a control type, this value will be returned in the event of an error
 	TEXT_BUTTON			= 0,	//! flexible-width button with text caption
 	TEXT_FIELD			= 1,	//! flexible-width single-line text input field
-	RADIO_BUTTON	,	
-	CHECKBOX 		,	
-	TITLEBAR		,	
+	RADIO_BUTTON	,		//! mutually-exclusive radio button control, assign each control in the set the same group id
+	CHECKBOX 		,		//! checkbox control. do not assign the same group id to each control, as checkboxes are not mutually exclusive.
+	TITLEBAR		,		//! the titlebar of a window
 	TEXT_BOX		,		//! multi-line text input field
-	IMAGE_BUTTON	,
-	CLOSE_WIDGET	,	
-	SIZE_MINIMIZE	,	
-	SIZE_NORMAL		,	
-	SIZE_MAXIMIZE	,	
-	H_SCROLLER		,	
-	V_SCROLLER		,		
+	IMAGE_BUTTON	,		//! a fixed height/width button control with no caption, up/down states, and a no defined shape in the theme, relying on the creating program to provide a bitmap.
+	CLOSE_WIDGET	,		//! standard system control; the close widget of a window. do not add outside of the context of a window title bar.
+	SIZE_MINIMIZE	,		//! standard system control; the minimize widget of a window. do not add outside of the context of a window title bar.
+	SIZE_NORMAL		,		//! standard system control; the normal-size widget of a window. do not add outside of the context of a window title bar.
+	SIZE_MAXIMIZE	,		//! standard system control; the maximize widget of a window. do not add outside of the context of a window title bar.
+	H_SCROLLER		,		//! proportional control for handling horizontal scrolling within a defined area
+	V_SCROLLER		,		//! proportional control for handling vertical scrolling within a defined area	
 	LABEL			,		//! static text label
 	FUTURE_GROW_L	,		//! not sure these will be treated as generic controls, but reserving the id
 	FUTURE_GROW_R	,		//! not sure these will be treated as generic controls, but reserving the id
@@ -102,9 +102,7 @@ typedef enum control_type
 	FUTURE_GROW_DN	,		//! not sure these will be treated as generic controls, but reserving the id
 	RESERVED1x		,		//! progress bar?
 	RESERVED2x		,		//! image?
-	RESERVED3x		,	
-	RESERVED4x		,	
-	CUSTOM			,	
+	CUSTOM			,		//! usage TBD
 } control_type;
 
 
@@ -325,7 +323,7 @@ bool Control_IsLefter(Control* the_control, int16_t* x);
 //! Call this when the theme has been changed
 //! It allows existing controls to be updated in place, without having to free them and create new theme controls
 //! @param	the_control -- a valid Control object
-//! @param	ControlTemplate -- a valid Control Template object to update the Control object from.
+//! @param	the_template -- a valid ControlTemplate object to update the Control object from.
 //! @return	Returns false on any error
 bool Control_UpdateFromTemplate(Control* the_control, ControlTemplate* the_template);
 

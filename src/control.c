@@ -347,7 +347,7 @@ error:
 //! Call this when the theme has been changed
 //! It allows existing controls to be updated in place, without having to free them and create new theme controls
 //! @param	the_control -- a valid Control object
-//! @param	ControlTemplate -- a valid Control Template object to update the Control object from.
+//! @param	the_template -- a valid ControlTemplate object to update the Control object from.
 //! @return	Returns false on any error
 bool Control_UpdateFromTemplate(Control* the_control, ControlTemplate* the_template)
 {

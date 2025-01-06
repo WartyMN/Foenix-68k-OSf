@@ -314,21 +314,6 @@ uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>Text_CalculateAttr
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Returns number of vertical pixels required. Returns -1 in any error condition.</dd></dl>
-<p>If the string cannot be displayed in the specified height and width, processing will stop, but it is not an error condition </p><dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">orig_string</td><td>- pointer to a string pointer that holds the text to be formatted. Upon return, this pointer will point to the next character after the last processed character (if the string was too long to fit). If the entire string fits, this pointer will not be adjusted. </td></tr>
-    <tr><td class="paramname">formatted_string</td><td>- pointer to a string pointer to an empty string buffer that will be filled with the formatted version of the text. </td></tr>
-    <tr><td class="paramname">max_chars_to_format</td><td>- the length of the string to format (in characters). If max_chars_to_format is less than the length of string, processing will stop after that many characters. </td></tr>
-    <tr><td class="paramname">max_width</td><td>- the width into which the text must fit, in pixels. </td></tr>
-    <tr><td class="paramname">max_height</td><td>- the height into which the text must fit, in pixels. Pass a 0 to disable the governor on vertical space. </td></tr>
-    <tr><td class="paramname">one_char_width</td><td>- the width in pixels, of one character. NOTE: This is only used for fixed-width, text mode operations. </td></tr>
-    <tr><td class="paramname">one_row_height</td><td>- the height in pixels, of one row of text, including any leading. </td></tr>
-    <tr><td class="paramname">the_font</td><td>- the font object to be used in measuring width. This is optional and ignore if called for text mode operations. </td></tr>
-    <tr><td class="paramname">measure_function</td><td>- pointer to the function responsible for measuring the graphical width of a string </td></tr>
-  </table>
-  </dd>
-</dl>
 <dl class="section return"><dt>Returns</dt><dd>Returns number of vertical pixels required. Returns -1 in any error condition. </dd></dl>
 
 </div>
@@ -1173,6 +1158,7 @@ uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>Text_CalculateAttr
     <tr><td class="paramname">x2</td><td>- the rightmost horizontal position, between 0 and the screen's text_cols_vis_ - 1 </td></tr>
     <tr><td class="paramname">y2</td><td>- the lowermost vertical position, between 0 and the screen's text_rows_vis_ - 1 </td></tr>
     <tr><td class="paramname">the_string</td><td>- the null-terminated string to be displayed. </td></tr>
+    <tr><td class="paramname">work_buffer</td><td>- pointer to a pointer to a char buffer that will be used for temporary work. Has to be large enough to contain the entire string passed </td></tr>
     <tr><td class="paramname">fore_color</td><td>- Index to the desired foreground color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified. </td></tr>
     <tr><td class="paramname">back_color</td><td>- Index to the desired background color (0-15). The predefined macro constants may be used (COLOR_DK_RED, etc.), but be aware that the colors are not fixed, and may not correspond to the names if the LUT in RAM has been modified. </td></tr>
     <tr><td class="paramname">continue_function</td><td>- optional hook to a function that will be called if the provided text cannot fit into the specified box. If provided, the function will be called each time text exceeds available space. If the function returns true, another chunk of text will be displayed, replacing the first. If the function returns false, processing will stop. If no function is provided, processing will stop at the point text exceeds the available space. </td></tr>

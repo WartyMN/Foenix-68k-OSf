@@ -158,11 +158,6 @@ bool Sys_InitSystem(System* the_system);
 //! @return	returns false on any error/invalid input.
 bool Sys_SetVideoMode(Screen* the_screen, screen_resolution new_mode);
 
-// //! Switch machine into graphics mode
-// //! @param	the_system -- valid pointer to system object
-// //! @return	returns false on any error/invalid input.
-// bool Sys_SetModeGraphics(System* the_system);
-
 //! Switch machine into text mode
 //! @param	the_system -- valid pointer to system object
 //! @param	as_overlay -- If true, sets text overlay mode (text over graphics). If false, sets full text mode (no graphics);
@@ -183,6 +178,7 @@ bool Sys_EnableTextModeCursor(System* the_system, Screen* the_screen, bool enabl
 
 //! Set the left/right and top/bottom borders
 //! This will reset the visible text columns as a side effect
+//! Grotesquely large values will be accepted as is!
 //! @param	border_width -- width in pixels of the border on left and right side of the screen. Total border used with be the double of this.
 //! @param	border_height -- height in pixels of the border on top and bottom of the screen. Total border used with be the double of this.
 //! @return	returns false on any error/invalid input.

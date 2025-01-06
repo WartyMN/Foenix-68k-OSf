@@ -3403,6 +3403,7 @@ bool Theme_Destroy(Theme** the_theme)
 //! used in cases where a custom theme is not specified or is not available
 //! Note: set the minimal_resources flag to true when running on a C256, as this framework does not yet have full support on that platform. Themes created with the minimal resource flag will 1) not have control templates, 2) will only support one font, the system font (control_font_). 
 //! @param	minimal_resources -- if true, control templates will not be created.
+//! @return	Returns an allocated, configured theme representing the default theme.
 Theme* Theme_CreateDefaultTheme(bool minimal_resources)
 {
 	Theme*		the_theme;

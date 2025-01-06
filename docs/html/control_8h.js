@@ -2,16 +2,27 @@ var control_8h =
 [
     [ "Control", "struct_control.html", "struct_control" ],
     [ "control_type", "control_8h.html#a8d0ec0ac6c53b09d8759c8c35b96434d", [
+      [ "TEXT_BUTTON", "control_8h.html#a8d0ec0ac6c53b09d8759c8c35b96434dabe7cdbf944f3038162da1d523e1b33c5", null ],
       [ "TEXT_FIELD", "control_8h.html#a8d0ec0ac6c53b09d8759c8c35b96434da467ec74db37e5721ebf7428185347a90", null ],
       [ "RADIO_BUTTON", "control_8h.html#a8d0ec0ac6c53b09d8759c8c35b96434da54e8348e70d2faf8df7139d76a7924ba", null ],
+      [ "CHECKBOX", "control_8h.html#a8d0ec0ac6c53b09d8759c8c35b96434dad4afc07a484c051b7ea30dce69afe3e8", null ],
+      [ "TITLEBAR", "control_8h.html#a8d0ec0ac6c53b09d8759c8c35b96434dac71a6abc011bb153511f925db520d651", null ],
+      [ "TEXT_BOX", "control_8h.html#a8d0ec0ac6c53b09d8759c8c35b96434daad8727e0d85f7e5b1a949d278ee79101", null ],
       [ "IMAGE_BUTTON", "control_8h.html#a8d0ec0ac6c53b09d8759c8c35b96434da2d76773215cb2fefcd446ea6cd4f78a0", null ],
+      [ "CLOSE_WIDGET", "control_8h.html#a8d0ec0ac6c53b09d8759c8c35b96434da5bf9e42ec7387d0541c1dc38a351389c", null ],
+      [ "SIZE_MINIMIZE", "control_8h.html#a8d0ec0ac6c53b09d8759c8c35b96434da9ddb69893ec20f2754bc417333bb7988", null ],
+      [ "SIZE_NORMAL", "control_8h.html#a8d0ec0ac6c53b09d8759c8c35b96434da1aa5923654c719a56fb5e95c897416d2", null ],
+      [ "SIZE_MAXIMIZE", "control_8h.html#a8d0ec0ac6c53b09d8759c8c35b96434da5ef94166f9e76520fc3f40a5ae65ddeb", null ],
+      [ "H_SCROLLER", "control_8h.html#a8d0ec0ac6c53b09d8759c8c35b96434da757cf137903330db4cd391578b983f97", null ],
+      [ "V_SCROLLER", "control_8h.html#a8d0ec0ac6c53b09d8759c8c35b96434da7cf8fc7eb91b87b71c46229293d297d2", null ],
+      [ "LABEL", "control_8h.html#a8d0ec0ac6c53b09d8759c8c35b96434da0f90de4d94720fdd5156fd7e7c3b0c9b", null ],
       [ "FUTURE_GROW_L", "control_8h.html#a8d0ec0ac6c53b09d8759c8c35b96434dabfd9e0b72c8b59f7563aeed5ceba5ed9", null ],
       [ "FUTURE_GROW_R", "control_8h.html#a8d0ec0ac6c53b09d8759c8c35b96434da4e3d65c448ee7d3065f4f61f3d1b5ca2", null ],
       [ "FUTURE_GROW_UP", "control_8h.html#a8d0ec0ac6c53b09d8759c8c35b96434da8aa40424fdc18ff38bd0431dedf7e557", null ],
       [ "FUTURE_GROW_DN", "control_8h.html#a8d0ec0ac6c53b09d8759c8c35b96434dae52e5528a3a1e6236bcad13ba83d6726", null ],
       [ "RESERVED1x", "control_8h.html#a8d0ec0ac6c53b09d8759c8c35b96434dacf8b148cbc0a22e38a225d7bb9cb8930", null ],
       [ "RESERVED2x", "control_8h.html#a8d0ec0ac6c53b09d8759c8c35b96434dae84025be35047daa35f8259a69917256", null ],
-      [ "RESERVED3x", "control_8h.html#a8d0ec0ac6c53b09d8759c8c35b96434da3a0579588ea3a583585be078a7fa1bf2", null ]
+      [ "CUSTOM", "control_8h.html#a8d0ec0ac6c53b09d8759c8c35b96434da945d6010d321d9fe75cbba7b6f37f3b5", null ]
     ] ],
     [ "Control_AlignToParentRect", "control_8h.html#ad9f00ea73c6593af13c24acbaf5393db", null ],
     [ "Control_Destroy", "control_8h.html#ac883a3d6e7decd4df728c3bdcb1e6853", null ],

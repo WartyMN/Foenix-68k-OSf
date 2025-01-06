@@ -150,8 +150,7 @@ struct Menu
 Menu* Menu_New(void);
 
 // destructor
-//! @param	the_template -- pointer to the pointer for the Menu object to be destroyed
-//! @return	Returns false if the pointer to the passed Menu was NULL
+//! @param	the_menu -- pointer to the pointer for the Menu object to be destroyed
 void Menu_Destroy(Menu** the_menu);
 
 
