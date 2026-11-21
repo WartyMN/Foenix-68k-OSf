@@ -48,8 +48,9 @@
 	} while (0)
 	
 
-#define GFXMEM_POOL_START	(VRAM_START + VRAM_LEN)		// 0x02400000: after the reserved screen buffers
+#define GFXMEM_POOL_START	(VRAM_START + VRAM_LEN + 8)	// ≡ 8 mod 16: block headers at +8, user pointers 16-aligned
 #define GFXMEM_POOL_END		0x06000000					// end of SDRAM
+
 
 /*****************************************************************************/
 /*                                 Structs                                   */
@@ -169,6 +170,12 @@ void* GfxMem_Calloc(size_t num, size_t size)
 	
 	//DEBUG_OUT(("%s %d: starting f_calloc... (#=%lu, sz=%lu, tot=%li, %p)", __func__, __LINE__, num, size, size * num, the_memory));
 
+	if (num != 0 && size > (size_t)0x7FFFFFFF / num)
+	{
+		LOG_ERR(("%s %d: calloc size overflow (num=%lu, size=%lu)", __func__, __LINE__, (unsigned long)num, (unsigned long)size));
+		return NULL;
+	}
+	
 	the_ptr = bgetz(size * num, &poolSDRAM);
 
 	//end_ticks = sys_time_jiffies();
@@ -180,10 +187,16 @@ void* GfxMem_Calloc(size_t num, size_t size)
 		LOG_ERR(("%s %d: bgetz memory allocation failed. size=%lu", __func__, __LINE__, size * num));
 		return NULL;
 	}
-	LOG_ALLOC(("%s %d:	__ALLOC__	type	sdram	size	%lu", __func__ , __LINE__, size * num));
+	LOG_ALLOC(("%s %d:	__ALLOC__	type-SDRAM	%p	size	%lu", __func__ , __LINE__, the_ptr, (unsigned long)(size * num)));
 	
 	//DEBUG_OUT(("%s %d: calloc completed in %li ticks", __func__ , __LINE__, end_ticks - start_ticks));
 
+	// DEBUG / testing code
+	if (((uint32_t)the_ptr & 0xF) != 0)
+	{
+		LOG_ERR(("%s %d: misaligned gfx ptr %p", __func__, __LINE__, the_ptr));
+	}
+	
 	return the_ptr;
 }
 
@@ -209,6 +222,12 @@ void* GfxMem_Malloc(size_t size)
 	}
 	LOG_ALLOC(("%s %d:	__ALLOC__	type-SDRAM	%p	size	%lu", __func__ , __LINE__, the_ptr, size));
 	
+	// DEBUG / testing code
+	if (((uint32_t)the_ptr & 0xF) != 0)
+	{
+		LOG_ERR(("%s %d: misaligned gfx ptr %p", __func__, __LINE__, the_ptr));
+	}
+
 	return the_ptr;
 }
 
@@ -644,7 +663,8 @@ void GfxMem_Free(void* the_ptr)
 					 how many buffer allocation attempts
 					 the test program should make. */
 
-#define SizeQuant   8		      /* Buffer allocation size quantum:
+#define SizeQuant   16		      /* Buffer allocation size quantum: 16 for Foenix graphics (GUI_BASE, MOVE16) */
+					/* Buffer allocation size quantum:
 					 all buffers allocated are a
 					 multiple of this size.  This
 					 MUST be a power of two. */
@@ -750,15 +770,17 @@ void *bget(bufsize requested_size, MemoryPool* the_memory)
     if (size < SizeQ) { 	      /* Need at least room for the */
 		size = SizeQ;		      /*    queue links.  */
     }
-    
-	if (SizeQuant > 1)
-	{
-		size = (size + (SizeQuant - 1)) & (~(SizeQuant - 1));
-	}
+
+	// MB Nov 2026: this is the original BGET rounding. we are changing because we need to align on 16 bytes.    
+// 	if (SizeQuant > 1)
+// 	{
+// 		size = (size + (SizeQuant - 1)) & (~(SizeQuant - 1));
+// 	}
 
 	/* Add overhead in allocated buffer to size required. */
     size += sizeof(struct bhead);    
-
+	size = (size + (SizeQuant - 1)) & (~(SizeQuant - 1));	// header+data a multiple of 16 - for Foenix graphics
+	
 // 	b = freelist.ql.flink;
 	b = the_memory->ql.flink;
 
@@ -1013,8 +1035,11 @@ void bpool(void *buf, bufsize len, MemoryPool* the_memory)
     struct bhead *bn;
 
 	//DEBUG_OUT(("%s %d: the_memory=%p, buf=%p, len=%li", __func__, __LINE__, the_memory, buf, len));
-	
-    len &= ~(SizeQuant - 1);
+
+    // LOGIC: (len - header) must be a multiple of SizeQuant, so the first free block's size is too.
+    //   BGET carves allocations off the top of free blocks, so free block sizes must stay 16-multiples for 16-aligned results.
+    len = ((len - sizeof(struct bhead)) & ~(SizeQuant - 1)) + sizeof(struct bhead);	
+//     len &= ~(SizeQuant - 1);
 
     /* Since the block is initially occupied by a single free  buffer,
        it  had	better	not  be  (much) larger than the largest buffer
