@@ -37,8 +37,8 @@ WARN_PACKAGE=
 
 # source files
 ASM_SRCS =
-C_SRCS = sys_test.c general_test.c font_test.c window_test.c bitmap_test.c text_test.c main.c startup.c sys_demo.c font_demo.c window_demo.c bitmap_demo.c text_demo.c bitmap.c control_template.c control.c debug.c event.c font.c general.c list.c menu.c mouse.c sys.c text.c theme.c window.c  startup.c ps2.c hello.c heapcheck.c
-LIB_SRCS = bitmap.c control_template.c control.c debug.c event.c font.c general.c list.c menu.c mouse.c sys.c text.c theme.c window.c  startup.c ps2.c heapcheck.c
+C_SRCS = sys_test.c general_test.c font_test.c window_test.c bitmap_test.c text_test.c main.c startup.c sys_demo.c font_demo.c window_demo.c bitmap_demo.c text_demo.c bitmap.c control_template.c control.c debug.c event.c font.c general.c list.c menu.c mouse.c sys.c text.c theme.c window.c  ps2.c hello.c heapcheck.c gfx_memory.c
+LIB_SRCS = bitmap.c control_template.c control.c debug.c event.c font.c general.c list.c menu.c mouse.c sys.c text.c theme.c window.c  startup.c ps2.c heapcheck.c gfx_memory.c
 # Test source files (also requires core)
 TEST_SRCS = sys_test.c general_test.c font_test.c window_test.c bitmap_test.c text_test.c
 DEMO_SRCS = sys_demo.c font_demo.c window_demo.c bitmap_demo.c text_demo.c

@@ -19,6 +19,7 @@
 #include "event.h"
 #include "font.h"
 #include "general.h"
+#include "gfx_memory.h"
 #include "list.h"
 #include "menu.h"
 #include "sys.h"
@@ -747,6 +748,13 @@ bool Sys_InitSystem(System* the_system)
 		General_LogInitialize();
 		printf("logging started \n");
 	#endif
+
+	// graphics memory pool in SDRAM: must exist before the theme or any bitmap is created
+	if (GfxMem_Init() == false)
+	{
+		LOG_ERR(("%s %d: could not initialize graphics memory pool", __func__ , __LINE__));
+		goto error;
+	}
 
 	// temp text buffer
 	if ( (the_system->text_temp_buffer_ = (char*)calloc(WORD_WRAP_MAX_LEN + 1, sizeof(char)) ) == NULL)
