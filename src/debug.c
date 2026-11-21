@@ -276,10 +276,10 @@ extern System*			global_system;
 		uint16_t	the_len;
 		
 		va_start(args, format);
-		vsprintf(debug_varargs_buffer, format, args);
+		vsnprintf(debug_varargs_buffer, sizeof(debug_varargs_buffer_storage), format, args);
 		va_end(args);
 	
-		sprintf(debug_out_buffer, "%s %s\n", kDebugFlag[LogError], debug_varargs_buffer);
+		snprintf(debug_out_buffer, sizeof(debug_out_buffer_storage), "%s %s\n", kDebugFlag[LogError], debug_varargs_buffer);
 		the_len = strlen(debug_out_buffer);
 	
 		#if defined USE_SERIAL_LOGGING
@@ -298,10 +298,10 @@ extern System*			global_system;
 		uint16_t	the_len;
 		
 		va_start(args, format);
-		vsprintf(debug_varargs_buffer, format, args);
+		vsnprintf(debug_varargs_buffer, sizeof(debug_varargs_buffer_storage), format, args);
 		va_end(args);
 	
-		sprintf(debug_out_buffer, "%s %s\n", kDebugFlag[LogWarning], debug_varargs_buffer);
+		snprintf(debug_out_buffer, sizeof(debug_out_buffer_storage), "%s %s\n", kDebugFlag[LogWarning], debug_varargs_buffer);
 		the_len = strlen(debug_out_buffer);
 	
 		#if defined USE_SERIAL_LOGGING
@@ -320,10 +320,10 @@ extern System*			global_system;
 		uint16_t	the_len;
 		
 		va_start(args, format);
-		vsprintf(debug_varargs_buffer, format, args);
+		vsnprintf(debug_varargs_buffer, sizeof(debug_varargs_buffer_storage), format, args);
 		va_end(args);
 	
-		sprintf(debug_out_buffer, "%s %s\n", kDebugFlag[LogInfo], debug_varargs_buffer);
+		snprintf(debug_out_buffer, sizeof(debug_out_buffer_storage), "%s %s\n", kDebugFlag[LogInfo], debug_varargs_buffer);
 		the_len = strlen(debug_out_buffer);
 	
 		#if defined USE_SERIAL_LOGGING
@@ -341,10 +341,10 @@ extern System*			global_system;
 		uint16_t	the_len;
 		
 		va_start(args, format);
-		vsprintf(debug_varargs_buffer, format, args);
+		vsnprintf(debug_varargs_buffer, sizeof(debug_varargs_buffer_storage), format, args);
 		va_end(args);
 		
-		sprintf(debug_out_buffer, "%s %s\n", kDebugFlag[LogDebug], debug_varargs_buffer);
+		snprintf(debug_out_buffer, sizeof(debug_out_buffer_storage), "%s %s\n", kDebugFlag[LogDebug], debug_varargs_buffer);
 		the_len = strlen(debug_out_buffer);
 	
 		#if defined USE_SERIAL_LOGGING
@@ -362,10 +362,10 @@ extern System*			global_system;
 		uint16_t	the_len;
 		
 		va_start(args, format);
-		vsprintf(debug_varargs_buffer, format, args);
+		vsnprintf(debug_varargs_buffer, sizeof(debug_varargs_buffer_storage), format, args);
 		va_end(args);
 		
-		sprintf(debug_out_buffer, "%s %s\n", kDebugFlag[LogAlloc], debug_varargs_buffer);
+		snprintf(debug_out_buffer, sizeof(debug_out_buffer_storage), "%s %s\n", kDebugFlag[LogAlloc], debug_varargs_buffer);
 		the_len = strlen(debug_out_buffer);
 		
 		#if defined USE_SERIAL_LOGGING
@@ -384,11 +384,11 @@ extern System*			global_system;
 
 		if (the_allocation < 0)
 		{
-			sprintf(debug_out_buffer, "%s %i bytes freed, %i in use\n", kDebugMemTrackLabel, the_allocation, global_total_allocated_mem);
+			snprintf(debug_out_buffer, sizeof(debug_out_buffer_storage), "%s %i bytes freed, %i in use\n", kDebugMemTrackLabel, the_allocation, global_total_allocated_mem);
 		}
 		else
 		{
-			sprintf(debug_out_buffer, "%s %i bytes allocated, %i in use\n", kDebugMemTrackLabel, the_allocation, global_total_allocated_mem);
+			snprintf(debug_out_buffer, sizeof(debug_out_buffer_storage), "%s %i bytes allocated, %i in use\n", kDebugMemTrackLabel, the_allocation, global_total_allocated_mem);
 		}
 
 		the_len = strlen(debug_out_buffer);

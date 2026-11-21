@@ -328,7 +328,7 @@ char* General_StrlcpyWithAlloc(const char* src, size_t max_len)
 	{
 		General_Strlcpy(dst, src, max_len);
 	}
-	LOG_ALLOC(("%s %d:	__ALLOC__	dst	%p	size	%i, string='%s'", __func__ , __LINE__, dst, alloc_len, dst));
+	LOG_ALLOC(("%s %d:	__ALLOC__	dst	%p	size	%i, string='%.40s'", __func__ , __LINE__, dst, alloc_len, dst));
 	TRACK_ALLOC((alloc_len));
 
 	return dst;
