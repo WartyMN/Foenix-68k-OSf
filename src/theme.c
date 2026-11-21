@@ -2800,25 +2800,29 @@ Font* Theme_LoadFontFromBuffer(uint8_t* the_font_data, uint16_t data_size);
 //! @return	Returns false on any error condition
 bool Theme_CopyCLUTtoVicky(Theme* the_theme)
 {
-	char*		dest;
-	size_t		data_size = 0x400;
-	Screen*		the_screen;
-	
-	the_screen = Sys_GetScreen(global_system, ID_CHANNEL_B);
-	
-	dest = P8(the_screen->vicky_ + CLUT0_OFFSET);
-	
+	volatile uint32_t*	dest;
+	uint8_t*			src;
+	Screen*				the_screen;
+	uint16_t			i;
+
 	if (the_theme == NULL)
 	{
 		LOG_ERR(("%s %d: passed class object was null", __func__ , __LINE__));
 		return false;
 	}
 
-	memcpy(dest, the_theme->clut_, data_size);
-	
+	the_screen = Sys_GetScreen(global_system, ID_CHANNEL_B);
+	dest = the_screen->vicky_ + CLUT_OFFSET_L;	// GUI 8bpp palette
+	src = (uint8_t*)the_theme->clut_;	// 256 entries of B, G, R, A
+
+	for (i = 0; i < 256; i++)
+	{
+		dest[i] = ((uint32_t)src[2] << 16) | ((uint32_t)src[1] << 8) | src[0];	// $00RRGGBB
+		src += 4;
+	}
+
 	return true;
 }
-
 
 //! Get the default theme CLUT
 //! This is guaranteed to be available to the system, even if user destroys their system resources on disk

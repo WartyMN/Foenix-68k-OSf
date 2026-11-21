@@ -6971,20 +6971,19 @@ static void Splash_DrawStartupMessage(char* the_message);
 //! @return	Returns false on any error condition
 bool Startup_CopyCLUTtoVicky(Screen* the_screen)
 {
-	volatile uint8_t*	dest;
-	size_t				data_size = 0x400;
+	volatile uint32_t*	dest;
+	uint8_t*			src;
+	uint16_t			i;
 	
 	// hardcode CLUT address: only B has graphics, so no place where we woudl need to set a clut for A.
-	//dest = P8(VICKY_IIIB_CLUT0);
-	dest = P8(the_screen->vicky_ + CLUT0_OFFSET);
-	
-	memcpy(dest, (uint8_t*)splash_clut, data_size);
-	
-// 	// try some random copying with an offset, to other CLUTs, and see if I can rotate through them for some color animiation
-// 	memcpy((char*)VICKY_IIIB_CLUT1, (uint8_t*)splash_clut+24, data_size);
-// 	memcpy((char*)VICKY_IIIB_CLUT2, (uint8_t*)splash_clut+48, data_size);
-// 	memcpy((char*)VICKY_IIIB_CLUT3, (uint8_t*)splash_clut+64, data_size);
-// 	memcpy((char*)VICKY_IIIB_CLUT4, (uint8_t*)splash_clut+96, data_size);
+	dest = the_screen->vicky_ + CLUT_OFFSET_L;
+	src = (uint8_t*)splash_clut;	// 256 entries of B, G, R, A
+
+	for (i = 0; i < 256; i++)
+	{
+		dest[i] = ((uint32_t)src[2] << 16) | ((uint32_t)src[1] << 8) | src[0];	// $00RRGGBB
+		src += 4;
+	}
 	
 	return true;
 }
@@ -7035,7 +7034,7 @@ static void Splash_DrawStartupMessage(char* the_message)
 
 	the_theme = Sys_GetTheme(global_system);
 	the_font = Sys_GetSystemFont(global_system);
-	the_bitmap = Sys_GetScreenBitmap(global_system, back_layer);
+	the_bitmap = Sys_GetScreenBitmap(global_system);
 
 	available_width = the_bitmap->width_;	
 	chars_that_fit = Font_MeasureStringWidth(the_font, the_message, GEN_NO_STRLEN_CAP, available_width, 0, &pixels_used);
@@ -7086,7 +7085,7 @@ bool Startup_ShowSplash(void)
 	R32(VICKYB_BACK_COLOR_A2560K) = 0x01;
 	Sys_SetGraphicMode(global_system, PARAM_SPRITES_OFF, PARAM_BITMAP_ON, PARAM_TILES_OFF, PARAM_TEXT_OVERLAY_ON, PARAM_TEXT_ON);
 	
-	screen_bitmap = Sys_GetScreenBitmap(global_system, back_layer);
+	screen_bitmap = Sys_GetScreenBitmap(global_system);
 	
 	// blank screen to black
 	Bitmap_FillMemory(screen_bitmap, 0x01);
@@ -7138,6 +7137,10 @@ bool Startup_ShowSplash(void)
 	
 	// blank screen to black
 	Bitmap_FillMemory(screen_bitmap, 0x01);
+	
+	// restore clut
+	// TODO: figure out how to restore CLUT. 
+	//Theme_CopyCLUTtoVicky();
 	
 	return true;
 }

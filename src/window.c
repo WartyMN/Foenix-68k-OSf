@@ -1172,7 +1172,7 @@ bool Window_BlitClipRects(Window* the_window)
 		return true; // not an error condition
 	}
 	
-	the_screen_bitmap = Sys_GetScreenBitmap(global_system, back_layer);
+	the_screen_bitmap = Sys_GetScreenBitmap(global_system);
 	
 	for (i = 0; i < the_window->clip_count_; i++)
 	{
@@ -1807,7 +1807,7 @@ void Window_Render(Window* the_window)
 	if (the_window->invalidated_ == true || the_window->clip_count_ >= WIN_MAX_CLIP_RECTS)
 	{
 		the_window->clip_count_ = 0;
-		Bitmap_BlitRect(the_window->bitmap_, &the_window->overall_rect_, Sys_GetScreenBitmap(global_system, back_layer), the_window->x_, the_window->y_);
+		Bitmap_BlitRect(the_window->bitmap_, &the_window->overall_rect_, Sys_GetScreenBitmap(global_system), the_window->x_, the_window->y_);
 		the_window->invalidated_ = false;
 	}
 	else

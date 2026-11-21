@@ -106,7 +106,7 @@ MU_TEST(test_speed_1_tiling)
 	
 	Theme*	the_theme = Sys_GetTheme(global_system);
 	Bitmap*	the_pattern = Theme_GetDesktopPattern(the_theme);
-	Bitmap*	the_target_bitmap = Sys_GetScreenBitmap(global_system, back_layer);
+	Bitmap*	the_target_bitmap = Sys_GetScreenBitmap(global_system);
 	
 	
 	// test speed of first variant

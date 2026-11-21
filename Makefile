@@ -24,7 +24,7 @@ DEBUG_VIA_SERIAL=USE_SERIAL_LOGGING
 #DEBUG_VIA_SERIAL=USE_DISK_LOGGING
 
 # heap and stack size
-HEAP_SIZE=1500000
+HEAP_SIZE=3000000
 STACK_SIZE=30000
 
 # 68k type: 68000, 68030, 68040, 68060
@@ -37,8 +37,8 @@ WARN_PACKAGE=
 
 # source files
 ASM_SRCS =
-C_SRCS = sys_test.c general_test.c font_test.c window_test.c bitmap_test.c text_test.c main.c startup.c sys_demo.c font_demo.c window_demo.c bitmap_demo.c text_demo.c bitmap.c control_template.c control.c debug.c event.c font.c general.c list.c menu.c mouse.c sys.c text.c theme.c window.c  startup.c ps2.c hello.c
-LIB_SRCS = bitmap.c control_template.c control.c debug.c event.c font.c general.c list.c menu.c mouse.c sys.c text.c theme.c window.c  startup.c ps2.c
+C_SRCS = sys_test.c general_test.c font_test.c window_test.c bitmap_test.c text_test.c main.c startup.c sys_demo.c font_demo.c window_demo.c bitmap_demo.c text_demo.c bitmap.c control_template.c control.c debug.c event.c font.c general.c list.c menu.c mouse.c sys.c text.c theme.c window.c  startup.c ps2.c hello.c heapcheck.c
+LIB_SRCS = bitmap.c control_template.c control.c debug.c event.c font.c general.c list.c menu.c mouse.c sys.c text.c theme.c window.c  startup.c ps2.c heapcheck.c
 # Test source files (also requires core)
 TEST_SRCS = sys_test.c general_test.c font_test.c window_test.c bitmap_test.c text_test.c
 DEMO_SRCS = sys_demo.c font_demo.c window_demo.c bitmap_demo.c text_demo.c

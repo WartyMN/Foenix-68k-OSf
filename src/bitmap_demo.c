@@ -23,6 +23,7 @@
 
 // C includes
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -95,7 +96,7 @@ void WaitForUser(void)
 	
 	General_GetChar();
 	
-	Bitmap_FillMemory(Sys_GetScreenBitmap(global_system, back_layer), 0xbb);
+	Bitmap_FillMemory(Sys_GetScreenBitmap(global_system), 0xbb);
 	Text_FillCharMem(global_system->screen_[ID_CHANNEL_B], ' ');
 	Text_FillAttrMem(global_system->screen_[ID_CHANNEL_B], 0);
 }
@@ -119,17 +120,19 @@ void ShowDescription(char* the_message)
 
 void Demo_Bitmap_FillMemory1(void)
 {
-	Bitmap_FillMemory(Sys_GetScreenBitmap(global_system, back_layer), 0x05);
+	Bitmap_FillMemory(Sys_GetScreenBitmap(global_system), 0x05);
 	ShowDescription("Bitmap_FillMemory -> fill bitmap screen with value 0x05");	
 	WaitForUser();
+	DEBUG_OUT(("%s %d: bitmap_demo - Demo_Bitmap_FillMemory1", __func__, __LINE__));
 }
 
 
 void Demo_Bitmap_FillMemory2(void)
 {
-	Bitmap_FillMemory(Sys_GetScreenBitmap(global_system, back_layer), 0xff);
+	Bitmap_FillMemory(Sys_GetScreenBitmap(global_system), 0xff);
 	ShowDescription("Bitmap_FillMemory -> fill bitmap screen with value 0xff");	
 	WaitForUser();
+	DEBUG_OUT(("%s %d: bitmap_demo - Demo_Bitmap_FillMemory2", __func__, __LINE__));
 }
 
 
@@ -142,8 +145,9 @@ void Demo_Bitmap_FillBox1(void)
 	int16_t height = 5;
 	
 	ShowDescription("Bitmap_FillBox -> fill a square on screen with 0x20");	
-	Bitmap_FillBox(Sys_GetScreenBitmap(global_system, back_layer), x, y, width, height, 0x20);
+	Bitmap_FillBox(Sys_GetScreenBitmap(global_system), x, y, width, height, 0x20);
 	WaitForUser();
+	DEBUG_OUT(("%s %d: bitmap_demo - Demo_Bitmap_FillBox1", __func__, __LINE__));
 }
 
 
@@ -155,8 +159,9 @@ void Demo_Bitmap_FillBox2(void)
 	int16_t height = global_system->screen_[ID_CHANNEL_B]->height_ - y - 100;
 	
 	ShowDescription("Bitmap_FillBox -> fill a square on screen with 0x05");	
-	Bitmap_FillBox(Sys_GetScreenBitmap(global_system, back_layer), x, y, width, height, 0x05);
+	Bitmap_FillBox(Sys_GetScreenBitmap(global_system), x, y, width, height, 0x05);
 	WaitForUser();
+	DEBUG_OUT(("%s %d: bitmap_demo - Demo_Bitmap_FillBox2", __func__, __LINE__));
 }
 
 
@@ -166,10 +171,11 @@ void Demo_Bitmap_FillBox3(void)
 	int16_t	y = 8*6;
 	
 	ShowDescription("Bitmap_FillBox -> fill various squares with different color values");	
-	Bitmap_FillBox(Sys_GetScreenBitmap(global_system, back_layer), x + 30, y, 250, 100, 0x55);
-	Bitmap_FillBox(Sys_GetScreenBitmap(global_system, back_layer), x, y, 25, 25, 0xf5);
-	Bitmap_FillBox(Sys_GetScreenBitmap(global_system, back_layer), x, y + 50, 350, 200, 0x3f);
+	Bitmap_FillBox(Sys_GetScreenBitmap(global_system), x + 30, y, 250, 100, 0x55);
+	Bitmap_FillBox(Sys_GetScreenBitmap(global_system), x, y, 25, 25, 0xf5);
+	Bitmap_FillBox(Sys_GetScreenBitmap(global_system), x, y + 50, 350, 200, 0x3f);
 	WaitForUser();
+	DEBUG_OUT(("%s %d: bitmap_demo - Demo_Bitmap_FillBox3", __func__, __LINE__));
 }
 
 
@@ -187,9 +193,10 @@ void Demo_Bitmap_SetPixelAtXY(void)
  	{
 	 	x = rand() % width;
 	 	y = rand() % height;
-	 	Bitmap_SetPixelAtXY(Sys_GetScreenBitmap(global_system, back_layer), x, y, i);
+	 	Bitmap_SetPixelAtXY(Sys_GetScreenBitmap(global_system), x, y, i);
  	}
 	WaitForUser();
+	DEBUG_OUT(("%s %d: bitmap_demo - Demo_Bitmap_SetPixelAtXY", __func__, __LINE__));
 }
 
 
@@ -210,8 +217,8 @@ void Demo_Bitmap_GetPixelAtXY(void)
  	{
 		int16_t	detected_color;
 
-		Bitmap_FillBox(Sys_GetScreenBitmap(global_system, back_layer), x, y, width, height, (uint8_t)color);
-	 	detected_color = Bitmap_GetPixelAtXY(Sys_GetScreenBitmap(global_system, back_layer), x, y);
+		Bitmap_FillBox(Sys_GetScreenBitmap(global_system), x, y, width, height, (uint8_t)color);
+	 	detected_color = Bitmap_GetPixelAtXY(Sys_GetScreenBitmap(global_system), x, y);
 	 	sprintf(temp_buff, "Set:%x", color);
 	 	Text_DrawStringAtXY(global_system->screen_[ID_CHANNEL_B], (x+1)/8, text_y, (char*)temp_buff, FG_COLOR_BRIGHT_YELLOW, BG_COLOR_BLACK);
 	 	sprintf(temp_buff, "Got:%x", detected_color);
@@ -220,6 +227,7 @@ void Demo_Bitmap_GetPixelAtXY(void)
 		x += width;
  	}
 	WaitForUser();
+	DEBUG_OUT(("%s %d: bitmap_demo - Demo_Bitmap_GetPixelAtXY", __func__, __LINE__));
 }
 
 
@@ -234,40 +242,46 @@ void Demo_Bitmap_DrawHLine1(void)
 	x = 20;
 	y = 8*(10);
 	line_len = 200;
-	Bitmap_DrawHLine(Sys_GetScreenBitmap(global_system, back_layer), x, y, line_len, 0x40);
-	Bitmap_DrawHLine(Sys_GetScreenBitmap(global_system, back_layer), x, y + 20, line_len, 0x50);
-	Bitmap_DrawHLine(Sys_GetScreenBitmap(global_system, back_layer), x, y + 40, line_len, 0x60);
-	Bitmap_DrawVLine(Sys_GetScreenBitmap(global_system, back_layer), x + 100, y - 10, line_len, 0x20);
-	Bitmap_DrawVLine(Sys_GetScreenBitmap(global_system, back_layer), x + 150, y - 10, line_len + 50, 0x30);
+	Bitmap_DrawHLine(Sys_GetScreenBitmap(global_system), x, y, line_len, 0x40);
+	Bitmap_DrawHLine(Sys_GetScreenBitmap(global_system), x, y + 20, line_len, 0x50);
+	Bitmap_DrawHLine(Sys_GetScreenBitmap(global_system), x, y + 40, line_len, 0x60);
+	Bitmap_DrawVLine(Sys_GetScreenBitmap(global_system), x + 100, y - 10, line_len, 0x20);
+	Bitmap_DrawVLine(Sys_GetScreenBitmap(global_system), x + 150, y - 10, line_len + 50, 0x30);
 
 	WaitForUser();
+	DEBUG_OUT(("%s %d: bitmap_demo - Demo_Bitmap_DrawHLine1", __func__, __LINE__));
 }
 
 
 void Demo_Bitmap_DrawLine(void)
 {
-	int16_t			x1 = 45;
-	int16_t			y1 = 100;
-	int16_t			x2 = 630;
-	int16_t			y2 = 350;
-	int16_t			i;
+	int16_t		width = global_system->screen_[ID_CHANNEL_B]->width_ - 1;
+	int16_t		height = global_system->screen_[ID_CHANNEL_B]->height_ - 1;
+	int16_t		x_margin = 20;
+	int16_t		y_margin = 100;
+	int16_t		x1 = x_margin;
+	int16_t		y1 = y_margin;
+	int16_t		x2 = width - x_margin;
+	int16_t		y2 = height - y_margin;
+	int16_t		i;
 
 	ShowDescription("Bitmap_DrawLine -> Draw a line from any coordinate to any coordinate");	
 
 	for (i = 0; i < 256; i++)
 	{
-		Bitmap_DrawLine(Sys_GetScreenBitmap(global_system, back_layer), x1, y1, x2, y2, (uint8_t)i);
+		Bitmap_DrawLine(Sys_GetScreenBitmap(global_system), x1, y1, x2, y2, (uint8_t)i);
 		
 		x1 += 2;
 		x2 -= 2;
 	}
 
-// 	Bitmap_DrawLine(Sys_GetScreenBitmap(global_system, back_layer), x1, y1, x2, y2, 0xee);
-// 	Bitmap_DrawLine(Sys_GetScreenBitmap(global_system, back_layer), x2, y1, x1, y2, 0xce);
-// 	Bitmap_DrawLine(Sys_GetScreenBitmap(global_system, back_layer), x2, y1+20, x1, y2-20, 0x88);
-// 	Bitmap_DrawLine(Sys_GetScreenBitmap(global_system, back_layer), x2, y1+40, x1, y2-40, 0x55);
+// 	Bitmap_DrawLine(Sys_GetScreenBitmap(global_system), x1, y1, x2, y2, 0xee);
+// 	Bitmap_DrawLine(Sys_GetScreenBitmap(global_system), x2, y1, x1, y2, 0xce);
+// 	Bitmap_DrawLine(Sys_GetScreenBitmap(global_system), x2, y1+20, x1, y2-20, 0x88);
+// 	Bitmap_DrawLine(Sys_GetScreenBitmap(global_system), x2, y1+40, x1, y2-40, 0x55);
 	
 	WaitForUser();
+	DEBUG_OUT(("%s %d: bitmap_demo - Demo_Bitmap_DrawLine", __func__, __LINE__));
 }
 
 
@@ -280,19 +294,20 @@ void Demo_Bitmap_DrawBox(void)
 
 	ShowDescription("Bitmap_DrawBox -> Draw a filled or unfilled box. Supply start coordinates, width, height, color, and fill choice.");	
 
-	Bitmap_DrawBox(Sys_GetScreenBitmap(global_system, back_layer), x, y, width, height, 0xff, PARAM_DO_FILL);
-	Bitmap_DrawBox(Sys_GetScreenBitmap(global_system, back_layer), x, y, width, height, 0x55, PARAM_DO_NOT_FILL);
-	Bitmap_DrawBox(Sys_GetScreenBitmap(global_system, back_layer), x + 25, y + 25, width, height, 0x33, PARAM_DO_NOT_FILL);
-	Bitmap_DrawBox(Sys_GetScreenBitmap(global_system, back_layer), x + 50, y + 50, width, height, 0x77, PARAM_DO_NOT_FILL);
+	Bitmap_DrawBox(Sys_GetScreenBitmap(global_system), x, y, width, height, 0xff, PARAM_DO_FILL);
+	Bitmap_DrawBox(Sys_GetScreenBitmap(global_system), x, y, width, height, 0x55, PARAM_DO_NOT_FILL);
+	Bitmap_DrawBox(Sys_GetScreenBitmap(global_system), x + 25, y + 25, width, height, 0x33, PARAM_DO_NOT_FILL);
+	Bitmap_DrawBox(Sys_GetScreenBitmap(global_system), x + 50, y + 50, width, height, 0x77, PARAM_DO_NOT_FILL);
 
 	x = 0;
 	width = 10;
 	height = 10;
-	Bitmap_DrawBox(Sys_GetScreenBitmap(global_system, back_layer), x, y, width, height, 0xff, PARAM_DO_FILL);
-	Bitmap_DrawBox(Sys_GetScreenBitmap(global_system, back_layer), x, y, width, height, 0x55, PARAM_DO_NOT_FILL);
-	Bitmap_DrawBox(Sys_GetScreenBitmap(global_system, back_layer), x+11, y, width, height, 0xff, PARAM_DO_FILL);
+	Bitmap_DrawBox(Sys_GetScreenBitmap(global_system), x, y, width, height, 0xff, PARAM_DO_FILL);
+	Bitmap_DrawBox(Sys_GetScreenBitmap(global_system), x, y, width, height, 0x55, PARAM_DO_NOT_FILL);
+	Bitmap_DrawBox(Sys_GetScreenBitmap(global_system), x+11, y, width, height, 0xff, PARAM_DO_FILL);
 	
 	WaitForUser();
+	DEBUG_OUT(("%s %d: bitmap_demo - Demo_Bitmap_DrawBox", __func__, __LINE__));
 }
 
 
@@ -305,8 +320,9 @@ void Demo_Bitmap_DrawBoxCoords(void)
 
 	ShowDescription("Bitmap_DrawBoxCoords -> Draw a box using 4 coordinates.");	
 
-	Bitmap_DrawBoxCoords(Sys_GetScreenBitmap(global_system, back_layer), x1, y1, x2, y2, 0xff);
+	Bitmap_DrawBoxCoords(Sys_GetScreenBitmap(global_system), x1, y1, x2, y2, 0xff);
 	WaitForUser();
+	DEBUG_OUT(("%s %d: bitmap_demo - Demo_Bitmap_DrawBoxCoords", __func__, __LINE__));
 }
 
 
@@ -326,12 +342,12 @@ void Demo_Bitmap_DrawRoundBox(void)
 
 	for (i = 0; i <= 20; i++)
 	{
-		Bitmap_DrawRoundBox(Sys_GetScreenBitmap(global_system, back_layer), x + color, y + color, width + i*2, height + i*2, i, (uint8_t)color, PARAM_DO_NOT_FILL);
+		Bitmap_DrawRoundBox(Sys_GetScreenBitmap(global_system), x + color, y + color, width + i*2, height + i*2, i, (uint8_t)color, PARAM_DO_NOT_FILL);
 		
 		// MB 2024-12-30: this does not work / freezes up machine or does something bad - possibly stack as fill is recursive.
-		//Bitmap_DrawRoundBox(Sys_GetScreenBitmap(global_system, back_layer), xleft - color, y + color, width*2 + i*2, height*2 + i*2, 20 - i, color, PARAM_DO_FILL);
+		//Bitmap_DrawRoundBox(Sys_GetScreenBitmap(global_system), xleft - color, y + color, width*2 + i*2, height*2 + i*2, 20 - i, color, PARAM_DO_FILL);
 		
-		Bitmap_DrawRoundBox(Sys_GetScreenBitmap(global_system, back_layer), xleft - color, y + color, width*2 + i*2, height*2 + i*2, 20 - i, line_color, PARAM_DO_NOT_FILL);
+		Bitmap_DrawRoundBox(Sys_GetScreenBitmap(global_system), xleft - color, y + color, width*2 + i*2, height*2 + i*2, 20 - i, line_color, PARAM_DO_NOT_FILL);
 		color += 7;
 	}
 
@@ -342,22 +358,23 @@ void Demo_Bitmap_DrawRoundBox(void)
 	height = 16;
 	radius = 5;
 	color = 0xFF;
-// 	Bitmap_DrawRoundBox(Sys_GetScreenBitmap(global_system, back_layer), x, y, width, height, radius, color);
-// 	Bitmap_FillBox(Sys_GetScreenBitmap(global_system, back_layer), x + radius, y + radius, width - radius*2, height-radius*2, color);
-// 	Bitmap_Fill(Sys_GetScreenBitmap(global_system, back_layer), x + radius, y + 1, color);
-// 	Bitmap_DrawRoundBox(Sys_GetScreenBitmap(global_system, back_layer), x, y, width, height, radius, 0x01);
+// 	Bitmap_DrawRoundBox(Sys_GetScreenBitmap(global_system), x, y, width, height, radius, color);
+// 	Bitmap_FillBox(Sys_GetScreenBitmap(global_system), x + radius, y + radius, width - radius*2, height-radius*2, color);
+// 	Bitmap_Fill(Sys_GetScreenBitmap(global_system), x + radius, y + 1, color);
+// 	Bitmap_DrawRoundBox(Sys_GetScreenBitmap(global_system), x, y, width, height, radius, 0x01);
 // 	Text_DrawStringAtXY(global_system->screen_[ID_CHANNEL_B], (x)/8-2, y/8-1, (char*)"Cancel", FG_COLOR_BLACK, BG_COLOR_BLACK);
 // 	General_GetChar();
 	
 	// faster fill by making rect fills and then just flood filling the corners
 	y = 250;
 	// MB 2024-12-30: this does not work / freezes up machine or does something bad - possibly stack as fill is recursive.
-	//Bitmap_DrawRoundBox(Sys_GetScreenBitmap(global_system, back_layer), x, y, width, height, radius, color, PARAM_DO_FILL);
+	//Bitmap_DrawRoundBox(Sys_GetScreenBitmap(global_system), x, y, width, height, radius, color, PARAM_DO_FILL);
 
-	Bitmap_DrawRoundBox(Sys_GetScreenBitmap(global_system, back_layer), x, y, width, height, radius, 0x01, PARAM_DO_NOT_FILL);
+	Bitmap_DrawRoundBox(Sys_GetScreenBitmap(global_system), x, y, width, height, radius, 0x01, PARAM_DO_NOT_FILL);
 	Text_DrawStringAtXY(global_system->screen_[ID_CHANNEL_B], (x)/8+1, y/8-0, (char*)"Cancel", FG_COLOR_BLACK, BG_COLOR_BLACK);
 
 	WaitForUser();
+	DEBUG_OUT(("%s %d: bitmap_demo - Demo_Bitmap_DrawRoundBox", __func__, __LINE__));
 }
 
 
@@ -372,15 +389,16 @@ void Demo_Bitmap_DrawCircle(void)
 
 	for (i = 0; i < 256 && radius < 238; i += 3)
 	{
-		Bitmap_DrawCircle(Sys_GetScreenBitmap(global_system, back_layer), x1, y1, radius, (uint8_t)i);
+		Bitmap_DrawCircle(Sys_GetScreenBitmap(global_system), x1, y1, radius, (uint8_t)i);
 		
 		radius += 3;
 	}
 
-	Bitmap_DrawCircle(Sys_GetScreenBitmap(global_system, back_layer), 25, 25, 12, 0xff);
-	Bitmap_DrawCircle(Sys_GetScreenBitmap(global_system, back_layer), 25, 25, 15, 0xff);
+	Bitmap_DrawCircle(Sys_GetScreenBitmap(global_system), 25, 25, 12, 0xff);
+	Bitmap_DrawCircle(Sys_GetScreenBitmap(global_system), 25, 25, 15, 0xff);
 
 	WaitForUser();
+	DEBUG_OUT(("%s %d: bitmap_demo - Demo_Bitmap_DrawCircle", __func__, __LINE__));
 }
 
 
@@ -399,16 +417,16 @@ void Demo_Bitmap_Blit1(void)
 	
 	for (i = 0; i < 30; i++)
 	{
-		Bitmap_FillBox(Sys_GetScreenBitmap(global_system, back_layer), 0, box_height * i, box_width, box_height, color);		
+		Bitmap_FillBox(Sys_GetScreenBitmap(global_system), 0, box_height * i, box_width, box_height, color);		
 		color += 7;
 	}
 	
- 	Bitmap_DrawCircle(Sys_GetScreenBitmap(global_system, back_layer), 25, 25, 12, 0x88);
-	Bitmap_DrawCircle(Sys_GetScreenBitmap(global_system, back_layer), 25, 25, 15, 0xcc);
-	Bitmap_DrawCircle(Sys_GetScreenBitmap(global_system, back_layer), 25, 25, 20, 0xff);
+ 	Bitmap_DrawCircle(Sys_GetScreenBitmap(global_system), 25, 25, 12, 0x88);
+	Bitmap_DrawCircle(Sys_GetScreenBitmap(global_system), 25, 25, 15, 0xcc);
+	Bitmap_DrawCircle(Sys_GetScreenBitmap(global_system), 25, 25, 20, 0xff);
 
 	// copy bits of this screen to other parts of the Screen
-	src_bm = Sys_GetScreenBitmap(global_system, back_layer);
+	src_bm = Sys_GetScreenBitmap(global_system);
 	dst_bm = src_bm;
 
 // 	DEBUG_OUT(("%s %d: blitting 100,0...", __func__, __LINE__));
@@ -438,6 +456,7 @@ void Demo_Bitmap_Blit1(void)
 	}
 	
 	WaitForUser();
+	DEBUG_OUT(("%s %d: bitmap_demo - Demo_Bitmap_Blit1", __func__, __LINE__));
 }
 
 
@@ -458,17 +477,17 @@ void Demo_Bitmap_BlitRect(void)
 	
 	for (i = 0; i < 30; i++)
 	{
-		Bitmap_FillBox(Sys_GetScreenBitmap(global_system, back_layer), 0, box_height * i, box_width * i, box_height, color);		
+		Bitmap_FillBox(Sys_GetScreenBitmap(global_system), 0, box_height * i, box_width * i, box_height, color);		
 		color += 4;
 	}
 	
- 	Bitmap_DrawCircle(Sys_GetScreenBitmap(global_system, back_layer), 25, 25, 12, SYS_COLOR_RED1);
-	Bitmap_DrawCircle(Sys_GetScreenBitmap(global_system, back_layer), 25, 25, 15, SYS_COLOR_GREEN1);
-	Bitmap_DrawCircle(Sys_GetScreenBitmap(global_system, back_layer), 25, 25, 20, SYS_COLOR_BLUE1);
+ 	Bitmap_DrawCircle(Sys_GetScreenBitmap(global_system), 25, 25, 12, SYS_COLOR_RED1);
+	Bitmap_DrawCircle(Sys_GetScreenBitmap(global_system), 25, 25, 15, SYS_COLOR_GREEN1);
+	Bitmap_DrawCircle(Sys_GetScreenBitmap(global_system), 25, 25, 20, SYS_COLOR_BLUE1);
 
 	// copy bits of this screen to other parts of the Screen
-	src_bm = Sys_GetScreenBitmap(global_system, back_layer);
-	dst_bm = Sys_GetScreenBitmap(global_system, back_layer);
+	src_bm = Sys_GetScreenBitmap(global_system);
+	dst_bm = Sys_GetScreenBitmap(global_system);
 	
 	src_rect.MinX = 0;
 
@@ -482,6 +501,7 @@ void Demo_Bitmap_BlitRect(void)
 	}
 	
 	WaitForUser();
+	DEBUG_OUT(("%s %d: bitmap_demo - Demo_Bitmap_BlitRect", __func__, __LINE__));
 }
 
 
@@ -513,6 +533,7 @@ void Demo_Bitmap_ScreenResolution1(void)
 	Text_ShowFontChars(global_system->screen_[ID_CHANNEL_B], y + 3);
 
 	WaitForUser();
+	DEBUG_OUT(("%s %d: bitmap_demo - Demo_Bitmap_ScreenResolution1", __func__, __LINE__));
 }
 
 
@@ -540,6 +561,7 @@ void Demo_Bitmap_ScreenResolution2(void)
 	Text_ShowFontChars(global_system->screen_[ID_CHANNEL_B], y + 3);
 
 	WaitForUser();
+	DEBUG_OUT(("%s %d: bitmap_demo - Demo_Bitmap_ScreenResolution2", __func__, __LINE__));
 }
 
 
@@ -585,6 +607,8 @@ void RunDemo(void)
 // 	
 // 	Demo_Bitmap_ScreenResolution1();
 // 	Demo_Bitmap_ScreenResolution2();
+
+	DEBUG_OUT(("%s %d: bitmap_demo - demo complete", __func__, __LINE__));
 	
 }
 
@@ -607,7 +631,7 @@ int main(int argc, char* argv[])
 		sys_exit(-1);
 	}
 
-	DEBUG_OUT(("%s %d: System object created ok. Initiating system components...", __func__, __LINE__));
+	DEBUG_OUT(("%s %d: bitmap_demo - System object created ok. Initiating system components...", __func__, __LINE__));
 	
 	if (Sys_InitSystem(global_system) == false)
 	{

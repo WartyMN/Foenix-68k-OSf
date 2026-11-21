@@ -387,8 +387,17 @@ bool Sys_AutoConfigure(System* the_system)
 		the_system->screen_[i]->rect_.MinX = 0;
 		the_system->screen_[i]->rect_.MinY = 0;	
 		the_system->screen_[i]->text_font_width_ = TEXT_FONT_WIDTH;
-		the_system->screen_[i]->text_font_height_ = TEXT_FONT_HEIGHT;
 
+		// channel B on A2560 now has 16 pixel height text
+		if (i == 1)
+		{
+			the_system->screen_[i]->text_font_height_ = TEXT_FONT_HEIGHT * 2;
+		}
+		else
+		{
+			the_system->screen_[i]->text_font_height_ = TEXT_FONT_HEIGHT;
+		}
+		
 		// use auto configure to set resolution, text cols, margins, etc
 		if (Sys_DetectScreenSize(the_system->screen_[i]) == false)
 		{
@@ -441,74 +450,23 @@ bool Sys_DetectScreenSize(Screen* the_screen)
 
 	// detect the video mode and set resolution based on it
 	
-	//v = (unsigned char*)the_screen->vicky_;
 	the_vicky_value = *the_screen->vicky_;
 	the_video_mode_bits = (the_vicky_value >> 8) & 0xff;
 	DEBUG_OUT(("%s %d: 32bit vicky value=%x, video mode bits before vid flag=%x", __func__, __LINE__, the_vicky_value, the_video_mode_bits));
-	the_video_mode_bits &= VICKY_AB_RES_FLAG_MASK_8BIT;	// further mask down to just the 2 bits relevant for detecting screen resolution
+	the_video_mode_bits &= VICKY_AB_RES_FLAG_MASK_8BIT;	// further mask down to just the bits relevant for detecting screen resolution
 	DEBUG_OUT(("%s %d: 32bit vicky value=%x, video mode bits=%x", __func__, __LINE__, the_vicky_value, the_video_mode_bits));
 	
 	if (the_screen->vicky_ == P32(VICKY_A_BASE_ADDRESS))
 	{
-		// LOGIC: A2560K channel A only has 2 video modes, 1024x768 and 800x600. If bit 11 is set, it's 1024. 
-		
-		//DEBUG_OUT(("%s %d: vicky identified as VICKY_A_BASE_ADDRESS", __func__, __LINE__));
-
-		if (the_video_mode_bits & VICKY_IIIA_RES_1024X768_FLAGS)
-		{
-			new_mode = RES_1024X768;
-		}
-		else
-		{
-			new_mode = RES_800X600;
-		}
+		// channel A: MCR_A bit 11: 0 = 800x600, 1 = 1024x768
+		new_mode = (the_vicky_value & 0x00000800) ? RES_1024X768 : RES_800X600;
+		DEBUG_OUT(("%s %d: vicky identified as VICKY_A_BASE_ADDRESS", __func__, __LINE__));
 	}
 	else if (the_screen->vicky_ == P32(VICKY_B_BASE_ADDRESS))
 	{
-		// LOGIC: 
-		//   A2560K channel B only has 3 video modes, 800x600, 640x480, and 640x400 (currently non-functional)
-		//   if bit 8 is set, it's 800x600, if bits 8/9 both set, it's 640x400. 
-
-		DEBUG_OUT(("%s %d: vicky identified as VICKY_B_BASE_ADDRESS; bits=%x, 800x600=%x, 640x480=%x, vicky val=%x", __func__, __LINE__, the_video_mode_bits, VICKY_IIIB_RES_800X600_FLAGS, VICKY_IIIB_RES_640X480_FLAGS, the_vicky_value));
-		//printf("detectscreen: bits=%x, 800x600=%x, 640x480=%x, vicky val=%x \n", the_video_mode_bits, VICKY_IIIB_RES_800X600_FLAGS, VICKY_IIIB_RES_640X480_FLAGS, the_vicky_value);
-
-		if (the_video_mode_bits & VICKY_IIIB_RES_800X600_FLAGS || the_video_mode_bits & VICKY_IIIB_RES_RESERVED_FLAGS)	// MB: this shouldn't be according to manual, but the reserved value is what I observer when MCp sets 800x600 mode.
-		{
-			new_mode = RES_800X600;
-		}
-		else if (the_video_mode_bits & VICKY_IIIB_RES_640X400_FLAGS)
-		{
-			new_mode = RES_640X400;
-		}
-		else
-		{
-			new_mode = RES_640X480;
-		}
-	}
-	else if (the_screen->vicky_ == P32(VICKY_A2560U))
-	{
- 		//   A2560U has 1 channel with 3 video modes, 800x600, 640x480, and 640x400 (currently non-functional)
-		//   if bit 8 is set, it's 800x600, if bits 8/9 both set, it's 640x400. 
-
-		//DEBUG_OUT(("%s %d: vicky identified as VICKY_A2560U", __func__, __LINE__));
-
-		if (the_video_mode_bits & VICKY_II_RES_800X600_FLAGS)
-		{
-			new_mode = RES_800X600;
-		}
-		else if (the_video_mode_bits & VICKY_II_RES_640X400_FLAGS)
-		{
-			new_mode = RES_640X400;
-		}
-		else
-		{
-			new_mode = RES_640X480;
-		}
-	}
-	else
-	{
-		LOG_ERR(("%s %d: The VICKY register on this machine (%p) doesn't match one I know of/care about. I won't be able to figure out what the screen size is.", __func__, __LINE__, the_screen->vicky_));
-		return false;
+		// channel B: MCR_B bit 8: 0 = 1280x960, 1 = 1280x1024
+		new_mode = (the_vicky_value & 0x00000100) ? RES_1280X1024 : RES_1280X960;
+		DEBUG_OUT(("%s %d: vicky identified as VICKY_B_BASE_ADDRESS; bits=%x, 1280x960=%x, 1280x1024=%x, vicky val=%x", __func__, __LINE__, the_video_mode_bits, VICKY_IIIB_RES_1280X960_FLAGS, VICKY_IIIB_RES_1280X1024_FLAGS, the_vicky_value));
 	}
 
 	switch (new_mode)
@@ -536,21 +494,44 @@ bool Sys_DetectScreenSize(Screen* the_screen)
 			the_screen->height_ = 768;
 			DEBUG_OUT(("%s %d: set to 1024x768", __func__, __LINE__));
 			break;		
+			
+		case RES_1280X960:
+			the_screen->width_ = 1280;	
+			the_screen->height_ = 960;
+			the_screen->text_mem_rows_ = TEXT_NUM_ROWS_VICKY_B_960;
+			DEBUG_OUT(("%s %d: set to 1280x960", __func__, __LINE__));
+			break;
+			
+		case RES_1280X1024:
+			the_screen->width_ = 1280;	
+			the_screen->height_ = 1024;
+			the_screen->text_mem_rows_ = TEXT_NUM_ROWS_VICKY_B_1024;
+			DEBUG_OUT(("%s %d: set to 1280x1024", __func__, __LINE__));
+			break;		
 	}
 	
 	// detect borders, and set text cols/rows based on resolution modified by borders (if any)
 	the_border_control_value = R32(the_screen->vicky_ + BORDER_CTRL_OFFSET_L);
 	border_x_pixels = (the_border_control_value >> 8) & 0xFF & 0x3F;
-	border_y_pixels = (the_border_control_value >> 16) & 0xFF & 0x3F;
-	
+	border_y_pixels = (the_border_control_value >> 16) & 0xFF & 0x3F;	
 	border_x_cols = border_x_pixels * 2 / the_screen->text_font_width_;
 	border_y_cols = border_y_pixels * 2 / the_screen->text_font_height_;
-	the_screen->text_mem_cols_ = the_screen->width_ / the_screen->text_font_width_;
-	the_screen->text_mem_rows_ = the_screen->height_ / the_screen->text_font_height_;
-	the_screen->text_cols_vis_ = the_screen->text_mem_cols_ - border_x_cols;
-	the_screen->text_rows_vis_ = the_screen->text_mem_rows_ - border_y_cols;
 	the_screen->rect_.MaxX = the_screen->width_;
 	the_screen->rect_.MaxY = the_screen->height_;	
+
+	if (the_screen->vicky_ == P32(VICKY_A_BASE_ADDRESS))
+	{
+		the_screen->text_mem_cols_ = the_screen->width_ / the_screen->text_font_width_;
+		the_screen->text_mem_rows_ = the_screen->height_ / the_screen->text_font_height_;
+		the_screen->text_cols_vis_ = the_screen->text_mem_cols_ - border_x_cols;
+		the_screen->text_rows_vis_ = the_screen->text_mem_rows_ - border_y_cols;
+	}
+	else if (the_screen->vicky_ == P32(VICKY_B_BASE_ADDRESS))
+	{
+		the_screen->text_mem_cols_ = TEXT_NUM_COLUMNS_VICKY_B;
+		the_screen->text_cols_vis_ = the_screen->text_mem_cols_ - border_x_cols;
+		the_screen->text_rows_vis_ = the_screen->text_mem_rows_ - border_y_cols;
+	}
 	Sys_PrintScreen(the_screen);
 	
 	DEBUG_OUT(("%s %d: screen=%u, vis cols=%u, vis rows=%u, brdx=%u, brdy=%un", __func__, __LINE__, the_screen->id_, the_screen->text_cols_vis_, the_screen->text_rows_vis_, border_x_cols, border_y_cols));
@@ -624,8 +605,7 @@ void Sys_PrintScreen(Screen* the_screen)
 	DEBUG_OUT(("  text_ram_: %p", 			the_screen->text_ram_));
 	DEBUG_OUT(("  text_attr_ram_: %p", 		the_screen->text_attr_ram_));
 	DEBUG_OUT(("  text_font_ram_: %p", 		the_screen->text_font_ram_));
-	DEBUG_OUT(("  bitmap_[0]: %p", 			the_screen->bitmap_[0]));
-	DEBUG_OUT(("  bitmap_[1]: %p", 			the_screen->bitmap_[1]));
+	DEBUG_OUT(("  bitmap_: %p", 			the_screen->bitmap_));
 	DEBUG_OUT(("  text_font_height_: %i",	the_screen->text_font_height_));
 	DEBUG_OUT(("  text_font_width_: %i",	the_screen->text_font_width_));
 }
@@ -710,6 +690,12 @@ bool Sys_Destroy(System** the_system)
 		Sys_DestroyAllWindows(*the_system);
 	}
 
+	if ((*the_system)->text_temp_buffer_)
+	{
+		LOG_ALLOC(("%s %d:	__FREE__	text_temp_buffer_	%p	size	%i", __func__ , __LINE__, (*the_system)->text_temp_buffer_, WORD_WRAP_MAX_LEN + 1));
+		TRACK_ALLOC((0 - (WORD_WRAP_MAX_LEN + 1)));
+		free((*the_system)->text_temp_buffer_);
+	}
 
 	LOG_ALLOC(("%s %d:	__FREE__	*the_system	%p	size	%i", __func__ , __LINE__, *the_system, sizeof(System)));
 	TRACK_ALLOC((0 - sizeof(System)));
@@ -725,12 +711,12 @@ bool Sys_Destroy(System** the_system)
 //! @param	the_system -- valid pointer to system object
 //! @param	error_condition -- true if error, false if a normal exit. Use PARAM_EXIT_ON_ERROR/PARAM_EXIT_NO_ERROR
 void Sys_Exit(System** the_system, bool error_condition)
-{
-	// clean up system objects
-	Sys_Destroy(the_system);
-	
+{	
 	// clear the mouse interrupt so it doesn't call code that is no longer in RAM
 	sys_int_register(INT_MOUSE, NULL);
+
+	// clean up system objects
+	Sys_Destroy(the_system);
 
 	// call MCP exit to return control to it
 	if (error_condition == PARAM_EXIT_ON_ERROR)
@@ -768,7 +754,7 @@ bool Sys_InitSystem(System* the_system)
 		LOG_ERR(("%s %d: could not allocate memory to create the temp text buffer", __func__ , __LINE__));
 		goto error;
 	}
-	LOG_ALLOC(("%s %d:	__ALLOC__	text_temp_buffer_	%p	size	%i", __func__ , __LINE__, the_system->text_temp_buffer_, sizeof(Control)));
+	LOG_ALLOC(("%s %d:	__ALLOC__	text_temp_buffer_	%p	size	%i", __func__ , __LINE__, the_system->text_temp_buffer_, WORD_WRAP_MAX_LEN + 1));
 	TRACK_ALLOC((WORD_WRAP_MAX_LEN + 1));
 
 	DEBUG_OUT(("%s %d: Sys temp text buffer created ok...", __func__ , __LINE__));
@@ -864,30 +850,27 @@ bool Sys_InitSystem(System* the_system)
 	// allocate the foreground and background bitmaps, then assign them fixed locations in VRAM
 	
 	// LOGIC: 
-	//   The only bitmaps we want pointing to VRAM locations are the system's layer0 and layer1 bitmaps for the screen
+	//   The only bitmaps we want pointing to VRAM locations are the system's bitmaps for the screen
 	//   Only 1 screen has bitmapped graphics
 	//   We assign them fixed spaces in VRAM, 800*600 apart, so that the addresses are good even on a screen resolution change. 
 	
-	for (i = 0; i < 2; i++)
+	Bitmap*		the_bitmap;
+
+	if ( (the_bitmap = Bitmap_New(global_system->screen_[ID_CHANNEL_B]->width_, global_system->screen_[ID_CHANNEL_B]->height_, Sys_GetSystemFont(global_system), PARAM_IN_VRAM)) == NULL)
 	{
-		Bitmap*		the_bitmap;
-
-		if ( (the_bitmap = Bitmap_New(global_system->screen_[ID_CHANNEL_B]->width_, global_system->screen_[ID_CHANNEL_B]->height_, Sys_GetSystemFont(global_system), PARAM_IN_VRAM)) == NULL)
-		{
-			LOG_ERR(("%s %d: Failed to create bitmap #%i", __func__, __LINE__, i));
-			goto error;
-		}
-
-		the_bitmap->addr_int_ = (uint32_t)VRAM_START + (uint32_t)i * (uint32_t)VRAM_OFFSET_TO_NEXT_SCREEN;
-		the_bitmap->addr_ = (unsigned char*)the_bitmap->addr_int_;
-
-		//DEBUG_OUT(("%s %d: bitmap addr_int_=%lx, addr_=%p", __func__, __LINE__, the_bitmap->addr_int_, the_bitmap->addr_));
-		
-		Sys_SetScreenBitmap(global_system, the_bitmap, i);
-		
-		// clear the bitmap
-		Bitmap_FillMemory(the_bitmap, 0x00);
+		LOG_ERR(("%s %d: Failed to create bitmap", __func__, __LINE__));
+		goto error;
 	}
+
+	the_bitmap->addr_int_ = (uint32_t)VRAM_START;
+	the_bitmap->addr_ = (unsigned char*)the_bitmap->addr_int_;
+
+	//DEBUG_OUT(("%s %d: bitmap addr_int_=%lx, addr_=%p", __func__, __LINE__, the_bitmap->addr_int_, the_bitmap->addr_));
+	
+	Sys_SetScreenBitmap(global_system, the_bitmap);
+	
+	// clear the bitmap
+	Bitmap_FillMemory(the_bitmap, 0x00);
 	
 	// load the standard text font
 	Text_UpdateFontData(global_system->screen_[ID_CHANNEL_A], (char*)system_std_font);
@@ -996,52 +979,53 @@ bool Sys_SetGraphicMode(System* the_system, bool enable_sprites, bool enable_bit
 	
 	the_bits = 0;
 	//the_bits = (uint8_t)the_old_masked_value;
-	//the_bits = R8(VICKY_MASTER_CTRL_REG_L) & GRAPHICS_MODE_EN_GAMMA;	
+	//the_bits = R8(VICKY_MASTER_CTRL_REG_L) & VICKY_B_MC_EN_GAMMA;	
 
 	if (enable_sprites | enable_bitmaps | enable_tiles | enable_text_overlay)
 	{
-		the_bits |= GRAPHICS_MODE_GRAPHICS;
-	}
-	
-	if (enable_sprites)
-	{
-		the_bits |= GRAPHICS_MODE_EN_SPRITE;
+		the_bits |= VICKY_B_MC_GRAPH_EN;
 	}
 
-	if (enable_bitmaps)
-	{
-		the_bits |= GRAPHICS_MODE_EN_BITMAP;
-	}
-
-	if (enable_tiles)
-	{
-		the_bits |= GRAPHICS_MODE_EN_TILE;
-	}
+// Nov 2026: these bits now do nothing. 	
+// 	if (enable_sprites)
+// 	{
+// 		the_bits |= VICKY_B_MC_EN_SPRITE;
+// 	}
+// 
+// 	if (enable_bitmaps)
+// 	{
+// 		the_bits |= VICKY_B_MC_EN_BITMAP;
+// 	}
+// 
+// 	if (enable_tiles)
+// 	{
+// 		the_bits |= VICKY_B_MC_EN_TILE;
+// 	}
 
 	if (enable_text)
 	{
-		the_bits |= GRAPHICS_MODE_TEXT;
+		the_bits |= VICKY_B_MC_TEXT_EN;
 	}
 
 	if (enable_text_overlay)
 	{
-		the_bits |= GRAPHICS_MODE_TEXT;
-		the_bits |= GRAPHICS_MODE_TEXT_OVER;
-		the_bits |= GRAPHICS_MODE_GRAPHICS;
+		the_bits |= VICKY_B_MC_TEXT_EN;
+		the_bits |= VICKY_B_MC_TEXT_OVR;
+		the_bits |= VICKY_B_MC_GRAPH_EN;
 	}
 
-	// turn bitmaps on or off, as needed
+	// turn bitmap on or off, as needed
 	if (enable_bitmaps || enable_tiles)
 	{
-			// enable bitmap layers 0, 1; disable layer 2
-		R32(the_system->screen_[ID_CHANNEL_B]->vicky_ + BITMAP_L0_CTRL_L) = 0x01;
-		R32(the_system->screen_[ID_CHANNEL_B]->vicky_ + BITMAP_L1_CTRL_L) = 0x01;	
+			// enable bitmap
+		R32(the_system->screen_[ID_CHANNEL_B]->vicky_ + GUI_CTRL_OFFSET_L) = 0x01;
+		//R32(the_system->screen_[ID_CHANNEL_B]->vicky_ + GUI_CTRL_OFFSET_L) = 0x09;
+		// todo: determine if want to keep pixel doubling (8+1) or not or have control for it.
 	}
 	else
 	{
-		// disable bitmap layers 0, 1, 2
-		R32(the_system->screen_[ID_CHANNEL_B]->vicky_ + BITMAP_L0_CTRL_L) = 0x00;
-		R32(the_system->screen_[ID_CHANNEL_B]->vicky_ + BITMAP_L1_CTRL_L) = 0x00;	
+		// disable bitmap
+		R32(the_system->screen_[ID_CHANNEL_B]->vicky_ + GUI_CTRL_OFFSET_L) = 0x00;
 	}
 
 	// switch to graphics mode by setting graphics mode bit, and setting bitmap engine enable bit
@@ -1078,7 +1062,7 @@ bool Sys_SetModeText(System* the_system, bool as_overlay)
 	if (as_overlay)
 	{
 		// switch to text mode with overlay by setting graphics mode bit, setting bitmap engine enable bit, and setting graphics mode overlay		
-		R32(the_system->screen_[ID_CHANNEL_B]->vicky_) = ((*the_system->screen_[ID_CHANNEL_B]->vicky_ & GRAPHICS_MODE_MASK) | GRAPHICS_MODE_TEXT | GRAPHICS_MODE_TEXT_OVER | GRAPHICS_MODE_GRAPHICS | GRAPHICS_MODE_EN_BITMAP);
+		R32(the_system->screen_[ID_CHANNEL_B]->vicky_) = ((*the_system->screen_[ID_CHANNEL_B]->vicky_ & GRAPHICS_MODE_MASK) | VICKY_B_MC_TEXT_EN | VICKY_B_MC_TEXT_OVR | VICKY_B_MC_GRAPH_EN);
 		
 		// c256foenix, discord 2022/03/10
 		// Normally, for example, if you setup everything to be in bitmap mode, and you download an image in VRAM and you can see it properly... If you turn on overlay, then you will see on top of that same image, your text that you had before.
@@ -1090,10 +1074,9 @@ bool Sys_SetModeText(System* the_system, bool as_overlay)
 	}
 	else
 	{
-		R32(the_system->screen_[ID_CHANNEL_B]->vicky_) = ((*the_system->screen_[ID_CHANNEL_B]->vicky_ & GRAPHICS_MODE_MASK) | GRAPHICS_MODE_TEXT);
-		// disable bitmap layers 0 and 1
-		R32(the_system->screen_[ID_CHANNEL_B]->vicky_ + BITMAP_L0_CTRL_L) = 0x00;
-		R32(the_system->screen_[ID_CHANNEL_B]->vicky_ + BITMAP_L1_CTRL_L) = 0x00;
+		R32(the_system->screen_[ID_CHANNEL_B]->vicky_) = ((*the_system->screen_[ID_CHANNEL_B]->vicky_ & GRAPHICS_MODE_MASK) | VICKY_B_MC_TEXT_EN);
+		// disable bitmap
+		R32(the_system->screen_[ID_CHANNEL_B]->vicky_ + GUI_CTRL_OFFSET_L) = 0x00;
 	}
 	
 	return true;
@@ -2187,7 +2170,7 @@ error:
 
 //! NOTE: Foenix systems only have 1 screen with bitmap graphics, even if the system has 2 screens overall. The bitmap returned will always be from the appropriate channel (A or B).
 //! @param	the_system -- valid pointer to system object
-Bitmap* Sys_GetScreenBitmap(System* the_system, bitmap_layer the_layer)
+Bitmap* Sys_GetScreenBitmap(System* the_system)
 {
 	if (the_system == NULL)
 	{
@@ -2195,13 +2178,7 @@ Bitmap* Sys_GetScreenBitmap(System* the_system, bitmap_layer the_layer)
 		goto error;
 	}
 	
-	if (the_layer > fore_layer)
-	{
-		LOG_ERR(("%s %d: passed layer (%i) was invalid", __func__ , __LINE__, the_layer));
-		goto error;
-	}
-	
-	return the_system->screen_[ID_CHANNEL_B]->bitmap_[the_layer];
+	return the_system->screen_[ID_CHANNEL_B]->bitmap_;
 	
 error:
 	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
@@ -2296,7 +2273,7 @@ error:
 
 //! NOTE: Foenix systems only have 1 screen with bitmap graphics, even if the system has 2 screens overall. The bitmap returned will always be from the appropriate channel (A or B).
 //! @param	the_system -- valid pointer to system object
-void Sys_SetScreenBitmap(System* the_system, Bitmap* the_bitmap, bitmap_layer the_layer)
+void Sys_SetScreenBitmap(System* the_system, Bitmap* the_bitmap)
 {
 	if (the_system == NULL)
 	{
@@ -2310,17 +2287,11 @@ void Sys_SetScreenBitmap(System* the_system, Bitmap* the_bitmap, bitmap_layer th
 		goto error;
 	}
 	
-	if (the_layer > fore_layer)
-	{
-		LOG_ERR(("%s %d: passed layer (%i) was invalid", __func__ , __LINE__, the_layer));
-		goto error;
-	}
+	the_system->screen_[ID_CHANNEL_B]->bitmap_ = the_bitmap;
 	
-	the_system->screen_[ID_CHANNEL_B]->bitmap_[the_layer] = the_bitmap;
+	Sys_SetVRAMAddr(the_system, the_bitmap->addr_);
 	
-	Sys_SetVRAMAddr(the_system, the_layer, the_bitmap->addr_);
-	
-	DEBUG_OUT(("%s %d: layer=%i, bitmap_[the_layer]=%p", __func__, __LINE__, the_layer, the_bitmap->addr_));
+	DEBUG_OUT(("%s %d: bitmap_=%p", __func__, __LINE__, the_bitmap->addr_));
 	
 	return;
 	
@@ -2387,15 +2358,12 @@ error:
 // **** xxx functions *****
 
 
-//! Tell the VICKY to use a different address for the specified bitmap layer
+//! Tell the VICKY to use a different address for the specified bitmap
 //! @param	the_system -- valid pointer to system object
-//! @param	the_bitmap_layer -- 0 or 1, the bitmap layer to get a new address
-//! @param	the_address -- The address within the VRAM zone that the bitmap layer should be repointed to
-bool Sys_SetVRAMAddr(System* the_system, uint8_t the_bitmap_layer, unsigned char* the_address)
+//! @param	the_address -- The address within the VRAM zone that the bitmap should be repointed to
+bool Sys_SetVRAMAddr(System* the_system, unsigned char* the_address)
 {
 	uint32_t			new_vicky_bitmap_vram_value;
-
-return true;
 
 	if (the_system == NULL)
 	{
@@ -2403,33 +2371,13 @@ return true;
 		goto error;
 	}
 	
-	if (the_bitmap_layer > 1)
-	{
-		LOG_ERR(("%s %d: passed bitmap layer number (%u) was invalid", __func__ , __LINE__, the_bitmap_layer));
-		goto error;
-	}
+	DEBUG_OUT(("%s %d: VICKY VRAM: want to point to bitmap at %p", __func__, __LINE__, the_address));
+
+	//DEBUG_OUT(("%s %d: VICKY VRAM for bitmap before change: %x / %x / %x", __func__, __LINE__, R8(BITMAP_L0_VRAM_ADDR_L), R8(BITMAP_L0_VRAM_ADDR_M), R8(BITMAP_L0_VRAM_ADDR_H)));
 	
-	DEBUG_OUT(("%s %d: VICKY VRAM for bitmap layer 0: want to point to bitmap at %p", __func__, __LINE__, the_address));
+	new_vicky_bitmap_vram_value = (uint32_t)the_address;		
 
-	//DEBUG_OUT(("%s %d: VICKY VRAM for bitmap layer 0 before change: 0x%x (with offset=0x%x)", __func__, __LINE__, R32(the_system->screen_[ID_CHANNEL_B]->vicky_ + BITMAP_L0_VRAM_ADDR_OFFSET_L), (uint32_t)VRAM_START + R32(the_system->screen_[ID_CHANNEL_B]->vicky_ + BITMAP_L0_VRAM_ADDR_OFFSET_L)));
-	DEBUG_OUT(("%s %d: VICKY VRAM for bitmap layer %i before change: %x / %x / %x", __func__, __LINE__, the_bitmap_layer, R8(BITMAP_L0_VRAM_ADDR_L), R8(BITMAP_L0_VRAM_ADDR_M), R8(BITMAP_L0_VRAM_ADDR_H)));
-	
-	new_vicky_bitmap_vram_value = (uint32_t)the_address - (uint32_t)VRAM_START;		
-
-	DEBUG_OUT(("%s %d: VICKY VRAM for bitmap layer %i about to change to: %p (with offset=%p)", __func__, __LINE__, the_bitmap_layer, P32(new_vicky_bitmap_vram_value), P32(the_address)));
-
-	if (the_bitmap_layer == 0)
-	{
-		R32(the_system->screen_[ID_CHANNEL_B]->vicky_ + BITMAP_L0_VRAM_ADDR_OFFSET_L) = new_vicky_bitmap_vram_value;
-	}
-	else
-	{
-		R32(the_system->screen_[ID_CHANNEL_B]->vicky_ + BITMAP_L1_VRAM_ADDR_OFFSET_L) = new_vicky_bitmap_vram_value;
-	}
-
-
-	
-	//DEBUG_OUT(("%s %d: VICKY VRAM for bitmap layer 0 now set to 0x%x (with offset=0x%x)", __func__, __LINE__, R32(the_system->screen_[ID_CHANNEL_B]->vicky_ + BITMAP_L0_VRAM_ADDR_OFFSET_L), (uint32_t)VRAM_START + R32(the_system->screen_[ID_CHANNEL_B]->vicky_ + BITMAP_L0_VRAM_ADDR_OFFSET_L)));
+	R32(the_system->screen_[ID_CHANNEL_B]->vicky_ + GUI_BASE_OFFSET_L) = new_vicky_bitmap_vram_value;
 	
 	return true;
 	

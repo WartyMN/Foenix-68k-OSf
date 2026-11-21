@@ -265,7 +265,7 @@ Theme* Sys_GetTheme(System* the_system);
 
 //! NOTE: Foenix systems only have 1 screen with bitmap graphics, even if the system has 2 screens overall. The bitmap returned will always be from the appropriate channel (A or B).
 //! @param	the_system -- valid pointer to system object
-Bitmap* Sys_GetScreenBitmap(System* the_system, bitmap_layer the_layer);
+Bitmap* Sys_GetScreenBitmap(System* the_system);
 
 //! @param	the_system -- valid pointer to system object
 EventManager* Sys_GetEventManager(System* the_system);
@@ -285,7 +285,7 @@ void Sys_SetScreen(System* the_system, int16_t channel_id, Screen* the_screen);
 
 //! NOTE: Foenix systems only have 1 screen with bitmap graphics, even if the system has 2 screens overall. The bitmap returned will always be from the appropriate channel (A or B).
 //! @param	the_system -- valid pointer to system object
-void Sys_SetScreenBitmap(System* the_system, Bitmap* the_bitmap, bitmap_layer the_layer);
+void Sys_SetScreenBitmap(System* the_system, Bitmap* the_bitmap);
 
 //! Set the passed theme as the System's current theme
 //! Note: this will dispose of the current theme after setting the new one
@@ -297,11 +297,10 @@ bool Sys_SetTheme(System* the_system, Theme* the_theme);
 
 // **** xxx functions *****
 
-//! Tell the VICKY to use a different address for the specified bitmap layer
+//! Tell the VICKY to use a different address for the specified bitmap
 //! @param	the_system -- valid pointer to system object
-//! @param	the_bitmap_layer -- 0 or 1, the bitmap layer to get a new address
-//! @param	the_address -- The address within the VRAM zone that the bitmap layer should be repointed to
-bool Sys_SetVRAMAddr(System* the_system, uint8_t the_bitmap_layer, unsigned char* the_address);
+//! @param	the_address -- The address within the VRAM zone that the bitmap should be repointed to
+bool Sys_SetVRAMAddr(System* the_system, unsigned char* the_address);
 
 
 

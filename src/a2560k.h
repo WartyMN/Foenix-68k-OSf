@@ -75,6 +75,10 @@
 #define TEXT_FONT_HEIGHT			8	// for text mode, the height of the fixed-sized font chars.
 #define TEXT_FONT_BYTE_SIZE			(8*256)
 
+#define TEXT_NUM_COLUMNS_VICKY_B	160	// in A2560, this is now a fixed 160x60 or 160x64 text display, for Channel B. Channel A depends on resolution.
+#define TEXT_NUM_ROWS_VICKY_B_960	60	// in A2560, this is now a fixed 160x60 or 160x64 text display, for Channel B. Channel A depends on resolution.
+#define TEXT_NUM_ROWS_VICKY_B_1024	60	// in A2560, this is now a fixed 160x60 or 160x64 text display, for Channel B. Channel A depends on resolution.
+
 // general
 #define MAX_STRING_COMP_LEN		256		//!< 255 + terminator is max string size for compares
 
@@ -103,100 +107,13 @@
 	#define CURSOR_CTRL_OFFSET_L		0x04		//!> the offset from the VICKY control register to the cursor control register		
 	#define CURSOR_POS_OFFSET_L			0x04		//!> the offset from the VICKY control register to the cursor position register		
 	#define LN_INTERRUPT_01_OFFSET_L	0x05		//!> the offset from the VICKY control register to the line interrupts 0 and 1 registers		
-	#define BITMAP_L0_CTRL_L			0x40		//!> the offset from the VICKY control register to the bitmap layer0 control register (foreground layer)		
-	#define BITMAP_L0_VRAM_ADDR_OFFSET_L	0x41		//!> the offset from the VICKY control register to the bitmap layer0 VRAM address pointer)		
-	#define BITMAP_L1_CTRL_L			0x42		//!> the offset from the VICKY control register to the bitmap layer1 control register (background layer)		
-	#define BITMAP_L1_VRAM_ADDR_OFFSET_L	0x43		//!> the offset from the VICKY control register to the bitmap layer1 VRAM address pointer)		
-	#define CLUT0_OFFSET				8192	// 0x2000			//!> the offset from the VICKY control register to the first CLUT RAM space
-	#define CLUT1_OFFSET				(CLUT0_OFFSET + 1024)		//!> the offset from the VICKY control register to the 2nd CLUT RAM space
-	#define CLUT2_OFFSET				(CLUT1_OFFSET + 1024)		//!> the offset from the VICKY control register to the 3rd CLUT RAM space
-	#define CLUT3_OFFSET				(CLUT2_OFFSET + 1024)		//!> the offset from the VICKY control register to the 4th CLUT RAM space
-	#define CLUT4_OFFSET				(CLUT3_OFFSET + 1024)		//!> the offset from the VICKY control register to the 5th CLUT RAM space
-	#define CLUT5_OFFSET				(CLUT4_OFFSET + 1024)		//!> the offset from the VICKY control register to the 6th CLUT RAM space
-	#define CLUT6_OFFSET				(CLUT5_OFFSET + 1024)		//!> the offset from the VICKY control register to the 7th CLUT RAM space
-	#define CLUT7_OFFSET				(CLUT6_OFFSET + 1024)		//!> the offset from the VICKY control register to the 8th CLUT RAM space
+	#define GUI_CTRL_OFFSET_L			0x40		//!> the offset from the VICKY control register to the bitmap control register (foreground layer)		
+	#define GUI_BASE_OFFSET_L			0x41		//!> the offset from the VICKY control register to the bitmap VRAM address pointer)		
+	#define CLUT_OFFSET_L				0x800		//!> the offset from the VICKY control register to the CLUT RAM space (8192 bytes)
 
 
-	// ** C256 (VICKY II)
-	
-	// byte swapper: 68000 is big endian; 65816 is little endian
-	#define BSWAP(word)	( (((word) >> 8) & 0x00FF) | (((word) << 8) & 0xFF00) )
-	
-	#define VICKY_C256					0x00af0000		// Vicky II offset/first register
-	#define VICKY_II_MASTER_CTRL_REG_L	0x00af0000		// Vicky II Master Control Register - low - graphic mode/text mode/etc.
-	#define VICKY_II_MASTER_CTRL_REG_H	0x00af0001		// Vicky II Master Control Register - high - screen res, etc.
-	#define VICKY_II_GAMMA_CTRL_REG		0x00af0002		// Vicky II Gamma Control Register
-	#define VICKY_II_BORDER_CTRL_REG	0x00af0004		// Vicky II Border Control Register
-	#define VICKY_II_BORDER_COLOR_B		0x00af0005		// Vicky II Border Color Blue
-	#define VICKY_II_BORDER_COLOR_G		0x00af0006		// Vicky II Border Color Green
-	#define VICKY_II_BORDER_COLOR_R		0x00af0007		// Vicky II Border Color Red
-	#define VICKY_II_BORDER_X_SIZE		0x00af0008		// Vicky II Border X size in pixels
-	#define VICKY_II_BORDER_Y_SIZE		0x00af0009		// Vicky II Border Y size in pixels
-	
-	#define VICKY_II_BACKGROUND_COLOR_B		0x00af000D		// Vicky II background color Blue
-	#define VICKY_II_BACKGROUND_COLOR_G		0x00af000E		// Vicky II background color Green
-	#define VICKY_II_BACKGROUND_COLOR_R		0x00af000F		// Vicky II background color Red
-
-	#define BITMAP_L0_CTRL				0x00af0100		//!> bitmap layer0 control register (background layer)		
-	#define BITMAP_L0_VRAM_ADDR_L		0x00af0101		//!> bitmap layer0 VRAM address pointer)		
-	#define BITMAP_L0_VRAM_ADDR_M		0x00af0102		//!> bitmap layer0 VRAM address pointer)		
-	#define BITMAP_L0_VRAM_ADDR_H		0x00af0103		//!> bitmap layer0 VRAM address pointer)		
-	#define BITMAP_L1_CTRL				0x00af0108		//!> bitmap layer1 control register (foreground layer)		
-	#define BITMAP_L1_VRAM_ADDR_L		0x00af0109		//!> bitmap layer1 VRAM address pointer)		
-	#define BITMAP_L1_VRAM_ADDR_M		0x00af010A		//!> bitmap layer1 VRAM address pointer)		
-	#define BITMAP_L1_VRAM_ADDR_H		0x00af010B		//!> bitmap layer1 VRAM address pointer)		
-
-	#define TEXT_RAM_C256			(char*)0xafa000			// CS_TEXT_MEM_PTR	Text Memory Block
-	#define TEXT_ATTR_C256			(char*)0xafc000			// CS_COLOR_MEM_PTR	Color Text Memory Block
-	#define TEXT_FORE_LUT_C256		(char*)0xaf1f40			// FG_CHAR_LUT_PTR	Text Foreground Look-Up Table
-	#define TEXT_BACK_LUT_C256		(char*)0xaf1f80			// BG_CHAR_LUT_PTR	Text Background Look-Up Table
-	#define FONT_MEMORY_BANK_C256	(char*)0xaf8000			// FONT_MEMORY_BANK0	FONT Character Graphic Mem
-	#define VICKY_II_CLUT0				0xaf2000				// each addition LUT is 400 offset from here
-	#define VICKY_II_CLUT1				(VICKY_II_CLUT0 + 0x400)	// each addition LUT is 400 offset from here
-	#define VICKY_II_CLUT2				(VICKY_II_CLUT1 + 0x400)	// each addition LUT is 400 offset from here
-	#define VICKY_II_CLUT3				(VICKY_II_CLUT2 + 0x400)	// each addition LUT is 400 offset from here
-	#define VICKY_II_CLUT4				(VICKY_II_CLUT3 + 0x400)	// each addition LUT is 400 offset from here
-	#define VICKY_II_CLUT5				(VICKY_II_CLUT4 + 0x400)	// each addition LUT is 400 offset from here
-	#define VICKY_II_CLUT6				(VICKY_II_CLUT5 + 0x400)	// each addition LUT is 400 offset from here
-	#define VICKY_II_CLUT7				(VICKY_II_CLUT6 + 0x400)	// each addition LUT is 400 offset from here
 
 
-	#define GABE_SYS_STAT				0x00AFE887	//!> The gabe register holding the machine ID. Machine ID is stored in 4 least significant bits
-	
-	#define VIDEO_MODE_REG_OFFSET_B		0x01		//!> the (byte) offset from the VICKY control register to the Video mode reg (MASTER_CTRL_REG_H)
-	#define GAMMA_CTRL_REG_OFFSET_B		0x02		//!> the (byte) offset from the VICKY control register to the Gamma control register
-	#define VICKY_RESERVED_OFFSET_B		0x03		//!> the (byte) offset from the VICKY control register to the VKY_RESERVED_O1 byte
-	#define BORDER_CTRL_OFFSET_B		0x04		//!> the (byte) offset from the VICKY control register to the border control register
-	#define BORDER_COLOR_OFFSET_B_B		0x05		//!> the (byte) offset from the VICKY control register to the border color register	for Blue
-	#define BORDER_COLOR_OFFSET_G_B		0x06		//!> the (byte) offset from the VICKY control register to the border color register	for Green
-	#define BORDER_COLOR_OFFSET_R_B		0x07		//!> the (byte) offset from the VICKY control register to the border color register	for Red
-	#define BORDER_X_SIZE_B				0x08		//!> the (byte) offset from the VICKY control register to the border X-size
-	#define BORDER_Y_SIZE_B				0x09		//!> the (byte) offset from the VICKY control register to the border Y-size
-	#define BACKGROUND_COLOR_OFFSET_B_B	0x0D		//!> the (byte) offset from the VICKY control register to the background color register	for Blue
-	#define BACKGROUND_COLOR_OFFSET_G_B	0x0E		//!> the (byte) offset from the VICKY control register to the background color register	for Green
-	#define BACKGROUND_COLOR_OFFSET_R_B	0x0F		//!> the (byte) offset from the VICKY control register to the background color register	for Red
-	#define CURSOR_CTRL_OFFSET_B		0x10		//!> the (byte) offset from the VICKY control register to the cursor control register		
-	#define START_ADDR_OFFSET_B			0x11		//!> the (byte) offset from the VICKY control register to change the starting address of the text mode buffer (in x)
-	#define CURSOR_CHAR_OFFSET_B		0x12		//!> the (byte) offset from the VICKY control register to the Char used as the Cursor	
-	#define CURSOR_COLOR_OFFSET_B		0x13		//!> the (byte) offset from the VICKY control register to the color used for the Cursor	
-	#define LN_INTERRUPT_01_OFFSET_B	0x1B		//!> the (byte) offset from the VICKY control register to the line interrupts 0 and 1 registers		
-	#define BITMAP_L0_CTRL_B			0x100		//!> the (byte) offset from the VICKY control register to the bitmap layer0 control register (foreground layer)		
-	#define BITMAP_L0_VRAM_ADDR_L_B		0x101		//!> the (byte) offset from the VICKY control register to the bitmap layer0 VRAM address pointer)		
-	#define BITMAP_L0_VRAM_ADDR_M_B		0x102		//!> the (byte) offset from the VICKY control register to the bitmap layer0 VRAM address pointer)		
-	#define BITMAP_L0_VRAM_ADDR_H_B		0x103		//!> the (byte) offset from the VICKY control register to the bitmap layer0 VRAM address pointer)		
-	#define BITMAP_L1_CTRL_B			0x108		//!> the (byte) offset from the VICKY control register to the bitmap layer1 control register (foreground layer)		
-	#define BITMAP_L1_VRAM_ADDR_L_B		0x109		//!> the (byte) offset from the VICKY control register to the bitmap layer1 VRAM address pointer)		
-	#define BITMAP_L1_VRAM_ADDR_M_B		0x10A		//!> the (byte) offset from the VICKY control register to the bitmap layer1 VRAM address pointer)		
-	#define BITMAP_L1_VRAM_ADDR_H_B		0x10B		//!> the (byte) offset from the VICKY control register to the bitmap layer1 VRAM address pointer)		
-	#define CLUT0_OFFSET_B				0x2000		//!> the (byte) offset from the VICKY control register to the first CLUT RAM space
-	#define CLUT1_OFFSET_B				0x2400		//!> the (byte) offset from the VICKY control register to the 2nd CLUT RAM space
-	#define CLUT2_OFFSET_B				0x2800		//!> the (byte) offset from the VICKY control register to the 3rd CLUT RAM space
-	#define CLUT3_OFFSET_B				0x2C00		//!> the (byte) offset from the VICKY control register to the 4th CLUT RAM space
-	#define CLUT4_OFFSET_B				0x3000		//!> the (byte) offset from the VICKY control register to the 5th CLUT RAM space
-	#define CLUT5_OFFSET_B				0x3400		//!> the (byte) offset from the VICKY control register to the 6th CLUT RAM space
-	#define CLUT6_OFFSET_B				0x3800		//!> the (byte) offset from the VICKY control register to the 7th CLUT RAM space
-	#define CLUT7_OFFSET_B				0x3C00		//!> the (byte) offset from the VICKY control register to the 8th CLUT RAM space
-	#define FONT_MEMORY_BANK0_OFFSET_B	0x8000		//!> the (byte) offset from the VICKY control register to the font memory for bank0
 
 
 
@@ -379,7 +296,7 @@
 // ** A2560K Ethernet control registers
 // TODO
 
-#define GAVIN_ETHERNET_CONTROL		0xfec00500	// start of Ethernet control registers -- all are 4 byte, mix of RW and RO
+#define GAVIN_ETHERNET_CONTROL		0xfec00600	// start of Ethernet control registers -- all are 4 byte, mix of RW and RO
 
 
 // ** A2560K Serial control registers
@@ -498,20 +415,15 @@
 // reserved         > 1 0
 // reserved         > 1 1
 
-#define VICKY_II_RES_640X480_FLAGS		0x00	// 0b00000000
-#define VICKY_II_RES_800X600_FLAGS		0x01	// 0b00000001
-#define VICKY_II_PIX_DOUBLER_FLAGS		0x02	// 0b00000001
-#define VICKY_II_RES_640X400_FLAGS		0x03	// 0b00000011
-
-#define VICKY_IIIB_RES_640X480_FLAGS	0x00	// 0b00000000
-#define VICKY_IIIB_RES_800X600_FLAGS	0x01	// 0b00000001
+#define VICKY_IIIB_RES_1280X960_FLAGS	0x00	// 0b00000000
+#define VICKY_IIIB_RES_1280X1024_FLAGS	0x01	// 0b00000001
 #define VICKY_IIIB_RES_RESERVED_FLAGS	0x02	// 0b00000010	// a2560K 0.0.2 manual says reserved, but this is what I see in the register when MCP sets 800x600
 #define VICKY_IIIB_RES_640X400_FLAGS	0x03	// 0b00000011
 
 #define VICKY_IIIA_RES_800X600_FLAGS	0x00	// 0b00000000
 #define VICKY_IIIA_RES_1024X768_FLAGS	0x08	// 0b00000100
 
-#define VICKY_AB_RES_FLAG_MASK_8BIT		0x03	// 0b00000011	// when masking 2nd byte of VICKY, these are the bits related to resolution.
+#define VICKY_AB_RES_FLAG_MASK_8BIT		0x01	// 0b00000001	// when masking 2nd byte of VICKY, these are the bits related to resolution.
 #define VICKY_AB_RES_FLAG_MASK_32BIT	0x00000300	// when masking 2nd byte of VICKY, these are the bits related to resolution.
 
 
@@ -522,9 +434,6 @@
 
 #define VICKY_A_BASE_ADDRESS			0xfec40000		// start of VICKY channel A registers -- all are 4 byte, RW (some bits RO)
 #define VICKY_A_MASTER_CONTROL			(VICKY_A_BASE_ADDRESS)	// VICKY Channel A master control register
-	// VICKY A byte 0 bits (reserved except as noted below)
-	#define VICKY_AB_TEXT_MODE_EN_FLAG	0x00000001	// 0b00000001	Enable the Text Mode
-	#define VICKY_AB_DISABLE_VID_OUTPUT	0x00000080	// 0b10000000	This will disable the Scanning of the Video information in the 4Meg of Video RAM hence giving 100% bandwidth to the CPU
 	// VICKY A byte 1 bits (reserved except as noted below)
 	#define VICKY_A_MC_RES_FLAG			0x00000800	// 0b00001000 - 1=1024x768, 0=800x600
 	// VICKY A byte 2 bits (reserved except as noted below)
@@ -551,8 +460,8 @@
 #define VICKYA_PS2_MOUSE_BYTE_2		0xfec40c0e		// PS/2 mouse movement byte 2 for VICKY to interpret. W16.
 
 // VICKY III - Channel B - Text and Graphics
-#define VICKY_BITMAP_MAX_H_RES		800		// VICKY in A2560K supports a max resolution of 800x600 for graphics
-#define VICKY_BITMAP_MAX_V_RES		600		// VICKY in A2560K supports a max resolution of 800x600 for graphics
+#define VICKY_BITMAP_MAX_H_RES		1280		// VICKY in A2560K supports a max resolution of 1280x1024 for graphics
+#define VICKY_BITMAP_MAX_V_RES		1024		// VICKY in A2560K supports a max resolution of 1280x1024 for graphics
 #define GRAPHICS_MODE_MASK			0xFFFFFF00	//!> the mask for the system control register that holds the graphics/bitmap/text/sprite mode bits
 #define VIDEO_MODE_MASK				0xFFFF00FF	//!> the mask for the system control register that holds the video mode bits
 #define GAMMA_MODE_MASK				0xFF00FFFF	//!> the mask for the system control register that controls gamma (in some way not clear to me)
@@ -562,44 +471,54 @@
 #define VICKY_B_MASTER_CONTROL		(VICKY_B_BASE_ADDRESS)	// vicky III channel B control register
 
 	// VICKY B byte 0 bits (reserved except as noted below)
-	#define VICKY_AB_TEXT_MODE_EN_FLAG	0x00000001	// 0b00000001	Enable the Text Mode
-	#define VICKY_AB_DISABLE_VID_OUTPUT	0x00000080	// 0b10000000	This will disable the Scanning of the Video information in the 4Meg of Video RAM hence giving 100% bandwidth to the CPU
-
-	#define GRAPHICS_MODE_TEXT		0x01	// 0b00000001	Enable the Text Mode
-	#define GRAPHICS_MODE_TEXT_OVER	0x02	// 0b00000010	Enable the Overlay of the text mode on top of Graphic Mode (the Background Color is ignored)
-	#define GRAPHICS_MODE_GRAPHICS	0x04	// 0b00000100	Enable the Graphic Mode
-	#define GRAPHICS_MODE_EN_BITMAP	0x08	// 0b00001000	Enable the Bitmap Module In Vicky
-	#define GRAPHICS_MODE_EN_TILE	0x10	// 0b00010000	Enable the Tile Module in Vicky
-	#define GRAPHICS_MODE_EN_SPRITE	0x20	// 0b00100000	Enable the Sprite Module in Vicky
-	#define GRAPHICS_MODE_RESERVED	0x40	// 0b01000000	Reserved on A2560K
-	#define GRAPHICS_MODE_DIS_VIDEO	0x80	// 0b10000000	This will disable the Scanning of the Video information in the 4Meg of VideoRAM hence giving 100% bandwidth to the CPU
-
-
+	#define VICKY_B_MC_TEXT_EN			0x00000001	// 0b00000001	Enable the Text Mode
+	#define VICKY_B_MC_TEXT_OVR			0x00000002	// 0b00000010	Enable the Overlay of the text mode on top of Graphic Mode (the Background Color is ignored)
+	#define VICKY_B_MC_GRAPH_EN			0x00000004	// 0b00000100	Enable the Graphic Mode
+	#define VICKY_B_MC_BIT3_UNUSED		0x00000008	// 0b00001000	Stored, no effect. Was: Enable the Bitmap Module In Vicky
+	#define VICKY_B_MC_BIT4_UNUSED		0x00000010	// 0b00010000	Stored, no effect. Was: Enable the Tile Module in Vicky
+	#define VICKY_B_MC_BIT5_UNUSED		0x00000020	// 0b00100000	Stored, no effect. Was: Enable the Sprite Module in Vicky
+	#define VICKY_B_MC_GAMMA_ON			0x00000040	// 0b01000000	1=gamma tables on (used when bit 17=1)
+	#define VICKY_B_MC_BIT7_UNUSED		0x00000080	// 0b10000000	Stored, no effect. Was: This will disable the Scanning of the Video information in the 4Meg of 
+	
 	// VICKY B byte 1 bits
-	#define VICKY_B_MC_RES_FLAG_1		0x00000100	// 0b00000001
-	#define VICKY_B_MC_RES_FLAG_2		0x00000200	// 0b00000010
-												// note: apparently 640x400 is not yet configured on A2560K
-												// bits 0-1 @ 0/0: 640x480 @ 60FPS
-												// bits 0-1 @ 0/1: 800x600 @ 60FPS
-												// bits 0-1 @ 1/1: 640x400 @ 70FPS
-	#define VICKY_B_MC_PIX_DBL_FLAG		0x00000400	// 0b00000100 - doubles pixel size in both X and Y directions. 
-	#define VICKY_B_MC_RESERVED_1		0x00000800	// 0b00001000 - reserved
-	#define VICKY_B_MC_RESERVED_2		0x00001000	// 0b00010000 - reserved
-	#define VICKY_B_MC_GAMMA_DIP		0x00002000	// 0b00100000 - RO - position of gamma dipswitch
-	#define VICKY_B_MC_HIRES_DIP		0x00004000	// 0b01000000 - RO - position of hi-res dispswitch
-	#define VICKY_B_MC_CLK_SPD_FLAG		0x00008000	// 0b10000000 - RO - clock speed - 0=25mhz, 1=40mhz
-	// VICKY B byte 2 bits (reserved except as noted below)
-	#define VICKY_B_MC_GAMMA_SRC_FLAG	0x00010000	// 0b00000001	0: respect dip switch. 1: respect bit 1 of this byte
-	#define VICKY_B_MC_GAMMA_SW_CHOICE	0x00020000	// 0b00000010	0: gamma off. 1: gamma on (only effective if bit 0 set)
-	#define VICKY_B_MC_SYNC_DISABLE		0x00040000	// 0b00000100	0: normal. 1: sync off (put display to sleep)
-	// VICKY B byte 3 bits are all reserved
+	#define VICKY_B_MC_MODE_1024		0x00000100	// 0b00000001	0=1280x960. 1=1280x1024 (taken at frame start)
+	#define VICKY_B_MC_BIT9_UNUSED		0x00000200	// 0b00000010	stored, no effect on the timing
+	#define VICKY_B_MC_BIT10_UNUSED		0x00000400	// 0b00000100 - stored, no effect on the K25
+	#define VICKY_B_PTR_DOUBLE			0x00000800	// 0b00001000 - 1=the mouse pointer is drawn for a pixel-doubled screen (2x2 pixels, coordinates up to 639). Keep 0 unless the whole screen is doubled
+	#define VICKY_B_MC_SYNC_OFF			0x00001000	// 0b00010000 - 1=DE, HSYNC, and VSYNC held inactive (the monitor goes to sleep)
+	#define VICKY_B_MC_TEXT_BG_OVR		0x00002000	// 0b00100000 - Overlay style (with bit 1): 1=text cells also draw their background color over the pic4ture, except cells whose background index is transparent (see the mixer section); 0=only the character pixels are drawn.
+	#define VICKY_B_MC_MEMTEXT_EN		0x00004000	// 0b01000000 - 1=MemText is the picture layer (bit 0 must also be 1, and MemText CTRL bit 0). Disables TOSGraph.
+	#define VICKY_B_MC_BIT15_UNUSED		0x00008000	// 0b10000000 - Stored, no effect
+
+	// VICKY B byte 2 bits
+	#define VICKY_B_MC_BIT16_UNUSED		0x00010000	// 0b00000001	Stored, no effect
+	#define VICKY_B_MC_GAMMA_SRC		0x00020000	// 0b00000010	0: gamma on/off from the gamma DIP switch, 1=gamma controlled by bit 6
+	#define VICKY_B_MC_BIT18_UNUSED		0x00040000	// 0b00000100	Stored, no effect
+	#define VICKY_B_MC_BIT19_UNUSED		0x00080000	// 0b00001000 - Stored, no effect
+	#define VICKY_B_MC_TOSGRAPH_EN		0x00100000	// 0b00010000 - 1 = TOSGraph is the picture layer. Ignored while bit 14 is 1 (MemText and TOSGraph share the bank B fetch). TOSGraph CTRL bit 0 must also be 1.
+	#define VICKY_B_MC_BIT21_UNUSED		0x00200000	// 0b00100000	Stored, no effect. Was: Enable the Sprite Module in Vicky
+	#define VICKY_B_MC_BIT22_UNUSED		0x00400000	// 0b01000000	Stored, no effect. 
+	#define VICKY_B_MC_BIT23_UNUSED		0x00800000	// 0b10000000	Stored, no effect.
+
+	// VICKY B byte 3 bits
+	#define VICKY_B_MC_BIT24_UNUSED		0x01000000	// 0b00000001	Stored, no effect
+	#define VICKY_B_MC_BIT25_UNUSED		0x02000000	// 0b00000010	Stored, no effect
+	#define VICKY_B_MC_BIT26_UNUSED		0x04000000	// 0b00000100	Stored, no effect
+	#define VICKY_B_MC_BIT27_UNUSED		0x08000000	// 0b00001000 - Stored, no effect
+	#define VICKY_B_MC_BIT28_UNUSED		0x10000000	// 0b00010000 - Stored, no effect
+	#define VICKY_B_MC_DIP_GAMMA		0x20000000	// 0b00100000	Level of the gamma DIP switch (used when bit 17 = 0).
+	#define VICKY_B_MC_DIR_HIRES		0x40000000	// 0b01000000	Level of the hi-res DIP switch (the MCP sets bit 8 when it is 1
+	#define VICKY_B_MC_BIT31_ONE		0x80000000	// 0b10000000	Reads 1
 
 #define VICKYB_BORDER_CTRL_A2560K	(VICKY_B_BASE_ADDRESS + 4)	// vicky III channel B border control register
 #define VICKYB_BORDER_COLOR_A2560K	0xfec80008				// vicky III channel B border color register
 #define VICKYB_BACK_COLOR_A2560K	0xfec8000C				// vicky III channel B background color register
 #define VICKYB_CURSOR_CTRL_A2560K	(VICKY_B_BASE_ADDRESS + 16)	// vicky III channel B cursor control register
 #define VICKYB_CURSOR_POS_A2560K	(VICKY_B_BASE_ADDRESS + 20)	// vicky III channel B cursor position register
-#define VICKYB_BITMAP_L0_CTRL		0xfec80100				// vicky III channel B bitmap layer 0 control register (1=enable, +2=LUT0, +4=LUT1, +8=LUT2
+#define VICKYB_GUI_CTRL				0xfec80100				// vicky III channel B bitmap GUI control (1=enable, +2=LUT0, +4=LUT1, +8=LUT2
+#define VICKYB_GUI_BASE				0xfec80104				//! Bitmap VRAM Address Pointer. Absolute SDRAM address.
+#define VICKYB_GUI_STRIDE			0xfec80108				//! 
+
 #define VICKYB_MOUSE_GRAPHIC_A2560K	0xfec80400				// vicky III channel B mouse pointer graphic stored here (16x16 ARGB) - 4byte, WO
 #define VICKYB_MOUSE_CTRL_A2560K	0xfec80c00				// vicky III channel B mouse pointer control register. set to 1 to enable mouse. +2 to do whatever "pointer choice" does. W16, R32
 #define VICKYB_MOUSE_PTR_POS		0xfec80c04				// vicky III channel B mouse pointer position (Y pos in upper 16 bits, x in lower)
@@ -616,20 +535,6 @@
 #define TEXTB_BACK_LUT_A2560K		(char*)0xfecac440		// BG_CHAR_LUT_PTR	Text Background Look-Up Table
 #define FONT_MEMORY_BANKA_A2560K	(char*)0xfec48000		// chan A
 #define FONT_MEMORY_BANKB_A2560K	(char*)0xfec88000		// chan B
-#define VICKY_IIIB_CLUT0			0xfec82000				// each addition LUT is 400 offset from here
-#define VICKY_IIIB_CLUT1			(VICKY_IIIB_CLUT0 + 1024)	// each addition LUT is 400 offset from here
-#define VICKY_IIIB_CLUT2			(VICKY_IIIB_CLUT1 + 1024)	// each addition LUT is 400 offset from here
-#define VICKY_IIIB_CLUT3			(VICKY_IIIB_CLUT2 + 1024)	// each addition LUT is 400 offset from here
-#define VICKY_IIIB_CLUT4			(VICKY_IIIB_CLUT3 + 1024)	// each addition LUT is 400 offset from here
-#define VICKY_IIIB_CLUT5			(VICKY_IIIB_CLUT4 + 1024)	// each addition LUT is 400 offset from here
-#define VICKY_IIIB_CLUT6			(VICKY_IIIB_CLUT5 + 1024)	// each addition LUT is 400 offset from here
-#define VICKY_IIIB_CLUT7			(VICKY_IIIB_CLUT6 + 1024)	// each addition LUT is 400 offset from here
-
-#define default_start_a2560k_vram	0x00011000	// offset against vicky I think though. add to VICKY_B_BASE_ADDRESS? based on doing peek32 in f68. 
-#define BITMAP_CTRL_REG_A2560_0		0xfec80100	//! Bitmap Layer0 Control Register (Foreground Layer)
-#define BITMAP_VRAM_ADDR_A2560_0	0xfec80104	//! Bitmap Layer0 VRAM Address Pointer. Offset within the VRAM memory from VICKY’s perspective. VRAM Address begins @ $00:0000 and ends @ $1FFFFF
-#define BITMAP_CTRL_REG_A2560_1		0xfec80108	//! Bitmap Layer1 Control Register (Background Layer)
-#define BITMAP_VRAM_ADDR_A2560_1	0xfec8010C	//! Bitmap Layer0 VRAM Address Pointer. Offset within the VRAM memory from VICKY’s perspective. VRAM Address begins @ $00:0000 and ends @ $1FFFFF
 
 
 // ** A2560U and A2560U+
@@ -654,11 +559,11 @@
 	#define VRAM_START				0x00C00000
 	#define VRAM_LEN				0x00200000
 #elif defined _A2560K_
-	#define VRAM_START				0x00800000
+	#define VRAM_START				0x02000000
 	#define VRAM_LEN				0x00400000
 #endif
 
-#define VRAM_OFFSET_TO_NEXT_SCREEN	0x75300		// 800x600 - 480,000 -- number of bytes needed to cover maximum screen resolution for one bitmap layer
+#define VRAM_OFFSET_TO_NEXT_SCREEN	0x140000	// 1280×1024 = 1,310,720 -- number of bytes needed to cover maximum screen resolution for one bitmap
 
 
 // subtract 0xfe000000 from the UM map for Vicky (to get the old/morfe addresses)
@@ -1314,12 +1219,6 @@ typedef uint8_t	ColorIdx;
 /*                               Enumerations                                */
 /*****************************************************************************/
 
-typedef enum
-{
-	back_layer = 0,
-	fore_layer = 1,
-} bitmap_layer;
-
 // device-independent resolution flags
 typedef enum
 {
@@ -1327,6 +1226,8 @@ typedef enum
 	RES_640X480,
 	RES_800X600,
 	RES_1024X768,
+	RES_1280X960,
+	RES_1280X1024,
 } screen_resolution;
 
 /*****************************************************************************/
@@ -1391,7 +1292,7 @@ typedef struct Screen
 	int16_t			text_font_width_;	// in text mode, the width in pixels for the fixed width font. Unlikely to be other than '8' with Foenix machines. used for calculating text fit.
 // 	char			text_temp_buffer_1_[TEXT_COL_COUNT_FOR_PLOTTING_A2560K * TEXT_ROW_COUNT_FOR_PLOTTING_A2560K + 1];	// todo: replace with pointer, and allocate space on resolution switch. general use temp buffer - do NOT use for real storage - any utility function clobber it
 // 	char			text_temp_buffer_2_[TEXT_COL_COUNT_FOR_PLOTTING_A2560K * TEXT_ROW_COUNT_FOR_PLOTTING_A2560K + 1];	// todo: replace with pointer, and allocate space on resolution switch. general use temp buffer - do NOT use for real storage - any utility function clobber it
-	Bitmap*			bitmap_[2];			//! The foreground (layer0=0) and background (layer1=1) bitmaps associated with this screen, if any. (Text only screens do not have bitmaps available)
+	Bitmap*			bitmap_;			//! The bitmap associated with this screen, if any. (Text only screens do not have bitmaps available)
 } Screen;
 
 

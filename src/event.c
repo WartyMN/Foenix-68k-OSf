@@ -386,9 +386,8 @@ EventRecord* EventManager_NextEvent(void)
 	
 	the_event = the_event_manager->queue_[the_event_manager->read_idx_];
 
-	DEBUG_OUT(("%s %d: Next Event: type=%i, ptr=%p", __func__, __LINE__, the_event->what_, the_event));
-	//EventManager_Print(the_event_manager);
-	Event_Print(the_event);
+	//DEBUG_OUT(("%s %d: Next Event: type=%i, ptr=%p", __func__, __LINE__, the_event->what_, the_event));
+// 	Event_Print(the_event);
 	
 	the_event_manager->read_idx_++;
 	the_event_manager->read_idx_ %= EVENT_QUEUE_SIZE;
@@ -424,7 +423,7 @@ void EventManager_AddMouseEvent(event_kind the_what)
 	EventRecord*	the_event;
 	uint32_t		vicky_mouse_pos;
 
-	DEBUG_OUT(("%s %d: reached; the_what=%i", __func__, __LINE__, the_what));
+	//DEBUG_OUT(("%s %d: reached; the_what=%i", __func__, __LINE__, the_what));
 	
 	if (the_what > mouseMoved) 
 	{
@@ -438,16 +437,14 @@ void EventManager_AddMouseEvent(event_kind the_what)
 	the_event_manager->write_idx_ %= EVENT_QUEUE_SIZE;
 	
 	vicky_mouse_pos = NR32(VICKYB_MOUSE_PTR_POS);
-	// mb: 2025-01-04: this is producing "DEADBEEF". Probably from the FPGA. feature may not be ready yet. use temp hard-coded butlegal values until fix.
-	DEBUG_OUT(("%s %d: vicky_mouse_pos=%u, %x", __func__, __LINE__, vicky_mouse_pos, vicky_mouse_pos));
-	//the_event->mouseinfo_.x_ = (int16_t)((vicky_mouse_pos & 0xffff0000) >> 16);
-	//the_event->mouseinfo_.y_ = (int16_t)vicky_mouse_pos & 0x0000ffff;
-	the_event->mouseinfo_.x_ = 50;
-	the_event->mouseinfo_.y_ = 50;
+	the_event->mouseinfo_.x_ = (int16_t)(vicky_mouse_pos & 0xffff);
+	the_event->mouseinfo_.y_ = (int16_t)(vicky_mouse_pos >> 16);
+	//DEBUG_OUT(("%s %d: vicky_mouse_pos=%u, %x", __func__, __LINE__, vicky_mouse_pos, vicky_mouse_pos));
 	the_event->mouseinfo_.modifiers_ = noneFlagBit;
 
 	the_event->when_ = sys_time_jiffies();
 	the_event->what_ = the_what;
+	the_event->window_ = NULL;
 	
 	// do not even bother clearing out the window and mouse sub-records. for one thing, it's a union. for another, it won't get used. 
 	// TODO: check for window
@@ -971,7 +968,9 @@ void EventManager_HandleMouseMoved(EventManager* the_event_manager, EventRecord*
 
 	starting_mode = Mouse_GetMode(the_event_manager->mouse_tracker_);
 
-	the_window = the_event->window_;
+	// force the event to have a window, even if none was set previously.
+	the_window = Sys_GetWindowAtXY(global_system, the_event->mouseinfo_.x_, the_event->mouseinfo_.y_);
+	the_event->window_ = the_window;
 	
 	// update the mouse so it knows it's X/Y
 	Mouse_SetXY(the_event_manager->mouse_tracker_, the_event->mouseinfo_.x_, the_event->mouseinfo_.y_);
@@ -980,9 +979,9 @@ void EventManager_HandleMouseMoved(EventManager* the_event_manager, EventRecord*
 	x_delta = Mouse_GetXDelta(the_event_manager->mouse_tracker_);
 	y_delta = Mouse_GetYDelta(the_event_manager->mouse_tracker_);
 
-	DEBUG_OUT(("%s %d: mouse clicked (%i, %i)", __func__, __LINE__, Mouse_GetClickedX(the_event_manager->mouse_tracker_), Mouse_GetClickedY(the_event_manager->mouse_tracker_)));
-	DEBUG_OUT(("%s %d: mouse now (%i, %i)", __func__, __LINE__, Mouse_GetX(the_event_manager->mouse_tracker_), Mouse_GetY(the_event_manager->mouse_tracker_)));
-	DEBUG_OUT(("%s %d: mouse delta (%i, %i)", __func__, __LINE__, Mouse_GetXDelta(the_event_manager->mouse_tracker_), Mouse_GetYDelta(the_event_manager->mouse_tracker_)));
+	//DEBUG_OUT(("%s %d: mouse clicked (%i, %i)", __func__, __LINE__, Mouse_GetClickedX(the_event_manager->mouse_tracker_), Mouse_GetClickedY(the_event_manager->mouse_tracker_)));
+	//DEBUG_OUT(("%s %d: mouse now (%i, %i)", __func__, __LINE__, Mouse_GetX(the_event_manager->mouse_tracker_), Mouse_GetY(the_event_manager->mouse_tracker_)));
+	//DEBUG_OUT(("%s %d: mouse delta (%i, %i)", __func__, __LINE__, Mouse_GetXDelta(the_event_manager->mouse_tracker_), Mouse_GetYDelta(the_event_manager->mouse_tracker_)));
 
 	if (starting_mode == mouseMenuOpen)
 	{
@@ -1022,7 +1021,7 @@ void EventManager_HandleMouseMoved(EventManager* the_event_manager, EventRecord*
 				int16_t	new_height;
 				//bool	change_made = false;
 				
-				DEBUG_OUT(("%s %d: window x/y (%i, %i)", __func__, __LINE__,  Window_GetX(the_window), Window_GetY(the_window)));
+				//DEBUG_OUT(("%s %d: window x/y (%i, %i)", __func__, __LINE__,  Window_GetX(the_window), Window_GetY(the_window)));
 				
 				new_x = Window_GetX(the_window) + x_delta;
 				new_y = Window_GetY(the_window) + y_delta;
@@ -1031,7 +1030,7 @@ void EventManager_HandleMouseMoved(EventManager* the_event_manager, EventRecord*
 
 				//if (change_made)
 				{
-					Bitmap*		the_bitmap = Sys_GetScreenBitmap(global_system, back_layer);
+					Bitmap*		the_bitmap = Sys_GetScreenBitmap(global_system);
 			
 					// undraw the old box, draw the new one. temporary problem: A2560 emulators are not currently doing composition, so we can't draw to foreground layer. 
 					//Bitmap_DrawBox(the_bitmap, prev_x, prev_y, prev_width, prev_height, 0, PARAM_DO_NOT_FILL)
@@ -1101,7 +1100,7 @@ void EventManager_HandleMouseMoved(EventManager* the_event_manager, EventRecord*
 		
 		if (change_made)
 		{
-			Bitmap*		the_bitmap = Sys_GetScreenBitmap(global_system, back_layer);
+			Bitmap*		the_bitmap = Sys_GetScreenBitmap(global_system);
 			
 			// undraw the old box, draw the new one. temporary problem: A2560 emulators are not currently doing composition, so we can't draw to foreground layer. 
 			//Bitmap_DrawBox(the_bitmap, prev_x, prev_y, prev_width, prev_height, 0, PARAM_DO_NOT_FILL)
@@ -1112,6 +1111,12 @@ void EventManager_HandleMouseMoved(EventManager* the_event_manager, EventRecord*
 	{
 		// if mouse is down on a control, and is still on control, check that control is currently showing pressed down. if not set, set pressed down and re-render.
 		// if mouse is down on a control, and moves off the control, set the control to not-pressed, and re-render. do NOT change mouse mode. That only happens at mouse up. 
+
+		// guard until we start storing the window that was clicked.
+		if (the_event->window_ == NULL)
+		{
+			return;
+		}
 
 		// get local coords so we can check for mouse movement over a control
 		local_x = the_event->mouseinfo_.x_;
@@ -1129,7 +1134,7 @@ void EventManager_HandleMouseMoved(EventManager* the_event_manager, EventRecord*
 		{
 			Control*	clicked_control;
 			
-			DEBUG_OUT(("%s %d: ** moused moved over control '%s' (id=%i)", __func__, __LINE__, the_event->control_->caption_, the_event->control_->id_));
+			//DEBUG_OUT(("%s %d: ** moused moved over control '%s' (id=%i)", __func__, __LINE__, the_event->control_->caption_, the_event->control_->id_));
 			clicked_control = Window_GetSelectedControl(the_event->window_);
 			
 			if (clicked_control != the_event->control_)
@@ -1139,7 +1144,7 @@ void EventManager_HandleMouseMoved(EventManager* the_event_manager, EventRecord*
 			}
 		}
 	}
-	else
+	else if (the_window != NULL && the_window->event_handler_ != NULL)
 	{
 		// give window an event
 		(*the_window->event_handler_)(the_event);				
@@ -1164,15 +1169,15 @@ void EventManager_WaitForEvent(void)
 		MouseMode		starting_mode;
 		Window*			the_active_window;
 		
-		the_event = EventManager_NextEvent();	// MB 2025: in theory, this should return NULLs some time, but it is always returnning NULL, even tho pointer works. See Event_Print()
+		the_event = EventManager_NextEvent();
 		
-		if (the_event->what_ == nullEvent || the_event->what_ >= invalidEvent)
+		if (the_event == NULL || the_event->what_ == nullEvent || the_event->what_ >= invalidEvent)
 		{
 			exit_loop = true;
 		}
 		else
 		{
-			DEBUG_OUT(("%s %d: Received Event: type=%i", __func__, __LINE__, the_event->what_));
+			//DEBUG_OUT(("%s %d: Received Event: type=%i", __func__, __LINE__, the_event->what_));
 			//Event_Print(the_event);
 			
 			starting_mode = Mouse_GetMode(the_event_manager->mouse_tracker_);
@@ -1191,14 +1196,14 @@ void EventManager_WaitForEvent(void)
 					break;
 			
 				case mouseMoved:				
-					DEBUG_OUT(("%s %d: mouse move event (%i, %i)", __func__, __LINE__, the_event->mouseinfo_.x_, the_event->mouseinfo_.y_));
+					//DEBUG_OUT(("%s %d: mouse move event (%i, %i)", __func__, __LINE__, the_event->mouseinfo_.x_, the_event->mouseinfo_.y_));
 	
 					EventManager_HandleMouseMoved(the_event_manager, the_event);
 		
 					break;
 					
 				case mouseDown:				
-					DEBUG_OUT(("%s %d: mouse down event (%i, %i)", __func__, __LINE__, the_event->mouseinfo_.x_, the_event->mouseinfo_.y_));
+					//DEBUG_OUT(("%s %d: mouse down event (%i, %i)", __func__, __LINE__, the_event->mouseinfo_.x_, the_event->mouseinfo_.y_));
 	
 					EventManager_HandleMouseDown(the_event_manager, the_event);
 					

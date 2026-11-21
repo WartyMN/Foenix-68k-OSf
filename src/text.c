@@ -283,6 +283,8 @@ bool Text_FillMemoryBox(Screen* the_screen, int16_t x, int16_t y, int16_t width,
 // advance the read and write buffers to the next position
 void General_WrapParaWriteLine(char** src, char** dst, int16_t write_len)
 {
+	if (write_len < 1) return;
+	
 	General_Strlcpy(*dst, *src, write_len);
 	*(*dst + write_len - 1) = '\n'; // overwrite the \0 from strlcpy				
 	*dst += write_len; // move formatted_text up to the next spot for writing
@@ -567,7 +569,7 @@ int16_t General_WrapAndTrimTextToFit(char** orig_string, char** formatted_string
 			}		
 				
 			// process one paragraph
-			new_v_pixels_used = General_WrapPara(para_to_process, formatted_string, len_to_process, max_width, remaining_v_pixels, one_row_height, one_char_width, the_font, measure_function);		
+			new_v_pixels_used = General_WrapPara(para_to_process, formatted_string, len_to_process, max_width, remaining_v_pixels, one_char_width, one_row_height, the_font, measure_function);		
 		}
 	
 		if (new_v_pixels_used == -1)
@@ -1197,7 +1199,37 @@ bool Text_UpdateFontData(Screen* the_screen, char* new_font_data)
 		return false;
 	}
 
-	memcpy(the_screen->text_font_ram_, new_font_data, 2048);
+	//TODO: nov 2026: update to new way text fonts work. 8x16 for B, maybe 8x8 for A.
+	// make an 8x16 font with my charset. (f256 charset)
+	// have separate handling for channel A (8x8) vs B (8x16)
+	
+	volatile uint8_t*	dst = (volatile uint8_t*)the_screen->text_font_ram_;
+	const uint8_t*		src = (const uint8_t*)new_font_data;
+	uint16_t			c;
+	uint8_t				row;
+	
+	if (the_screen->id_ == ID_CHANNEL_B)
+	{
+		// channel B: 8x16 cells. Double each row of the 8x8 font.
+		for (c = 0; c < 256; c++)
+		{
+			for (row = 0; row < 8; row++)
+			{
+				uint8_t		bits = *src++;
+	
+				*dst++ = bits;
+				*dst++ = bits;
+			}
+		}
+	}
+	else
+	{
+		// channel A: 8x8 cells, same layout as the source font. Byte writes only.
+		for (c = 0; c < 2048; c++)
+		{
+			*dst++ = *src++;
+		}
+	}
 
 	return true;
 }
@@ -2019,7 +2051,8 @@ char* Text_DrawStringInBox(Screen* the_screen, int16_t x1, int16_t y1, int16_t x
 		memset(*work_buffer, 0, WORD_WRAP_MAX_LEN);
 		
 		// format the string into chunks that will fit in the width specified, with line breaks on each line
-		v_pixels = General_WrapAndTrimTextToFit(&needs_formatting, work_buffer, orig_len, max_pix_width, max_pix_height, the_screen->text_font_width_, the_screen->text_font_height_, NULL, &Text_MeasureStringWidth);
+		char*	write_ptr = formatted_string;
+		v_pixels = General_WrapAndTrimTextToFit(&needs_formatting, &write_ptr, orig_len, max_pix_width, max_pix_height, the_screen->text_font_width_, the_screen->text_font_height_, NULL, &Text_MeasureStringWidth);
 		num_rows = v_pixels / the_screen->text_font_height_;
 	
 		// LOGIC:

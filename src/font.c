@@ -504,7 +504,7 @@ char* Font_DrawStringInBox(Bitmap* the_bitmap, int16_t width, int16_t height, ch
 	the_font = the_bitmap->font_;
 	row_height = Font_GetRowHeight(the_font);
 	fixed_char_width = Font_GetFixedWidth(the_font);
-	DEBUG_OUT(("%s %d: row_height=%i, fixed_char_width=%i", __func__, __LINE__, row_height, fixed_char_width));
+	DEBUG_OUT(("%s %d: row_height=%i, fixed_char_width=%i, num_chars=%i", __func__, __LINE__, row_height, fixed_char_width, num_chars));
 	
 	// outer loop: iterate on one-box worth of text until all text is displayed, or calling function no longer wants to proceed
 	do
@@ -523,7 +523,8 @@ char* Font_DrawStringInBox(Bitmap* the_bitmap, int16_t width, int16_t height, ch
 		memset(formatted_string, 0, num_chars + 1);
 		
 		// format the string into chunks that will fit in the width specified, with line breaks on each line
-		v_pixels = General_WrapAndTrimTextToFit(&needs_formatting, &formatted_string, orig_len, width, height, fixed_char_width, row_height, the_font, &Font_MeasureStringWidth);
+		char*	write_ptr = formatted_string;
+		v_pixels = General_WrapAndTrimTextToFit(&needs_formatting, &write_ptr, orig_len, width, height, fixed_char_width, row_height, the_font, &Font_MeasureStringWidth);
 		num_rows = v_pixels / row_height;
 		
 		// LOGIC:

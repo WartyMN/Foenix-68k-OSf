@@ -632,7 +632,12 @@ void AddControls(Window* the_window)
 	{
 		sprintf(caption, "Button #%i", i+1);
 		button[i] = Window_AddNewControl(the_window, TEXT_BUTTON, width, height, x_offset, y_offset, i % 3, V_ALIGN_TOP, caption, the_id++, group_id);
-		Control_SetPressed(button[i], CONTROL_NOT_PRESSED);
+		
+		if (button[i] != NULL)
+		{
+			Control_SetPressed(button[i], CONTROL_NOT_PRESSED);
+		}
+		
 		y_offset += 30;		
 	}
 		

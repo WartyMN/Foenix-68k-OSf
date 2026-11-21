@@ -626,7 +626,7 @@ void WaitForUser(void)
 	General_GetChar();
 	//General_DelaySeconds(3);
 	
-// 	Bitmap_FillMemory(Sys_GetScreenBitmap(global_system, back_layer), 0xbb);
+// 	Bitmap_FillMemory(Sys_GetScreenBitmap(global_system), 0xbb);
 	Text_FillCharMem(global_system->screen_[ID_CHANNEL_B], ' ');
 	Text_FillAttrMem(global_system->screen_[ID_CHANNEL_B], 0);
 }
@@ -857,6 +857,7 @@ void Demo_Font_ShowChars(Bitmap* the_bitmap, int16_t x1, int16_t y)
 	}
 	
  	WaitForUser();
+	DEBUG_OUT(("%s %d: font_demo - Demo_Font_ShowChars complete", __func__, __LINE__));
 }
 
 
@@ -905,6 +906,7 @@ void Demo_Font_DrawString(Bitmap* the_bitmap, int16_t y, uint8_t fore_color)
 	}
 
  	WaitForUser();
+	DEBUG_OUT(("%s %d: font_demo - Demo_Font_DrawString complete", __func__, __LINE__));
 }
 
 
@@ -935,13 +937,12 @@ void Demo_Font_DrawStringInBox1(Bitmap* the_bitmap)
 	Bitmap_SetColor(the_bitmap, SYS_COLOR_BLACK);
 	Bitmap_SetXY(the_bitmap, x, y);
 	
-	Bitmap_DrawBox(Sys_GetScreenBitmap(global_system, back_layer), x - margin, y - margin, width + margin, height + margin, SYS_COLOR_WHITE, PARAM_DO_FILL);
-	Bitmap_DrawBox(Sys_GetScreenBitmap(global_system, back_layer), x - margin, y - margin, width + margin, height + margin, SYS_COLOR_BLACK, PARAM_DO_NOT_FILL);
+	Bitmap_DrawBox(Sys_GetScreenBitmap(global_system), x - margin, y - margin, width + margin, height + margin, SYS_COLOR_WHITE, PARAM_DO_FILL);
+	Bitmap_DrawBox(Sys_GetScreenBitmap(global_system), x - margin, y - margin, width + margin, height + margin, SYS_COLOR_BLACK, PARAM_DO_NOT_FILL);
 	rest_of_string = Font_DrawStringInBox(the_bitmap, width, height, the_message, num_chars, &the_wrap_buffer, NULL);
 	
-	//DEBUG_OUT(("%s %d: going to wait for user", __func__ , __LINE__));
 	WaitForUser();
-	//DEBUG_OUT(("%s %d: back from wait for user", __func__ , __LINE__));
+	DEBUG_OUT(("%s %d: font_demo - Demo_Font_DrawStringInBox1 complete", __func__, __LINE__));
 }
 
 
@@ -951,7 +952,7 @@ void RunDemo(void)
 {
 	Font*	the_font;
 	Font*	the_other_font;
-	Bitmap*	the_bitmap = Sys_GetScreenBitmap(global_system, back_layer);
+	Bitmap*	the_bitmap = Sys_GetScreenBitmap(global_system);
 
 	ShowDescription("Welcome to the A2560 Font Library Demo!");	
 	WaitForUser();
@@ -1007,7 +1008,7 @@ int main(int argc, char* argv[])
 		sys_exit(-1);
 	}
 
-	DEBUG_OUT(("%s %d: System object created ok. Initiating system components...", __func__, __LINE__));
+	DEBUG_OUT(("%s %d: font_demo - System object created ok. Initiating system components...", __func__, __LINE__));
 	
 	if (Sys_InitSystem(global_system) == false)
 	{
@@ -1018,6 +1019,8 @@ int main(int argc, char* argv[])
 	Sys_SetGraphicMode(global_system, PARAM_SPRITES_OFF, PARAM_BITMAP_ON, PARAM_TILES_OFF, PARAM_TEXT_OVERLAY_ON, PARAM_TEXT_ON);
 	
  	RunDemo();
+
+	DEBUG_OUT(("%s %d: font_demo - demo complete", __func__, __LINE__));
 
 	Sys_Exit(&global_system, PARAM_EXIT_NO_ERROR);
 	

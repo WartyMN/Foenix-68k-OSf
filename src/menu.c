@@ -431,7 +431,7 @@ bool Menu_BlitClipRects(Menu* the_menu)
 		return true; // not an error condition
 	}
 	
-	the_screen_bitmap = Sys_GetScreenBitmap(global_system, back_layer);
+	the_screen_bitmap = Sys_GetScreenBitmap(global_system);
 	
 	for (i = 0; i < the_menu->clip_count_; i++)
 	{
@@ -579,7 +579,7 @@ void Menu_Render(Menu* the_menu)
 	if (the_menu->invalidated_ == true)
 	{
 		the_menu->clip_count_ = 0;
-		Bitmap_BlitRect(the_menu->bitmap_, &the_menu->overall_rect_, Sys_GetScreenBitmap(global_system, back_layer), the_menu->x_, the_menu->y_);
+		Bitmap_BlitRect(the_menu->bitmap_, &the_menu->overall_rect_, Sys_GetScreenBitmap(global_system), the_menu->x_, the_menu->y_);
 		the_menu->invalidated_ = false;
 	}
 	else

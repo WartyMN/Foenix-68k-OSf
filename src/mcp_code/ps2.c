@@ -303,8 +303,6 @@ typedef struct {
 	bool	r_button_down_;
 } mouse_button_states;
 
-static mouse_button_states ps2_mouse_button_tracker;
-
 volatile uint16_t*	ps2_vicky_a_mouse_byte_base = NP16(VICKYA_PS2_MOUSE_BYTE_0);
 volatile uint16_t*	ps2_vicky_b_mouse_byte_base = NP16(VICKYB_PS2_MOUSE_BYTE_0);
 
@@ -1145,93 +1143,61 @@ char kbd_getc_poll() {
 void mouse_handle_irq()
 {
 	unsigned char mouse_byte = *PS2_DATA_BUF;
-	
+	static uint32_t	last_byte_ticks = 0;
+	uint32_t		now;
+
 	/* Clear the pending interrupt flag for the mouse */
 	sys_int_clear(INT_MOUSE);
-	
-	//DEBUG_OUT(("%s %d: Mouse IRQ fired, mouse_byte=%x", __func__, __LINE__, mouse_byte));
 
-	if ((g_mouse_state == 0) && ((mouse_byte & 0x08) != 0x08))
+	now = sys_time_jiffies();	// replace with a GAVIN timer read later
+
+	// a gap of 2+ ticks means any partial packet is stale: start over
+	if (now - last_byte_ticks > 1)
 	{
-		/*
-		* If this is the first byte in the packet, bit 4 must be set
-		* If it is not, ignore the byte... we're out of synch
-		*/
-		return;
-		
+		g_mouse_state = 0;
 	}
-	else
-	{
-		// capture this part of the 4-byte code
-		ps2_mouse_code.bytes_[g_mouse_state] = (uint8_t)mouse_byte;
-		
-		// Send the byte to Vicky so it can handle mouse movement.
-		*(ps2_vicky_a_mouse_byte_base + g_mouse_state) = (uint16_t)mouse_byte;
-		*(ps2_vicky_b_mouse_byte_base + g_mouse_state) = (uint16_t)mouse_byte;
 
-		//DEBUG_OUT(("%s %d: mouse byte=%u", __func__, __LINE__, mouse_byte));
-		g_mouse_state++;
-		
-		/* After three bytes, return to state 0 */
-		if (g_mouse_state > 2)
+	last_byte_ticks = now;
+
+	if (g_mouse_state == 0)
+	{
+		// a valid first byte has bit 3 set and both overflow bits (6, 7) clear; this also rejects 0xFA ACK and 0xAA self-test
+		if ((mouse_byte & 0xC8) != 0x08)
 		{
-			g_mouse_state = 0;
-			
-			//DEBUG_OUT(("%s %d: got 3 bytes; ps2_mouse_code.bytes_[2]=%x, ps2_mouse_code.code_=%x", __func__, __LINE__, ps2_mouse_code.bytes_[2], ps2_mouse_code.code_));
-			
-			// check for mouse up or down buttons
-			if (ps2_mouse_code.code_ == 0x09000000)
-			{
-				DEBUG_OUT(("%s %d: left mouse down", __func__, __LINE__));
-				ps2_mouse_button_tracker.l_button_down_ = true;
-				EventManager_AddMouseEvent(mouseDown);
-			}
-			else if (ps2_mouse_code.code_ == 0x0A000000)
-			{
-				DEBUG_OUT(("%s %d: right mouse down", __func__, __LINE__));
-				ps2_mouse_button_tracker.r_button_down_ = true;
-				EventManager_AddMouseEvent(rMouseDown);
-			}
-			else if (ps2_mouse_code.code_ == 0x0C000000)
-			{
-				DEBUG_OUT(("%s %d: middle mouse down", __func__, __LINE__));
-				ps2_mouse_button_tracker.m_button_down_ = true;
-				EventManager_AddMouseEvent(mMouseDown);
-			}
-			else if (ps2_mouse_code.code_ == 0x08000000)
-			{
-				if (ps2_mouse_button_tracker.l_button_down_ == true)
-				{
-					DEBUG_OUT(("%s %d: left mouse button released", __func__, __LINE__));
-					ps2_mouse_button_tracker.l_button_down_ = false;
-					EventManager_AddMouseEvent(mouseUp);
-				}
-				else if (ps2_mouse_button_tracker.r_button_down_ == true)
-				{
-					DEBUG_OUT(("%s %d: right mouse button released", __func__, __LINE__));
-					ps2_mouse_button_tracker.r_button_down_ = false;
-					EventManager_AddMouseEvent(rMouseUp);
-				}
-				else if (ps2_mouse_button_tracker.m_button_down_ == true)
-				{
-					DEBUG_OUT(("%s %d: middle mouse button released", __func__, __LINE__));
-					ps2_mouse_button_tracker.m_button_down_ = false;
-					EventManager_AddMouseEvent(mMouseUp);
-				}
-				else
-				{
-					DEBUG_OUT(("%s %d: some mouse button released, but we didn't track a button being pushed. scroll wheel?", __func__, __LINE__));
-				}
-			}
-			else
-			{
-				// if not one of above, has to be movement left/right/up/down
-				//printf("mouse movement detected (code=%u) \n", ps2_mouse_code.code_);		
-				//EventManager_AddMouseEvent(mouseMoved);
-			}		
+			return;
 		}
+	}	// <-- the state-0 check ends here; every byte that gets this far is stored
+
+	ps2_mouse_code.bytes_[g_mouse_state] = (uint8_t)mouse_byte;
+
+	// Send the byte to Vicky so it can handle mouse movement.
+	*(ps2_vicky_a_mouse_byte_base + g_mouse_state) = (uint16_t)mouse_byte;
+	*(ps2_vicky_b_mouse_byte_base + g_mouse_state) = (uint16_t)mouse_byte;
+
+	g_mouse_state++;
+
+	/* After three bytes, return to state 0 */
+	if (g_mouse_state > 2)
+	{
+		static uint8_t	prev_buttons = 0;
+		uint8_t			buttons = ps2_mouse_code.bytes_[0] & 0x07;
+		uint8_t			changed = buttons ^ prev_buttons;
+
+		g_mouse_state = 0;
+
+		if (ps2_mouse_code.bytes_[1] || ps2_mouse_code.bytes_[2])
+		{
+			EventManager_AddMouseEvent(mouseMoved);
+		}
+
+		if (changed & 0x01) EventManager_AddMouseEvent((buttons & 0x01) ? mouseDown  : mouseUp);
+		if (changed & 0x02) EventManager_AddMouseEvent((buttons & 0x02) ? rMouseDown : rMouseUp);
+		if (changed & 0x04) EventManager_AddMouseEvent((buttons & 0x04) ? mMouseDown : mMouseUp);
+
+		prev_buttons = buttons;
 	}
 }
+
 
 /*
  * Send a command to the mouse
