@@ -77,7 +77,7 @@
 
 #define TEXT_NUM_COLUMNS_VICKY_B	160	// in A2560, this is now a fixed 160x60 or 160x64 text display, for Channel B. Channel A depends on resolution.
 #define TEXT_NUM_ROWS_VICKY_B_960	60	// in A2560, this is now a fixed 160x60 or 160x64 text display, for Channel B. Channel A depends on resolution.
-#define TEXT_NUM_ROWS_VICKY_B_1024	60	// in A2560, this is now a fixed 160x60 or 160x64 text display, for Channel B. Channel A depends on resolution.
+#define TEXT_NUM_ROWS_VICKY_B_1024	64	// in A2560, this is now a fixed 160x60 or 160x64 text display, for Channel B. Channel A depends on resolution.
 
 // general
 #define MAX_STRING_COMP_LEN		256		//!< 255 + terminator is max string size for compares
@@ -423,29 +423,58 @@
 #define VICKY_IIIA_RES_800X600_FLAGS	0x00	// 0b00000000
 #define VICKY_IIIA_RES_1024X768_FLAGS	0x08	// 0b00000100
 
-#define VICKY_AB_RES_FLAG_MASK_8BIT		0x01	// 0b00000001	// when masking 2nd byte of VICKY, these are the bits related to resolution.
-#define VICKY_AB_RES_FLAG_MASK_32BIT	0x00000300	// when masking 2nd byte of VICKY, these are the bits related to resolution.
-
 
 
 
 // ** A2560K VICKY - CHANNEL A
 // NOTE: channel A is text only, no graphic modes
 
-#define VICKY_A_BASE_ADDRESS			0xfec40000		// start of VICKY channel A registers -- all are 4 byte, RW (some bits RO)
-#define VICKY_A_MASTER_CONTROL			(VICKY_A_BASE_ADDRESS)	// VICKY Channel A master control register
-	// VICKY A byte 1 bits (reserved except as noted below)
-	#define VICKY_A_MC_RES_FLAG			0x00000800	// 0b00001000 - 1=1024x768, 0=800x600
-	// VICKY A byte 2 bits (reserved except as noted below)
-	#define VICKY_A_MC_GAMMA_SRC_FLAG	0x00010000	// 0b00000001	0: respect dip switch. 1: respect bit 1 of this byte
-	#define VICKY_A_MC_GAMMA_SW_CHOICE	0x00020000	// 0b00000010	0: gamma off. 1: gamma on (only effective if bit 0 set)
-	#define VICKY_A_MC_SYNC_DISABLE		0x00040000	// 0b00000100	0: normal. 1: sync off (put display to sleep)
-	// VICKY A byte 3 bits (reserved except as noted below)
-	#define VICKY_A_MC_GAMMA_DIP		0x00200000	// 0b00100000 - RO - position of gamma dipswitch
-	#define VICKY_A_MC_HIRES_DIP		0x00400000	// 0b01000000 - RO - position of hi-res dispswitch
-	#define VICKY_A_MC_CLK_SPD_FLAG		0x00800000	// 0b10000000 - RO - PLL clock speed - 0=40mhz, 1=65mhz
+#define VICKY_A_BASE_ADDRESS		0xfec40000				// start of VICKY channel A registers -- all are 4 byte, RW (some bits RO)
+#define VICKY_A_MASTER_CONTROL		(VICKY_A_BASE_ADDRESS)	// vicky III channel A control register
 
-#define VICKY_A_BORDER_CONTROL			(VICKY_A_MASTER_CONTROL + 4)	// VICKY Channel A border control register
+// VICKY A byte 0 bits (reserved except as noted below)
+#define VICKY_A_MC_TEXT_EN			0x00000001	// 0b00000001	1 = text layer on (otherwise the border colour fills the screen)
+#define VICKY_A_MC_TEXT_OVR			0x00000002	// 0b00000010	With bit 2: character pixels over the (magenta) picture
+#define VICKY_A_MC_GRAPH_EN			0x00000004	// 0b00000100	Channel A has no graphics source: 1 shows a constant magenta ($FF00FF) picture (with bit 1, the text over it)
+#define VICKY_A_MC_BIT3_UNUSED		0x00000008	// 0b00001000	Stored, no effect.
+#define VICKY_A_MC_BIT4_UNUSED		0x00000010	// 0b00010000	Stored, no effect.
+#define VICKY_A_MC_BIT5_UNUSED		0x00000020	// 0b00100000	Stored, no effect.
+#define VICKY_A_MC_BIT6_UNUSED		0x00000040	// 0b01000000	Stored, no effect
+#define VICKY_A_MC_BIT7_UNUSED		0x00000080	// 0b10000000	Stored, no effect.
+
+// VICKY A byte 1 bits
+#define VICKY_A_MC_BIT8_UNUSED		0x00000100	// 0b00000001	No effect on channel A timing (MCP 2.0.10 calls them resolution bits)
+#define VICKY_A_MC_BIT9_UNUSED		0x00000200	// 0b00000010	No effect on channel A timing (MCP 2.0.10 calls them resolution bits)
+#define VICKY_A_MC_DOUBLE			0x00000400	// 0b00000100 - Pixel doubling of the text and pointer at the normal timing. To be confirmed on a monitor; keep 0
+#define VICKY_A_MC_MODE_1024		0x00000800	// 0 = 800 x 600 (40 MHz), 1 = 1024 x 768 (65 MHz). Switches the PLL input (see video modes)
+#define VICKY_A_MC_BIT12_UNUSED		0x00001000	// 0b00010000 - Stored, no effect
+#define VICKY_A_MC_BIT13_UNUSED		0x00002000	// 0b00100000 - Stored, no effect
+#define VICKY_A_MC_BIT14_UNUSED		0x00004000	// 0b01000000 - Stored, no effect
+#define VICKY_A_MC_BIT15_UNUSED		0x00008000	// 0b10000000 - Stored, no effect
+
+// VICKY A byte 2 bits
+#define VICKY_A_MC_GAMMA_SRC		0x00010000	// 0b00000001	0: gamma on/off from the gamma DIP switch, 1=from bit 17
+#define VICKY_A_MC_GAMMA_ON			0x00020000	// 0b00000010	1=gamma tables on (used when bit 16=1)
+#define VICKY_A_MC_SYNC_OFF			0x00040000	// 0b00000100	1 = DE, HSYNC and VSYNC held in active (monitor sleep).
+#define VICKY_A_MC_BIT19_UNUSED		0x00080000	// 0b00001000 - Stored, no effect
+#define VICKY_A_MC_BIT20_UNUSED		0x00100000	// 0b00010000 - Stored, no effect.
+#define VICKY_A_MC_BIT21_UNUSED		0x00200000	// 0b00100000	Stored, no effect.
+#define VICKY_A_MC_BIT22_UNUSED		0x00400000	// 0b01000000	Stored, no effect. 
+#define VICKY_A_MC_BIT23_UNUSED		0x00800000	// 0b10000000	Stored, no effect.
+
+// VICKY A byte 3 bits
+#define VICKY_A_MC_BIT24_UNUSED		0x01000000	// 0b00000001	Stored, no effect
+#define VICKY_A_MC_BIT25_UNUSED		0x02000000	// 0b00000010	Stored, no effect
+#define VICKY_A_MC_BIT26_UNUSED		0x04000000	// 0b00000100	Stored, no effect
+#define VICKY_A_MC_BIT27_UNUSED		0x08000000	// 0b00001000 - Stored, no effect
+#define VICKY_A_MC_BIT28_UNUSED		0x10000000	// 0b00010000 - Stored, no effect
+#define VICKY_A_MC_DIP_GAMMA		0x20000000	// 0b00100000	Level of the gamma DIP switch
+#define VICKY_A_MC_DIR_HIRES		0x40000000	// 0b01000000	Level of the hi-res DIP switch (the MCP picks 1024 x 768 when it reads 0)
+#define VICKY_A_MC_PLL_CLK			0x80000000	// 0b10000000	Oscillator the pixel PLL uses: 0 = 40 MHz (800 x 600), 1 = 65 MHz (1024 x 768).
+
+#define VICKY_A_BORDER_CONTROL		(VICKY_A_MASTER_CONTROL + 4)	// VICKY Channel A border control register
+#define VICKY_A_FONT_SIZE_OFFSET_L	0x08		// $20: bits 15:8 = cell height (channel A only)
+#define VICKY_A_FONT_COUNT_OFFSET_L	0x09		// $24: bits 15:8 = rows, 7:0 = columns (channel A only)
 
 //#define VICKYA_CURSOR_CTRL_A2560K	(VICKY_A_BASE_ADDRESS + 0x10)	// vicky III channel A cursor control register
 #define VICKYA_CURSOR_CTRL_A2560K	(0xfec40010)	// vicky III channel A cursor control register
@@ -462,53 +491,55 @@
 // VICKY III - Channel B - Text and Graphics
 #define VICKY_BITMAP_MAX_H_RES		1280		// VICKY in A2560K supports a max resolution of 1280x1024 for graphics
 #define VICKY_BITMAP_MAX_V_RES		1024		// VICKY in A2560K supports a max resolution of 1280x1024 for graphics
-#define GRAPHICS_MODE_MASK			0xFFFFFF00	//!> the mask for the system control register that holds the graphics/bitmap/text/sprite mode bits
 #define VIDEO_MODE_MASK				0xFFFF00FF	//!> the mask for the system control register that holds the video mode bits
 #define GAMMA_MODE_MASK				0xFF00FFFF	//!> the mask for the system control register that controls gamma (in some way not clear to me)
 
-#define VICKY_B_BASE_ADDRESS		0xfec80000		// start of VICKY channel B registers -- all are 4 byte, RW (some bits RO)
-
+#define VICKY_B_BASE_ADDRESS		0xfec80000				// start of VICKY channel B registers -- all are 4 byte, RW (some bits RO)
 #define VICKY_B_MASTER_CONTROL		(VICKY_B_BASE_ADDRESS)	// vicky III channel B control register
 
-	// VICKY B byte 0 bits (reserved except as noted below)
-	#define VICKY_B_MC_TEXT_EN			0x00000001	// 0b00000001	Enable the Text Mode
-	#define VICKY_B_MC_TEXT_OVR			0x00000002	// 0b00000010	Enable the Overlay of the text mode on top of Graphic Mode (the Background Color is ignored)
-	#define VICKY_B_MC_GRAPH_EN			0x00000004	// 0b00000100	Enable the Graphic Mode
-	#define VICKY_B_MC_BIT3_UNUSED		0x00000008	// 0b00001000	Stored, no effect. Was: Enable the Bitmap Module In Vicky
-	#define VICKY_B_MC_BIT4_UNUSED		0x00000010	// 0b00010000	Stored, no effect. Was: Enable the Tile Module in Vicky
-	#define VICKY_B_MC_BIT5_UNUSED		0x00000020	// 0b00100000	Stored, no effect. Was: Enable the Sprite Module in Vicky
-	#define VICKY_B_MC_GAMMA_ON			0x00000040	// 0b01000000	1=gamma tables on (used when bit 17=1)
-	#define VICKY_B_MC_BIT7_UNUSED		0x00000080	// 0b10000000	Stored, no effect. Was: This will disable the Scanning of the Video information in the 4Meg of 
-	
-	// VICKY B byte 1 bits
-	#define VICKY_B_MC_MODE_1024		0x00000100	// 0b00000001	0=1280x960. 1=1280x1024 (taken at frame start)
-	#define VICKY_B_MC_BIT9_UNUSED		0x00000200	// 0b00000010	stored, no effect on the timing
-	#define VICKY_B_MC_BIT10_UNUSED		0x00000400	// 0b00000100 - stored, no effect on the K25
-	#define VICKY_B_PTR_DOUBLE			0x00000800	// 0b00001000 - 1=the mouse pointer is drawn for a pixel-doubled screen (2x2 pixels, coordinates up to 639). Keep 0 unless the whole screen is doubled
-	#define VICKY_B_MC_SYNC_OFF			0x00001000	// 0b00010000 - 1=DE, HSYNC, and VSYNC held inactive (the monitor goes to sleep)
-	#define VICKY_B_MC_TEXT_BG_OVR		0x00002000	// 0b00100000 - Overlay style (with bit 1): 1=text cells also draw their background color over the pic4ture, except cells whose background index is transparent (see the mixer section); 0=only the character pixels are drawn.
-	#define VICKY_B_MC_MEMTEXT_EN		0x00004000	// 0b01000000 - 1=MemText is the picture layer (bit 0 must also be 1, and MemText CTRL bit 0). Disables TOSGraph.
-	#define VICKY_B_MC_BIT15_UNUSED		0x00008000	// 0b10000000 - Stored, no effect
+// VICKY B byte 0 bits (reserved except as noted below)
+#define VICKY_B_MC_TEXT_EN			0x00000001	// 0b00000001	Enable the Text Mode
+#define VICKY_B_MC_TEXT_OVR			0x00000002	// 0b00000010	Enable the Overlay of the text mode on top of Graphic Mode (the Background Color is ignored)
+#define VICKY_B_MC_GRAPH_EN			0x00000004	// 0b00000100	Enable the Graphic Mode
+#define VICKY_B_MC_BIT3_UNUSED		0x00000008	// 0b00001000	Stored, no effect. Was: Enable the Bitmap Module In Vicky
+#define VICKY_B_MC_BIT4_UNUSED		0x00000010	// 0b00010000	Stored, no effect. Was: Enable the Tile Module in Vicky
+#define VICKY_B_MC_BIT5_UNUSED		0x00000020	// 0b00100000	Stored, no effect. Was: Enable the Sprite Module in Vicky
+#define VICKY_B_MC_GAMMA_ON			0x00000040	// 0b01000000	1=gamma tables on (used when bit 17=1)
+#define VICKY_B_MC_BIT7_UNUSED		0x00000080	// 0b10000000	Stored, no effect. Was: This will disable the Scanning of the Video information in the 4Meg of 
 
-	// VICKY B byte 2 bits
-	#define VICKY_B_MC_BIT16_UNUSED		0x00010000	// 0b00000001	Stored, no effect
-	#define VICKY_B_MC_GAMMA_SRC		0x00020000	// 0b00000010	0: gamma on/off from the gamma DIP switch, 1=gamma controlled by bit 6
-	#define VICKY_B_MC_BIT18_UNUSED		0x00040000	// 0b00000100	Stored, no effect
-	#define VICKY_B_MC_BIT19_UNUSED		0x00080000	// 0b00001000 - Stored, no effect
-	#define VICKY_B_MC_TOSGRAPH_EN		0x00100000	// 0b00010000 - 1 = TOSGraph is the picture layer. Ignored while bit 14 is 1 (MemText and TOSGraph share the bank B fetch). TOSGraph CTRL bit 0 must also be 1.
-	#define VICKY_B_MC_BIT21_UNUSED		0x00200000	// 0b00100000	Stored, no effect. Was: Enable the Sprite Module in Vicky
-	#define VICKY_B_MC_BIT22_UNUSED		0x00400000	// 0b01000000	Stored, no effect. 
-	#define VICKY_B_MC_BIT23_UNUSED		0x00800000	// 0b10000000	Stored, no effect.
+// VICKY B byte 1 bits
+#define VICKY_B_MC_MODE_1024		0x00000100	// 0b00000001	0=1280x960. 1=1280x1024 (taken at frame start)
+#define VICKY_B_MC_BIT9_UNUSED		0x00000200	// 0b00000010	stored, no effect on the timing
+#define VICKY_B_MC_BIT10_UNUSED		0x00000400	// 0b00000100 - stored, no effect on the K25
+#define VICKY_B_MC_PTR_DOUBLE		0x00000800	// 0b00001000 - 1=the mouse pointer is drawn for a pixel-doubled screen (2x2 pixels, coordinates up to 639). Keep 0 unless the whole screen is doubled
+#define VICKY_B_MC_SYNC_OFF			0x00001000	// 0b00010000 - 1=DE, HSYNC, and VSYNC held inactive (the monitor goes to sleep)
+#define VICKY_B_MC_TEXT_BG_OVR		0x00002000	// 0b00100000 - Overlay style (with bit 1): 1=text cells also draw their background color over the pic4ture, except cells whose background index is transparent (see the mixer section); 0=only the character pixels are drawn.
+#define VICKY_B_MC_MEMTEXT_EN		0x00004000	// 0b01000000 - 1=MemText is the picture layer (bit 0 must also be 1, and MemText CTRL bit 0). Disables TOSGraph.
+#define VICKY_B_MC_BIT15_UNUSED		0x00008000	// 0b10000000 - Stored, no effect
 
-	// VICKY B byte 3 bits
-	#define VICKY_B_MC_BIT24_UNUSED		0x01000000	// 0b00000001	Stored, no effect
-	#define VICKY_B_MC_BIT25_UNUSED		0x02000000	// 0b00000010	Stored, no effect
-	#define VICKY_B_MC_BIT26_UNUSED		0x04000000	// 0b00000100	Stored, no effect
-	#define VICKY_B_MC_BIT27_UNUSED		0x08000000	// 0b00001000 - Stored, no effect
-	#define VICKY_B_MC_BIT28_UNUSED		0x10000000	// 0b00010000 - Stored, no effect
-	#define VICKY_B_MC_DIP_GAMMA		0x20000000	// 0b00100000	Level of the gamma DIP switch (used when bit 17 = 0).
-	#define VICKY_B_MC_DIR_HIRES		0x40000000	// 0b01000000	Level of the hi-res DIP switch (the MCP sets bit 8 when it is 1
-	#define VICKY_B_MC_BIT31_ONE		0x80000000	// 0b10000000	Reads 1
+// VICKY B byte 2 bits
+#define VICKY_B_MC_BIT16_UNUSED		0x00010000	// 0b00000001	Stored, no effect
+#define VICKY_B_MC_GAMMA_SRC		0x00020000	// 0b00000010	0: gamma on/off from the gamma DIP switch, 1=gamma controlled by bit 6
+#define VICKY_B_MC_BIT18_UNUSED		0x00040000	// 0b00000100	Stored, no effect
+#define VICKY_B_MC_BIT19_UNUSED		0x00080000	// 0b00001000 - Stored, no effect
+#define VICKY_B_MC_TOSGRAPH_EN		0x00100000	// 0b00010000 - 1 = TOSGraph is the picture layer. Ignored while bit 14 is 1 (MemText and TOSGraph share the bank B fetch). TOSGraph CTRL bit 0 must also be 1.
+#define VICKY_B_MC_BIT21_UNUSED		0x00200000	// 0b00100000	Stored, no effect. Was: Enable the Sprite Module in Vicky
+#define VICKY_B_MC_BIT22_UNUSED		0x00400000	// 0b01000000	Stored, no effect. 
+#define VICKY_B_MC_BIT23_UNUSED		0x00800000	// 0b10000000	Stored, no effect.
+
+// VICKY B byte 3 bits
+#define VICKY_B_MC_BIT24_UNUSED		0x01000000	// 0b00000001	Stored, no effect
+#define VICKY_B_MC_BIT25_UNUSED		0x02000000	// 0b00000010	Stored, no effect
+#define VICKY_B_MC_BIT26_UNUSED		0x04000000	// 0b00000100	Stored, no effect
+#define VICKY_B_MC_BIT27_UNUSED		0x08000000	// 0b00001000 - Stored, no effect
+#define VICKY_B_MC_BIT28_UNUSED		0x10000000	// 0b00010000 - Stored, no effect
+#define VICKY_B_MC_DIP_GAMMA		0x20000000	// 0b00100000	Level of the gamma DIP switch (used when bit 17 = 0).
+#define VICKY_B_MC_DIR_HIRES		0x40000000	// 0b01000000	Level of the hi-res DIP switch (the MCP sets bit 8 when it is 1
+#define VICKY_B_MC_BIT31_ONE		0x80000000	// 0b10000000	Reads 1
+
+#define GUI_CTRL_DOUBLE			0x00000008	// channel B GUI: 640x480 / 640x512
+
+#define GRAPHICS_MODE_BITS	(VICKY_B_MC_TEXT_EN | VICKY_B_MC_TEXT_OVR | VICKY_B_MC_GRAPH_EN | VICKY_B_MC_MEMTEXT_EN | VICKY_B_MC_TOSGRAPH_EN)
 
 #define VICKYB_BORDER_CTRL_A2560K	(VICKY_B_BASE_ADDRESS + 4)	// vicky III channel B border control register
 #define VICKYB_BORDER_COLOR_A2560K	0xfec80008				// vicky III channel B border color register
@@ -1222,8 +1253,8 @@ typedef uint8_t	ColorIdx;
 // device-independent resolution flags
 typedef enum
 {
-	RES_640X400 = 0,
-	RES_640X480,
+	RES_640X480 = 0,
+	RES_640X512,
 	RES_800X600,
 	RES_1024X768,
 	RES_1280X960,

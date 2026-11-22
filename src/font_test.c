@@ -171,7 +171,7 @@ int main(int argc, char* argv[])
 	DEBUG_OUT(("%s %d: Setting graphics mode...", __func__, __LINE__));
 
 	
-	Sys_SetGraphicMode(global_system, PARAM_SPRITES_OFF, PARAM_BITMAP_ON, PARAM_TILES_OFF, PARAM_TEXT_OVERLAY_ON, PARAM_TEXT_ON);
+	Sys_SetGraphicMode(global_system, PARAM_BITMAP_ON, PARAM_TEXT_OVERLAY_ON, PARAM_TEXT_ON);
 	printf("now in graphics mode with text overlay");
 
 

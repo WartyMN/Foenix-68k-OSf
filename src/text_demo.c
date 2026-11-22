@@ -111,10 +111,11 @@ void Demo_Text_DrawBoxCoordsFancy(void);
 void Demo_Text_DrawStringAtXY(void);
 void Demo_Text_DrawStringInBox1(void);
 void Demo_Text_DrawStringInBox2(void);
-void Demo_Text_ScreenResolution1(void);
-void Demo_Text_ScreenResolution2(void);
-void Demo_Text_ScreenResolution3(void);
-void Demo_Text_ScreenResolution4(void);
+void Demo_Text_ScreenResolutionB1(void);
+void Demo_Text_ScreenResolutionB2(void);
+void Demo_Text_ScreenResolutionB3(void);
+void Demo_Text_ScreenResolutionA1(void);
+void Demo_Text_ScreenResolutionA2(void);
 void Demo_Text_UpdateFontData(void);
 void Demo_Text_CopyMemBox1(void);
 void Demo_Text_CopyMemBox2(void);
@@ -776,16 +777,16 @@ void Demo_Text_DrawStringInBox2(void)
 }
 
 
-void Demo_Text_ScreenResolution1(void)
+void Demo_Text_ScreenResolutionB1(void)
 {
 	char			msg_buffer[80*3];
 	char*			the_message = msg_buffer;
 	int16_t			y = 7;
 	
-	Sys_SetVideoMode(global_system->screen_[ID_CHANNEL_B], RES_800X600);
-	ShowDescription("Sys_SetVideoMode -> (RES_800X600) Changes resolution to 800x600 if available for this screen/channel.");	
+	Sys_SetVideoMode(global_system->screen_[ID_CHANNEL_B], RES_1280X960);
+	ShowDescription("Sys_SetVideoMode -> (RES_1280X960) Changes resolution to 1280x960 if available for this screen/channel.");	
 
-	sprintf(the_message, "Requested 800x600. Actual: %i x %i, %i x %i text, %i x %i visible text", 
+	sprintf(the_message, "Requested 1280x960. Actual: %i x %i, %i x %i text, %i x %i visible text", 
 		global_system->screen_[ID_CHANNEL_B]->width_, 
 		global_system->screen_[ID_CHANNEL_B]->height_, 
 		global_system->screen_[ID_CHANNEL_B]->text_mem_cols_, 
@@ -794,16 +795,47 @@ void Demo_Text_ScreenResolution1(void)
 		global_system->screen_[ID_CHANNEL_B]->text_rows_vis_
 		);
 	Text_DrawStringAtXY(global_system->screen_[ID_CHANNEL_B], 0, y, the_message, FG_COLOR_BLACK, BG_COLOR_BRIGHT_GREEN);
-	Text_DrawStringAtXY(global_system->screen_[ID_CHANNEL_B], 0, y + 1, (char*)"0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789", FG_COLOR_BLUE, BG_COLOR_BRIGHT_YELLOW);
+	Text_DrawStringAtXY(global_system->screen_[ID_CHANNEL_B], 0, y + 1, (char*)"0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789", FG_COLOR_BLUE, BG_COLOR_BRIGHT_YELLOW);
 	Text_DrawStringAtXY(global_system->screen_[ID_CHANNEL_B], 0, y + 2, (char*)"<-START OF LINE", FG_COLOR_BLACK, BG_COLOR_BRIGHT_GREEN);
-	Text_DrawStringAtXY(global_system->screen_[ID_CHANNEL_B], 0, 70, (char*)"ROW70", FG_COLOR_BLACK, BG_COLOR_BRIGHT_GREEN);
+	Text_DrawStringAtXY(global_system->screen_[ID_CHANNEL_B], 0, 57, (char*)"ROW57", FG_COLOR_BLACK, BG_COLOR_BRIGHT_GREEN);
+	Text_DrawStringAtXY(global_system->screen_[ID_CHANNEL_B], 0, 58, (char*)"ROW58", FG_COLOR_BLACK, BG_COLOR_BRIGHT_GREEN);
+	Text_DrawStringAtXY(global_system->screen_[ID_CHANNEL_B], 0, 59, (char*)"ROW59", FG_COLOR_BLACK, BG_COLOR_BRIGHT_GREEN);
 	Text_ShowFontChars(global_system->screen_[ID_CHANNEL_B], y + 3);
 
 	WaitForUser();
 }
 
 
-void Demo_Text_ScreenResolution2(void)
+void Demo_Text_ScreenResolutionB2(void)
+{
+	char			msg_buffer[80*3];
+	char*			the_message = msg_buffer;
+	int16_t			y = 7;
+	
+	Sys_SetVideoMode(global_system->screen_[ID_CHANNEL_B], RES_1280X1024);
+	ShowDescription("Sys_SetVideoMode -> (RES_1280X1024) Changes resolution to 1280x1024 if available for this screen/channel.");	
+
+	sprintf(the_message, "Requested 1280x1024. Actual: %i x %i, %i x %i text, %i x %i visible text", 
+		global_system->screen_[ID_CHANNEL_B]->width_, 
+		global_system->screen_[ID_CHANNEL_B]->height_, 
+		global_system->screen_[ID_CHANNEL_B]->text_mem_cols_, 
+		global_system->screen_[ID_CHANNEL_B]->text_mem_rows_, 
+		global_system->screen_[ID_CHANNEL_B]->text_cols_vis_, 
+		global_system->screen_[ID_CHANNEL_B]->text_rows_vis_
+		);
+	Text_DrawStringAtXY(global_system->screen_[ID_CHANNEL_B], 0, y, the_message, FG_COLOR_BLACK, BG_COLOR_BRIGHT_GREEN);
+	Text_DrawStringAtXY(global_system->screen_[ID_CHANNEL_B], 0, y + 1, (char*)"0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789", FG_COLOR_BLUE, BG_COLOR_BRIGHT_YELLOW);
+	Text_DrawStringAtXY(global_system->screen_[ID_CHANNEL_B], 0, y + 2, (char*)"<-START OF LINE", FG_COLOR_BLACK, BG_COLOR_BRIGHT_GREEN);
+	Text_DrawStringAtXY(global_system->screen_[ID_CHANNEL_B], 0, 61, (char*)"ROW61", FG_COLOR_BLACK, BG_COLOR_BRIGHT_GREEN);
+	Text_DrawStringAtXY(global_system->screen_[ID_CHANNEL_B], 0, 62, (char*)"ROW62", FG_COLOR_BLACK, BG_COLOR_BRIGHT_GREEN);
+	Text_DrawStringAtXY(global_system->screen_[ID_CHANNEL_B], 0, 63, (char*)"ROW63", FG_COLOR_BLACK, BG_COLOR_BRIGHT_GREEN);
+	Text_ShowFontChars(global_system->screen_[ID_CHANNEL_B], y + 3);
+
+	WaitForUser();
+}
+
+
+void Demo_Text_ScreenResolutionB3(void)
 {
 	char			msg_buffer[80*3];
 	char*			the_message = msg_buffer;
@@ -821,16 +853,18 @@ void Demo_Text_ScreenResolution2(void)
 		global_system->screen_[ID_CHANNEL_B]->text_rows_vis_
 		);
 	Text_DrawStringAtXY(global_system->screen_[ID_CHANNEL_B], 0, y, the_message, FG_COLOR_BLACK, BG_COLOR_BRIGHT_GREEN);
-	Text_DrawStringAtXY(global_system->screen_[ID_CHANNEL_B], 0, y + 1, (char*)"01234567890123456789012345678901234567890123456789012345678901234567890123456789", FG_COLOR_BLUE, BG_COLOR_BRIGHT_YELLOW);
+	Text_DrawStringAtXY(global_system->screen_[ID_CHANNEL_B], 0, y + 1, (char*)"0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789", FG_COLOR_BLUE, BG_COLOR_BRIGHT_YELLOW);
 	Text_DrawStringAtXY(global_system->screen_[ID_CHANNEL_B], 0, y + 2, (char*)"<-START OF LINE", FG_COLOR_BLACK, BG_COLOR_BRIGHT_GREEN);
-	Text_DrawStringAtXY(global_system->screen_[ID_CHANNEL_B], 0, 55, (char*)"ROW55", FG_COLOR_BLACK, BG_COLOR_BRIGHT_GREEN);
+	Text_DrawStringAtXY(global_system->screen_[ID_CHANNEL_B], 0, 57, (char*)"ROW57", FG_COLOR_BLACK, BG_COLOR_BRIGHT_GREEN);
+	Text_DrawStringAtXY(global_system->screen_[ID_CHANNEL_B], 0, 58, (char*)"ROW58", FG_COLOR_BLACK, BG_COLOR_BRIGHT_GREEN);
+	Text_DrawStringAtXY(global_system->screen_[ID_CHANNEL_B], 0, 59, (char*)"ROW59", FG_COLOR_BLACK, BG_COLOR_BRIGHT_GREEN);
 	Text_ShowFontChars(global_system->screen_[ID_CHANNEL_B], y + 3);
 
 	WaitForUser();
 }
 
 
-void Demo_Text_ScreenResolution3(void)
+void Demo_Text_ScreenResolutionA1(void)
 {
 	char			msg_buffer[80*3];
 	char*			the_message = msg_buffer;
@@ -858,7 +892,7 @@ void Demo_Text_ScreenResolution3(void)
 }
 
 
-void Demo_Text_ScreenResolution4(void)
+void Demo_Text_ScreenResolutionA2(void)
 {
 	char			msg_buffer[80*3];
 	char*			the_message = msg_buffer;
@@ -971,17 +1005,20 @@ void RunDemo(void)
 	Demo_Text_UpdateFontData();
 	Heap_Check("Demo_Text_UpdateFontData");
 
-	Demo_Text_ScreenResolution1();
-	Heap_Check("Demo_Text_ScreenResolution1");
+	Demo_Text_ScreenResolutionB1();
+	Heap_Check("Demo_Text_ScreenResolutionB1");
 
-	Demo_Text_ScreenResolution2();
-	Heap_Check("Demo_Text_ScreenResolution2");
+	Demo_Text_ScreenResolutionB2();
+	Heap_Check("Demo_Text_ScreenResolutionB2");
+
+	Demo_Text_ScreenResolutionB3();
+	Heap_Check("Demo_Text_ScreenResolutionB3");
 	
 	// 2 other resolution only for a GenX or A2560 machine
-	Demo_Text_ScreenResolution3();
-	Heap_Check("Demo_Text_ScreenResolution3");
-	Demo_Text_ScreenResolution4();
-	Heap_Check("Demo_Text_ScreenResolution4");
+	Demo_Text_ScreenResolutionA1();
+	Heap_Check("Demo_Text_ScreenResolutionA1");
+	Demo_Text_ScreenResolutionA2();
+	Heap_Check("Demo_Text_ScreenResolutionA2");
 	
 }
 

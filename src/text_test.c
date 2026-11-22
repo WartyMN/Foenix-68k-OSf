@@ -1071,7 +1071,7 @@ int main(int argc, char* argv[])
 
 	DEBUG_OUT(("%s %d: System initiation complete, starting tests...", __func__, __LINE__));
 
-	Sys_SetGraphicMode(global_system, PARAM_SPRITES_OFF, PARAM_BITMAP_OFF, PARAM_TILES_OFF, PARAM_TEXT_OVERLAY_OFF, PARAM_TEXT_ON);
+	Sys_SetGraphicMode(global_system, PARAM_BITMAP_OFF, PARAM_TEXT_OVERLAY_OFF, PARAM_TEXT_ON);
 
 	MU_RUN_SUITE(test_suite_units);
 // 	MU_RUN_SUITE(test_suite_speed);

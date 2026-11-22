@@ -642,7 +642,7 @@ int main(int argc, char* argv[])
 	srand(42); // need to have some better way to initialize this on c256. look in kernel. 
 	//srand(time(NULL));   // Initialization, should only be called once.
 	
-	Sys_SetGraphicMode(global_system, PARAM_SPRITES_OFF, PARAM_BITMAP_ON, PARAM_TILES_OFF, PARAM_TEXT_OVERLAY_ON, PARAM_TEXT_ON);
+	Sys_SetGraphicMode(global_system, PARAM_BITMAP_ON, PARAM_TEXT_OVERLAY_ON, PARAM_TEXT_ON);
 
 	RunDemo();
 

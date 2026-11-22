@@ -60,12 +60,8 @@
 #define SYS_WIN_Z_ORDER_BACKDROP		-127
 #define SYS_WIN_Z_ORDER_NEWLY_ACTIVE	SYS_MAX_WINDOWS + 1
 
-#define PARAM_SPRITES_ON		true	// parameter for Sys_SetGraphicMode
-#define PARAM_SPRITES_OFF		false	// parameter for Sys_SetGraphicMode
 #define PARAM_BITMAP_ON			true	// parameter for Sys_SetGraphicMode
 #define PARAM_BITMAP_OFF		false	// parameter for Sys_SetGraphicMode
-#define PARAM_TILES_ON			true	// parameter for Sys_SetGraphicMode
-#define PARAM_TILES_OFF			false	// parameter for Sys_SetGraphicMode
 #define PARAM_TEXT_OVERLAY_ON	true	// parameter for Sys_SetGraphicMode
 #define PARAM_TEXT_OVERLAY_OFF	false	// parameter for Sys_SetGraphicMode
 #define PARAM_TEXT_ON			true	// parameter for Sys_SetGraphicMode
@@ -164,10 +160,10 @@ bool Sys_SetVideoMode(Screen* the_screen, screen_resolution new_mode);
 //! @return	returns false on any error/invalid input.
 bool Sys_SetModeText(System* the_system, bool as_overlay);
 
-//! Switch machine into graphics mode, text mode, sprite mode, etc.
+//! Switch machine into graphics mode, text mode, etc.
 //! @param	the_system -- valid pointer to system object
-//! Use PARAM_SPRITES_ON/OFF, PARAM_BITMAP_ON/OFF, PARAM_TILES_ON/OFF, PARAM_TEXT_OVERLAY_ON/OFF, PARAM_TEXT_ON/OFF
-bool Sys_SetGraphicMode(System* the_system, bool enable_sprites, bool enable_bitmaps, bool enable_tiles, bool enable_text_overlay, bool enable_text);
+//! Use PARAM_BITMAP_ON/OFF, PARAM_TEXT_OVERLAY_ON/OFF, PARAM_TEXT_ON/OFF
+bool Sys_SetGraphicMode(System* the_system, bool enable_bitmaps, bool enable_text_overlay, bool enable_text);
 
 //! Enable or disable the hardware cursor in text mode, for the specified screen
 //! @param	the_system -- valid pointer to system object

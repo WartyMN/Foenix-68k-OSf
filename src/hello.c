@@ -144,7 +144,7 @@ int main(int argc, char* argv[])
 		Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);
 	}
 	
-	Sys_SetGraphicMode(global_system, PARAM_SPRITES_OFF, PARAM_BITMAP_ON, PARAM_TILES_OFF, PARAM_TEXT_OVERLAY_OFF, PARAM_TEXT_OFF);
+	Sys_SetGraphicMode(global_system, PARAM_BITMAP_ON, PARAM_TEXT_OVERLAY_OFF, PARAM_TEXT_OFF);
 
 	OpenAWindow();
 	

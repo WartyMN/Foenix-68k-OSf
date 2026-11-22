@@ -434,54 +434,64 @@ bool Sys_AutoConfigure(System* the_system)
 //! Detect the current screen mode/resolution, and set # of columns, rows, H pixels, V pixels, accordingly
 bool Sys_DetectScreenSize(Screen* the_screen)
 {
+	volatile uint32_t*	vicky;
+	uint32_t			vicky_val;
 	screen_resolution	new_mode;
-	uint32_t			the_vicky_value;
-	uint8_t				the_video_mode_bits;
 	uint32_t			the_border_control_value;
 	int16_t				border_x_cols;
 	int16_t				border_y_cols;
 	int16_t				border_x_pixels;
 	int16_t				border_y_pixels;
+	bool				is_v_res_1024 = false;
 	
 	if (the_screen == NULL)
 	{
 		LOG_ERR(("%s %d: passed screen was NULL", __func__, __LINE__));
 		goto error;
 	}
+	
+	vicky = the_screen->vicky_;
+	vicky_val = *vicky;
 
 	// detect the video mode and set resolution based on it
-	
-	the_vicky_value = *the_screen->vicky_;
-	the_video_mode_bits = (the_vicky_value >> 8) & 0xff;
-	DEBUG_OUT(("%s %d: 32bit vicky value=%x, video mode bits before vid flag=%x", __func__, __LINE__, the_vicky_value, the_video_mode_bits));
-	the_video_mode_bits &= VICKY_AB_RES_FLAG_MASK_8BIT;	// further mask down to just the bits relevant for detecting screen resolution
-	DEBUG_OUT(("%s %d: 32bit vicky value=%x, video mode bits=%x", __func__, __LINE__, the_vicky_value, the_video_mode_bits));
-	
-	if (the_screen->vicky_ == P32(VICKY_A_BASE_ADDRESS))
+		
+	if (the_screen->id_ == ID_CHANNEL_A)
 	{
 		// channel A: MCR_A bit 11: 0 = 800x600, 1 = 1024x768
-		new_mode = (the_vicky_value & 0x00000800) ? RES_1024X768 : RES_800X600;
-		DEBUG_OUT(("%s %d: vicky identified as VICKY_A_BASE_ADDRESS", __func__, __LINE__));
+		new_mode = (vicky_val & VICKY_A_MC_MODE_1024) ? RES_1024X768 : RES_800X600;
 	}
-	else if (the_screen->vicky_ == P32(VICKY_B_BASE_ADDRESS))
+	else
 	{
 		// channel B: MCR_B bit 8: 0 = 1280x960, 1 = 1280x1024
-		new_mode = (the_vicky_value & 0x00000100) ? RES_1280X1024 : RES_1280X960;
-		DEBUG_OUT(("%s %d: vicky identified as VICKY_B_BASE_ADDRESS; bits=%x, 1280x960=%x, 1280x1024=%x, vicky val=%x", __func__, __LINE__, the_video_mode_bits, VICKY_IIIB_RES_1280X960_FLAGS, VICKY_IIIB_RES_1280X1024_FLAGS, the_vicky_value));
+		uint32_t	gui_ctrl_val = vicky[GUI_CTRL_OFFSET_L];	// LOGIC: full long read; Calypsi miscompiles a direct bit test here
+		bool		doubled = (gui_ctrl_val & GUI_CTRL_DOUBLE) != 0;
+
+		is_v_res_1024 = (vicky_val & VICKY_B_MC_MODE_1024) != 0;
+		
+		if (doubled)
+		{
+			new_mode = is_v_res_1024 ? RES_640X512 : RES_640X480;
+		}
+		else
+		{
+			new_mode = is_v_res_1024 ? RES_1280X1024 : RES_1280X960;
+		}
+
+		DEBUG_OUT(("%s %d: VICKY_B; is_v_res_1024=%x, doubled=%x, vicky val=%x", __func__, __LINE__, is_v_res_1024, doubled, vicky_val));
 	}
 
 	switch (new_mode)
 	{
-		case RES_640X400:
-			the_screen->width_ = 640;	
-			the_screen->height_ = 400;
-			DEBUG_OUT(("%s %d: set to RES_640X400", __func__, __LINE__));
-			break;
-			
 		case RES_640X480:
 			the_screen->width_ = 640;	
 			the_screen->height_ = 480;
 			DEBUG_OUT(("%s %d: set to RES_640X480", __func__, __LINE__));
+			break;
+			
+		case RES_640X512:
+			the_screen->width_ = 640;	
+			the_screen->height_ = 512;
+			DEBUG_OUT(("%s %d: set to RES_640X512", __func__, __LINE__));
 			break;
 			
 		case RES_800X600:
@@ -499,20 +509,18 @@ bool Sys_DetectScreenSize(Screen* the_screen)
 		case RES_1280X960:
 			the_screen->width_ = 1280;	
 			the_screen->height_ = 960;
-			the_screen->text_mem_rows_ = TEXT_NUM_ROWS_VICKY_B_960;
 			DEBUG_OUT(("%s %d: set to 1280x960", __func__, __LINE__));
 			break;
 			
 		case RES_1280X1024:
 			the_screen->width_ = 1280;	
 			the_screen->height_ = 1024;
-			the_screen->text_mem_rows_ = TEXT_NUM_ROWS_VICKY_B_1024;
 			DEBUG_OUT(("%s %d: set to 1280x1024", __func__, __LINE__));
 			break;		
 	}
 	
 	// detect borders, and set text cols/rows based on resolution modified by borders (if any)
-	the_border_control_value = R32(the_screen->vicky_ + BORDER_CTRL_OFFSET_L);
+	the_border_control_value = vicky[BORDER_CTRL_OFFSET_L];
 	border_x_pixels = (the_border_control_value >> 8) & 0xFF & 0x3F;
 	border_y_pixels = (the_border_control_value >> 16) & 0xFF & 0x3F;	
 	border_x_cols = border_x_pixels * 2 / the_screen->text_font_width_;
@@ -520,22 +528,30 @@ bool Sys_DetectScreenSize(Screen* the_screen)
 	the_screen->rect_.MaxX = the_screen->width_;
 	the_screen->rect_.MaxY = the_screen->height_;	
 
-	if (the_screen->vicky_ == P32(VICKY_A_BASE_ADDRESS))
+	if (the_screen->id_ == ID_CHANNEL_A)
 	{
 		the_screen->text_mem_cols_ = the_screen->width_ / the_screen->text_font_width_;
 		the_screen->text_mem_rows_ = the_screen->height_ / the_screen->text_font_height_;
 		the_screen->text_cols_vis_ = the_screen->text_mem_cols_ - border_x_cols;
 		the_screen->text_rows_vis_ = the_screen->text_mem_rows_ - border_y_cols;
 	}
-	else if (the_screen->vicky_ == P32(VICKY_B_BASE_ADDRESS))
+	else
 	{
 		the_screen->text_mem_cols_ = TEXT_NUM_COLUMNS_VICKY_B;
+		if (is_v_res_1024 == true)
+		{
+			the_screen->text_mem_rows_ = TEXT_NUM_ROWS_VICKY_B_1024;
+		}
+		else
+		{
+			the_screen->text_mem_rows_ = TEXT_NUM_ROWS_VICKY_B_960;
+		}
 		the_screen->text_cols_vis_ = the_screen->text_mem_cols_ - border_x_cols;
 		the_screen->text_rows_vis_ = the_screen->text_mem_rows_ - border_y_cols;
 	}
 	Sys_PrintScreen(the_screen);
 	
-	DEBUG_OUT(("%s %d: screen=%u, vis cols=%u, vis rows=%u, brdx=%u, brdy=%un", __func__, __LINE__, the_screen->id_, the_screen->text_cols_vis_, the_screen->text_rows_vis_, border_x_cols, border_y_cols));
+	DEBUG_OUT(("%s %d: screen=%u, vis cols=%u, vis rows=%u, brdx=%u, brdy=%u", __func__, __LINE__, the_screen->id_, the_screen->text_cols_vis_, the_screen->text_rows_vis_, border_x_cols, border_y_cols));
 
 	return true;
 	
@@ -953,15 +969,15 @@ void Sys_InterruptMouse(void)
 // **** Screen mode/resolution/size functions *****
 
 
-//! Switch machine into graphics mode, text mode, sprite mode, etc.
+//! Switch machine into graphics mode, text mode, etc.
 //! @param	the_system -- valid pointer to system object
-//! Use PARAM_SPRITES_ON/OFF, PARAM_BITMAP_ON/OFF, PARAM_TILES_ON/OFF, PARAM_TEXT_OVERLAY_ON/OFF, PARAM_TEXT_ON/OFF
-bool Sys_SetGraphicMode(System* the_system, bool enable_sprites, bool enable_bitmaps, bool enable_tiles, bool enable_text_overlay, bool enable_text)
+//! Use PARAM_BITMAP_ON/OFF, PARAM_TEXT_OVERLAY_ON/OFF, PARAM_TEXT_ON/OFF
+bool Sys_SetGraphicMode(System* the_system, bool enable_bitmaps, bool enable_text_overlay, bool enable_text)
 {	
-	uint8_t		the_bits;
-	uint32_t	the_old_value;
-	uint32_t	the_old_masked_value;
-	uint32_t	the_new_value;
+	volatile uint32_t*	vicky;
+	uint8_t				the_bits;
+	uint32_t			vicky_val;
+	uint32_t			new_val;
 	
 	if (the_system == NULL)
 	{
@@ -974,33 +990,15 @@ bool Sys_SetGraphicMode(System* the_system, bool enable_sprites, bool enable_bit
 	//   clears everything from first byte of master control but the reserved bit (bit 6)
 	//   then re-enables only those modes specified
 
-	the_old_value = R32(the_system->screen_[ID_CHANNEL_B]->vicky_);
-	the_old_masked_value = the_old_value & GRAPHICS_MODE_MASK;
+	vicky = the_system->screen_[ID_CHANNEL_B]->vicky_;
+	vicky_val = *vicky;
 	
 	the_bits = 0;
-	//the_bits = (uint8_t)the_old_masked_value;
-	//the_bits = R8(VICKY_MASTER_CTRL_REG_L) & VICKY_B_MC_EN_GAMMA;	
 
-	if (enable_sprites | enable_bitmaps | enable_tiles | enable_text_overlay)
+	if (enable_bitmaps)
 	{
 		the_bits |= VICKY_B_MC_GRAPH_EN;
 	}
-
-// Nov 2026: these bits now do nothing. 	
-// 	if (enable_sprites)
-// 	{
-// 		the_bits |= VICKY_B_MC_EN_SPRITE;
-// 	}
-// 
-// 	if (enable_bitmaps)
-// 	{
-// 		the_bits |= VICKY_B_MC_EN_BITMAP;
-// 	}
-// 
-// 	if (enable_tiles)
-// 	{
-// 		the_bits |= VICKY_B_MC_EN_TILE;
-// 	}
 
 	if (enable_text)
 	{
@@ -1015,27 +1013,21 @@ bool Sys_SetGraphicMode(System* the_system, bool enable_sprites, bool enable_bit
 	}
 
 	// turn bitmap on or off, as needed
-	if (enable_bitmaps || enable_tiles)
+	if (enable_bitmaps)
 	{
-			// enable bitmap
-		R32(the_system->screen_[ID_CHANNEL_B]->vicky_ + GUI_CTRL_OFFSET_L) = 0x01;
-		//R32(the_system->screen_[ID_CHANNEL_B]->vicky_ + GUI_CTRL_OFFSET_L) = 0x09;
-		// todo: determine if want to keep pixel doubling (8+1) or not or have control for it.
+		// enable bitmap
+		vicky[GUI_CTRL_OFFSET_L] |= 0x01;		// GUI fetch on; leaves DOUBLE and DEPTH alone
 	}
 	else
 	{
 		// disable bitmap
-		R32(the_system->screen_[ID_CHANNEL_B]->vicky_ + GUI_CTRL_OFFSET_L) = 0x00;
+		vicky[GUI_CTRL_OFFSET_L] &= ~0x01;		// GUI fetch off (layer black)
 	}
 
 	// switch to graphics mode by setting graphics mode bit, and setting bitmap engine enable bit
-	//the_new_value = (the_old_value & ~GRAPHICS_MODE_MASK) | (uint32_t)the_bits;
-	the_new_value = (the_old_masked_value) | (uint32_t)the_bits;
-	DEBUG_OUT(("%s %d: graphics: old masked=%ul, old=%ul, new=%ul", __func__, __LINE__, the_old_masked_value, the_old_value, the_new_value));
-// old masked = 280000001
-// old=			28000000B
-// new = 		280000047 0100 0111
-	R32(the_system->screen_[ID_CHANNEL_B]->vicky_) = the_new_value;
+	new_val = (vicky_val & ~GRAPHICS_MODE_BITS) | the_bits;
+	DEBUG_OUT(("%s %d: graphics: old=%x, new=%x", __func__, __LINE__, vicky_val, new_val));
+	*vicky = new_val;
 	
 	return true;
 	
@@ -1061,25 +1053,10 @@ bool Sys_SetModeText(System* the_system, bool as_overlay)
 	
 	if (as_overlay)
 	{
-		// switch to text mode with overlay by setting graphics mode bit, setting bitmap engine enable bit, and setting graphics mode overlay		
-		R32(the_system->screen_[ID_CHANNEL_B]->vicky_) = ((*the_system->screen_[ID_CHANNEL_B]->vicky_ & GRAPHICS_MODE_MASK) | VICKY_B_MC_TEXT_EN | VICKY_B_MC_TEXT_OVR | VICKY_B_MC_GRAPH_EN);
-		
-		// c256foenix, discord 2022/03/10
-		// Normally, for example, if you setup everything to be in bitmap mode, and you download an image in VRAM and you can see it properly... If you turn on overlay, then you will see on top of that same image, your text that you had before.
-		// Mstr_Ctrl_Text_Mode_En  = $01       ; Enable the Text Mode
-		// Mstr_Ctrl_Text_Overlay  = $02       ; Enable the Overlay of the text mode on top of Graphic Mode (the Background Color is ignored)
-		// Mstr_Ctrl_Graph_Mode_En = $04       ; Enable the Graphic Mode
-		// Mstr_Ctrl_Bitmap_En     = $08       ; Enable the Bitmap Module In Vicky
-		// all of these should be ON
+		return Sys_SetGraphicMode(the_system, PARAM_BITMAP_ON, PARAM_TEXT_OVERLAY_ON, PARAM_TEXT_ON);
 	}
-	else
-	{
-		R32(the_system->screen_[ID_CHANNEL_B]->vicky_) = ((*the_system->screen_[ID_CHANNEL_B]->vicky_ & GRAPHICS_MODE_MASK) | VICKY_B_MC_TEXT_EN);
-		// disable bitmap
-		R32(the_system->screen_[ID_CHANNEL_B]->vicky_ + GUI_CTRL_OFFSET_L) = 0x00;
-	}
-	
-	return true;
+
+	return Sys_SetGraphicMode(the_system, PARAM_BITMAP_OFF, PARAM_TEXT_OVERLAY_OFF, PARAM_TEXT_ON);
 	
 error:
 	Sys_Exit(&global_system, PARAM_EXIT_ON_ERROR);	// crash early, crash often
@@ -1093,11 +1070,8 @@ error:
 //! @return	returns false on any error/invalid input.
 bool Sys_SetVideoMode(Screen* the_screen, screen_resolution new_mode)
 {
-// 	uint8_t		the_bits;
-// 	uint32_t	the_old_value;
-// 	uint32_t	the_old_masked_value;
-// 	uint32_t	the_new_value;
-	uint8_t		the_mcp_screen_id;
+	volatile uint32_t*	vicky;
+	uint32_t			vicky_val;
 	
 	if (the_screen == NULL)
 	{
@@ -1107,119 +1081,89 @@ bool Sys_SetVideoMode(Screen* the_screen, screen_resolution new_mode)
 	
 	// LOGIC:
 	//   On an A2560K or X, the only screen that has a text/graphics mode is the Channel B screen
-	//   clears everything from first byte of master control but the reserved bit (bit 6)
-	//   then re-enables only those modes specified
-
-// 	the_old_value = R32(the_screen->vicky_);	// R32(VICKY_B_MASTER_CONTROL) etc also works.
-// 	the_old_masked_value = the_old_value & VIDEO_MODE_MASK;	
-// 	the_bits = 0;
-// 
-// 	// TODO: figure out smarter way of knowing which video modes are legal for the machine being run on
-// 	if (the_screen->vicky_ == P32(VICKY_A_BASE_ADDRESS))
-// 	{
-// 		//DEBUG_OUT(("%s %d: vicky identified as VICKY_A_BASE_ADDRESS", __func__, __LINE__));
-// 		
-// 		if (new_mode == RES_800X600)
-// 		{
-// 			the_bits = VICKY_IIIA_RES_800X600_FLAGS;
-// 		}
-// 		else if (new_mode == RES_1024X768)
-// 		{
-// 			the_bits = VICKY_IIIA_RES_1024X768_FLAGS;
-// 		}
-// 	}
-// 	else if (the_screen->vicky_ == P32(VICKY_B_BASE_ADDRESS))
-// 	{
-// 		//DEBUG_OUT(("%s %d: vicky identified as VICKY_B_BASE_ADDRESS", __func__, __LINE__));
-// 		// Video Mode [1] [0]
-// 		// 640x480 @ 60FPS 0 0
-// 		// 800x600 @ 60FPS 0 1
-// 		// Reserved 1 0
-// 		// 640x400 @ 70FPS 1 1		
-// 		
-// 		if (new_mode == RES_640X400)
-// 		{
-// 			LOG_WARN(("%s %d: 640x400 mode is not yet available in hardware", __func__, __LINE__));
-// 			//the_bits = VICKY_IIIB_RES_640X400_FLAGS;
-// 		}
-// 		else if (new_mode == RES_640X480)
-// 		{
-// 			the_bits = VICKY_IIIB_RES_640X480_FLAGS;
-// 		}
-// 		else if (new_mode == RES_800X600)
-// 		{
-// 			the_bits = VICKY_IIIB_RES_800X600_FLAGS;
-// 		}
-// 	}
-// 	else if (the_screen->vicky_ == P32(VICKY_A2560U))
-// 	{
-//  		//DEBUG_OUT(("%s %d: vicky identified as VICKY_A2560U", __func__, __LINE__));
-// 		if (new_mode == RES_640X400)
-// 		{
-// 			the_bits = VICKY_II_RES_640X400_FLAGS;
-// 		}
-// 		else if (new_mode == RES_640X480)
-// 		{
-// 			the_bits = VICKY_II_RES_640X480_FLAGS;
-// 		}
-// 		else if (new_mode == RES_800X600)
-// 		{
-// 			the_bits = VICKY_II_RES_800X600_FLAGS;
-// 		}
-// 	}
- 	//DEBUG_OUT(("%s %d: specified video mode = %u, flag=%u", __func__, __LINE__, new_mode, the_bits));
+	//    Channel B: the signal is always 1280 wide; 640x480 = 1280x960 with GUI and pointer doubling.
+	//	  Channel A: MODE_1024 switches the pixel PLL.
 	
-	// switch to graphics mode by setting graphics mode bit, and setting bitmap engine enable bit
-	//the_new_value = the_old_masked_value | (the_bits << 8);	// this is a 1-byte flag
-		//the_new_value = the_old_masked_value | VICKY_B_MC_RES_FLAG_1;	// this is a 4-byte flag, will also work if above logic tweaked to use 4 byte vals
-	//DEBUG_OUT(("%s %d: video mode: old masked=%ul, old=%ul, new=%ul", __func__, __LINE__, the_old_masked_value, the_old_value, the_new_value));
-	//R32(the_screen->vicky_) = the_new_value;
+	vicky = the_screen->vicky_;
+	vicky_val = *vicky;
 
-	// the above code produces the correct values, but does not work by itself:
-		// looking at MCP source, it seems the PLL frequency has to be jiggled before changing resolution. 
-		// just going to use MCP technique for now.
-		// it also looks as if there is a high res DIP switch that can be used to indicate user preference, but isn't necessarily mechanically driving resolution (requires MCP or user program action)
-		// https://github.com/pweingar/FoenixMCP/blob/32af2939aff8b219a34fc18374785e43eb3a5e30/src/dev/txt_a2560k_b.c#L167
-		
-	// use MCP calls to set resolution
-	
-	// MCP uses 0 for B, 1 for A, we are opposite
 	if (the_screen->id_ == ID_CHANNEL_A)
 	{
-		the_mcp_screen_id = 1;
+		uint32_t	want_65;
+		int32_t		i;
+		int16_t		cols;
+		int16_t		rows;
+		
+		if (new_mode == RES_800X600)
+		{
+			vicky_val &= ~VICKY_A_MC_MODE_1024;
+			want_65 = 0;
+			cols = 800 / 8;
+			rows = 600 / the_screen->text_font_height_;
+		}
+		else if (new_mode == RES_1024X768)
+		{
+			vicky_val |= VICKY_A_MC_MODE_1024;
+			want_65 = VICKY_A_MC_PLL_CLK;
+			cols = 1024 / 8;
+			rows = 768 / the_screen->text_font_height_;
+		}
+		else
+		{
+			LOG_ERR(("%s %d: mode %u not available on channel A", __func__, __LINE__, new_mode));
+			return false;
+		}
+
+		*vicky = vicky_val;
+
+		// LOGIC: hardware retries the PLL input switch up to 7 times, 2.6 ms apart; wait until it reports the wanted oscillator
+		for (i = 0; i < 200000 && (*vicky & VICKY_A_MC_PLL_CLK) != want_65; i++) {}
+		
+		if ((*vicky & VICKY_A_MC_PLL_CLK) != want_65)
+		{
+			LOG_ERR(("%s %d: channel A PLL did not switch", __func__, __LINE__));
+		}
+
+		// channel A text grid: hardware doesn't derive it from the mode
+		vicky[VICKY_A_FONT_SIZE_OFFSET_L] = (vicky[VICKY_A_FONT_SIZE_OFFSET_L] & 0xFFFF00FF) | ((uint32_t)the_screen->text_font_height_ << 8);
+		vicky[VICKY_A_FONT_COUNT_OFFSET_L] = ((uint32_t)rows << 8) | cols;
 	}
 	else
 	{
-		the_mcp_screen_id = 0;
-	}
-	
-	if (new_mode == RES_640X400)
-	{
-		sys_txt_set_resolution(the_mcp_screen_id, 640, 400);
-	}
-	else if (new_mode == RES_640X480)
-	{
-		sys_txt_set_resolution(the_mcp_screen_id, 640, 480);
-	}
-	else if (new_mode == RES_800X600)
-	{
-		sys_txt_set_resolution(the_mcp_screen_id, 800, 600);
-	}
-	else if (new_mode == RES_1024X768)
-	{
-		sys_txt_set_resolution(the_mcp_screen_id, 1024, 768);
+		volatile uint32_t*	gui_ctrl = the_screen->vicky_ + GUI_CTRL_OFFSET_L;
+		
+		switch (new_mode)
+		{
+			case RES_1280X1024:
+				vicky_val = (vicky_val | VICKY_B_MC_MODE_1024) & ~VICKY_B_MC_PTR_DOUBLE;
+				*gui_ctrl &= ~GUI_CTRL_DOUBLE;
+				break;
+				
+			case RES_1280X960:
+				vicky_val &= ~(VICKY_B_MC_MODE_1024 | VICKY_B_MC_PTR_DOUBLE);
+				*gui_ctrl &= ~GUI_CTRL_DOUBLE;
+				break;
+				
+			case RES_640X480:
+				vicky_val = (vicky_val & ~VICKY_B_MC_MODE_1024) | VICKY_B_MC_PTR_DOUBLE;
+				*gui_ctrl |= GUI_CTRL_DOUBLE;
+				break;
+				
+			default:
+				LOG_ERR(("%s %d: mode %u not available on channel B", __func__, __LINE__, new_mode));
+				return false;
+		}
+		
+		*vicky = vicky_val;
 	}
 
 	// teach screen about the new settings
 	if (Sys_DetectScreenSize(the_screen) == false)
 	{
-		LOG_ERR(("%s %d: Changed screen resolution, but the selected resolution could not be handled", __func__, __LINE__, new_mode));
+		LOG_ERR(("%s %d: Changed screen resolution, but the selected resolution could not be handled", __func__, __LINE__));
 		return false;
 	}
 
-	// tell the MCP that we changed res so it can update it's internal col sizes, etc. this function is not exposed in MCP headers yet
-	//sys_text_setsizes();
-	
 	return true;
 	
 error:

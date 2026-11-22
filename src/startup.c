@@ -7083,7 +7083,7 @@ bool Startup_ShowSplash(void)
 
 	R32(VICKYB_BORDER_COLOR_A2560K) = 0x01;
 	R32(VICKYB_BACK_COLOR_A2560K) = 0x01;
-	Sys_SetGraphicMode(global_system, PARAM_SPRITES_OFF, PARAM_BITMAP_ON, PARAM_TILES_OFF, PARAM_TEXT_OVERLAY_ON, PARAM_TEXT_ON);
+	Sys_SetGraphicMode(global_system, PARAM_BITMAP_ON, PARAM_TEXT_OVERLAY_ON, PARAM_TEXT_ON);
 	
 	screen_bitmap = Sys_GetScreenBitmap(global_system);
 	

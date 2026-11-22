@@ -298,7 +298,7 @@ int main(int argc, char* argv[])
 	Startup_ShowSplash();
 	
 	// turn on sprites too
-	Sys_SetGraphicMode(global_system, PARAM_SPRITES_ON, PARAM_BITMAP_ON, PARAM_TILES_OFF, PARAM_TEXT_OVERLAY_ON, PARAM_TEXT_ON);
+	Sys_SetGraphicMode(global_system, PARAM_BITMAP_ON, PARAM_TEXT_OVERLAY_ON, PARAM_TEXT_ON);
 	
 	MU_RUN_SUITE(test_suite_units);
 // 	MU_RUN_SUITE(test_suite_speed);
