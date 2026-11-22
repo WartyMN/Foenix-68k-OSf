@@ -16,6 +16,7 @@
 // project includes
 #include "bitmap.h"
 #include "debug.h"
+#include "gfx_memory.h"
 
 // C includes
 #include <stdbool.h>
@@ -56,18 +57,18 @@
 // validate the coordinates are within the bounds of the specified screen
 bool Bitmap_ValidateXY(Bitmap* the_bitmap, int16_t x, int16_t y);
 
-//! Calculate the VRAM location of the specified coordinate within the bitmap
+//! Calculate the SDRAM location of the specified coordinate within the bitmap
 //! @param	the_bitmap -- reference to a valid Bitmap object.
 //! @param	x -- the horizontal position, between 0 and bitmap width - 1
 //! @param	y -- the vertical position, between 0 and bitmap height - 1
-//! @return Returns a pointer to the VRAM location that corresponds to the passed X, Y, or NULL on any error condition
+//! @return Returns a pointer to the SDRAM location that corresponds to the passed X, Y, or NULL on any error condition
 unsigned char* Bitmap_GetMemLocForXY(Bitmap* the_bitmap, int16_t x, int16_t y);
 
-//! Calculate the VRAM location of the specified coordinate within the bitmap
+//! Calculate the SDRAM location of the specified coordinate within the bitmap
 //! @param	the_bitmap -- reference to a valid Bitmap object.
 //! @param	x -- the horizontal position, between 0 and bitmap width - 1
 //! @param	y -- the vertical position, between 0 and bitmap height - 1
-//! @return Returns an unsigned long that can be converted to the VRAM location that corresponds to the passed X, Y, or NULL on any error condition
+//! @return Returns an unsigned long that can be converted to the SDRAM location that corresponds to the passed X, Y, or NULL on any error condition
 uint32_t Bitmap_GetMemLocIntForXY(Bitmap* the_bitmap, int16_t x, int16_t y);
 
 //! Draw 1 to 4 quadrants of a circle
@@ -244,13 +245,11 @@ void Bitmap_Print(Bitmap* the_bitmap)
 
 // constructor
 
-//! Create a new bitmap object by allocating space for the bitmap struct in regular memory, and for the graphics, in VRAM
-//! NOTE: when creating a bitmap to represent something actually in VRAM, pass true to in_vram, and manually assign a known VRAM location afterwards.
+//! Create a new bitmap object by allocating space for the bitmap struct in system memory, and for the graphics, in SDRAM
 //! @param	width -- width, in pixels, of the bitmap to be created
 //! @param	height -- height, in pixels, of the bitmap to be created
 //! @param	the_font -- optional font object to associate with the Bitmap. 
-//! @param	in_vram -- if true, no space will be allocated for the bitmap graphics. If false, width * height area of memory will be allocated in standard memory.
-Bitmap* Bitmap_New(int16_t width, int16_t height, Font* the_font, bool in_vram)
+Bitmap* Bitmap_New(int16_t width, int16_t height, Font* the_font)
 {
 	Bitmap*		the_bitmap;
 
@@ -267,9 +266,9 @@ Bitmap* Bitmap_New(int16_t width, int16_t height, Font* the_font, bool in_vram)
 	//DEBUG_OUT(("%s %d: allocating struct in normal memory...", __func__, __LINE__));
 	
 	// LOGIC:
-	//   we have 2 kinds of memory: VRAM and standard RAM
-	//   A bitmap object needs a struct which can and should be allocated in normal memory
-	//   If the bitmap actually represents something on the screen, it needs to point to VRAM, not normal memory
+	//   we have 2 kinds of memory: system RAM (allocated by calypsi/compiler) and SDRAM (allocated by gfx_memory.c)
+	//   A bitmap object needs a struct which can and should be allocated in system memory
+	//   If the bitmap actually represents something on the screen, it will be faster in SDRAM for blitting etc (and also there is a lot more space in SDRAM)
 	
 	if ((the_bitmap = calloc(1, sizeof(Bitmap))) == NULL)
 	{
@@ -279,29 +278,18 @@ Bitmap* Bitmap_New(int16_t width, int16_t height, Font* the_font, bool in_vram)
 	LOG_ALLOC(("%s %d:	__ALLOC__	the_bitmap struct	%p	size	%i", __func__ , __LINE__, the_bitmap, sizeof(Bitmap)));
 	TRACK_ALLOC((sizeof(Bitmap)));
 
-	if (in_vram == false)
+	if ((the_bitmap->addr_ = GfxMem_Calloc(sizeof(uint8_t), width * height)) == NULL)
 	{
-		//DEBUG_OUT(("%s %d: Allocating a screen-sized bitmap in standard RAM...", __func__, __LINE__));
-
-		if ((the_bitmap->addr_ = calloc(sizeof(uint8_t), width * height)) == NULL)
-		{
-			LOG_ERR(("%s %d: Couldn't instantiate a bitmap", __func__, __LINE__));
-			goto error;
-		}
-		LOG_ALLOC(("%s %d:	__ALLOC__	the_bitmap data	%p	size	%i", __func__ , __LINE__, the_bitmap, sizeof(uint8_t) * width * height));
-		TRACK_ALLOC((sizeof(uint8_t) * width * height));
-		
-		the_bitmap->addr_int_ = (uint32_t)the_bitmap->addr_;
+		LOG_ERR(("%s %d: Couldn't instantiate a bitmap", __func__, __LINE__));
+		goto error;
 	}
-	else
-	{
-		the_bitmap->addr_ = NULL;
-		the_bitmap->addr_int_ = 0;
-	}
-
+	//LOG_ALLOC(("%s %d:	__ALLOC__	the_bitmap data	%p	size	%i", __func__ , __LINE__, the_bitmap, sizeof(uint8_t) * width * height));
+	// gfx_memory logs it's own allocs and frees
+	TRACK_ALLOC((sizeof(uint8_t) * width * height));
+	
+	the_bitmap->addr_int_ = (uint32_t)the_bitmap->addr_;
 	the_bitmap->width_ = width;
 	the_bitmap->height_ = height;
-	the_bitmap->in_vram_ = in_vram;
 	
 	//DEBUG_OUT(("%s %d: Bitmap allocated! p=%p, addr=%p, width=%i, height=%i", __func__, __LINE__, the_bitmap, the_bitmap->addr_, the_bitmap->width_, the_bitmap->height_));
 
@@ -345,12 +333,9 @@ bool Bitmap_Destroy(Bitmap** the_bitmap)
 
 	if ((*the_bitmap)->addr_)
 	{
-		if ((*the_bitmap)->in_vram_ == false)
-		{
-			LOG_ALLOC(("%s %d:	__FREE__	the_bitmap->addr_	%p	size	%i", __func__ , __LINE__, (*the_bitmap)->addr_, (*the_bitmap)->width_ * (*the_bitmap)->height_));
-			TRACK_ALLOC((0 - (*the_bitmap)->width_ * (*the_bitmap)->height_));
-			free((*the_bitmap)->addr_);
-		}
+		//LOG_ALLOC(("%s %d:	__FREE__	the_bitmap->addr_	%p	size	%i", __func__ , __LINE__, (*the_bitmap)->addr_, (*the_bitmap)->width_ * (*the_bitmap)->height_));
+		TRACK_ALLOC((0 - (*the_bitmap)->width_ * (*the_bitmap)->height_));
+		GfxMem_Free((*the_bitmap)->addr_);
 	}
 
 	LOG_ALLOC(("%s %d:	__FREE__	*the_bitmap	%p	size	%i", __func__ , __LINE__, *the_bitmap, sizeof(Bitmap)));
@@ -363,7 +348,6 @@ bool Bitmap_Destroy(Bitmap** the_bitmap)
 
 
 //! Resize and existing bitmap by setting new width/height and allocating bigger storage if necessary
-//! NOTE: if the bitmap is held in VRAM, storage will not be reallocated
 //! NOTE: if the new size for the bitmap is smaller than the previous size, storage will not be reallocated - extra bytes will simply not be used
 //! @param	width -- the new width, in pixels, to resize the bitmap to
 //! @param	height -- the new height, in pixels, to resize the bitmap to
@@ -387,24 +371,23 @@ bool Bitmap_Resize(Bitmap* the_bitmap, int16_t width, int16_t height)
 	the_bitmap->width_ = width;
 	the_bitmap->height_ = height;
 	
-	// Reallocate bitmap only if both are true:
-	//   window is not in VRAM. we only store backdrop in VRAM, and it shares same bitmap as the screen.
+	// Reallocate bitmap only if:
 	//   window got LARGER. if it got smaller, we can just keep reusing same bitmap and not worry about the extra space.
-	if (the_bitmap->in_vram_ == false && new_size > old_size)
+	if (new_size > old_size)
 	{
 		if (the_bitmap->addr_)
 		{
-			LOG_ALLOC(("%s %d:	__FREE__	the_bitmap->addr_	%p	size	%i", __func__ , __LINE__, the_bitmap->addr_, old_size));
+			//LOG_ALLOC(("%s %d:	__FREE__	the_bitmap->addr_	%p	size	%i", __func__ , __LINE__, the_bitmap->addr_, old_size));
 			TRACK_ALLOC((0 - old_size));
-			free(the_bitmap->addr_);
+			GfxMem_Free(the_bitmap->addr_);
 		}
 		
-		if ((the_bitmap->addr_ = calloc(sizeof(uint8_t), new_size)) == NULL)
+		if ((the_bitmap->addr_ = GfxMem_Calloc(sizeof(uint8_t), new_size)) == NULL)
 		{
 			LOG_ERR(("%s %d: Couldn't instantiate a bitmap", __func__, __LINE__));
 			return false;
 		}
-		LOG_ALLOC(("%s %d:	__ALLOC__	the_bitmap->addr_	%p	size	%i", __func__ , __LINE__, the_bitmap->addr_, new_size));
+		//LOG_ALLOC(("%s %d:	__ALLOC__	the_bitmap->addr_	%p	size	%i", __func__ , __LINE__, the_bitmap->addr_, new_size));
 		TRACK_ALLOC((new_size));
 		
 		the_bitmap->addr_int_ = (uint32_t)the_bitmap->addr_;
@@ -421,8 +404,8 @@ bool Bitmap_Resize(Bitmap* the_bitmap, int16_t width, int16_t height)
 //! Blit a rect from source bitmap to distination bitmap
 //! This is a wrapper around Bitmap_Blit()
 //! The source and destination bitmaps can be the same: you can use this to copy a chunk of pixels from one part of a screen to another. If the destination location cannot fit the entirety of the copied rectangle, the copy will be truncated, but will not return an error. 
-//! @param	src_bm -- the source bitmap. It must have a valid address within the VRAM memory space.
-//! @param	dst_bm -- the destination bitmap. It must have a valid address within the VRAM memory space. It can be the same bitmap as the source.
+//! @param	src_bm -- the source bitmap. It must have a valid address within the SDRAM memory space.
+//! @param	dst_bm -- the destination bitmap. It must have a valid address within the SDRAM memory space. It can be the same bitmap as the source.
 //! @param	src_rect -- the rectangle from the source bitmap to be blitted to the target bitmap
 //! @param	dst_x -- the location within the destination bitmap to copy pixels to. May be negative.
 //! @param	dst_y -- the location within the destination bitmap to copy pixels to. May be negative.
@@ -446,8 +429,8 @@ bool Bitmap_BlitRect(Bitmap* src_bm, Rectangle* src_rect, Bitmap* dst_bm, int16_
 
 //! Blit from source bitmap to distination bitmap. 
 //! The source and destination bitmaps can be the same: you can use this to copy a chunk of pixels from one part of a screen to another. If the destination location cannot fit the entirety of the copied rectangle, the copy will be truncated, but will not return an error. 
-//! @param	src_bm -- the source bitmap. It must have a valid address within the VRAM memory space.
-//! @param	dst_bm -- the destination bitmap. It must have a valid address within the VRAM memory space. It can be the same bitmap as the source.
+//! @param	src_bm -- the source bitmap. It must have a valid address within the SDRAM memory space.
+//! @param	dst_bm -- the destination bitmap. It must have a valid address within the SDRAM memory space. It can be the same bitmap as the source.
 //! @param	src_x -- the upper left coordinate within the source bitmap, for the rectangle you want to copy. May be negative.
 //! @param	src_y -- the upper left coordinate within the source bitmap, for the rectangle you want to copy. May be negative.
 //! @param	dst_x -- the location within the destination bitmap to copy pixels to. May be negative.
@@ -555,8 +538,8 @@ bool Bitmap_Blit(Bitmap* src_bm, int16_t src_x, int16_t src_y, Bitmap* dst_bm, i
 
 //! Tile the source bitmap into the destination bitmap, filling it
 //! The source and destination bitmaps can be the same: you can use this to copy a chunk of pixels from one part of a screen to another. If the destination location cannot fit the entirety of the copied rectangle, the copy will be truncated, but will not return an error. 
-//! @param	src_bm -- the source bitmap. It must have a valid address within the VRAM memory space.
-//! @param	dst_bm -- the destination bitmap. It must have a valid address within the VRAM memory space. It can be the same bitmap as the source.
+//! @param	src_bm -- the source bitmap. It must have a valid address within the SDRAM memory space.
+//! @param	dst_bm -- the destination bitmap. It must have a valid address within the SDRAM memory space. It can be the same bitmap as the source.
 //! @param	src_x -- the upper left coordinate within the source bitmap, for the tile you want to copy. Must be non-negative.
 //! @param	src_y -- the upper left coordinate within the source bitmap, for the tile you want to copy. Must be non-negative.
 //! @param	width -- the size of the tile to be derived from the source bitmap, in pixels.
@@ -697,8 +680,8 @@ bool Bitmap_TileV3(Bitmap* src_bm, int16_t src_x, int16_t src_y, Bitmap* dst_bm,
 
 //! Tile the source bitmap into the destination bitmap, filling it
 //! The source and destination bitmaps can be the same: you can use this to copy a chunk of pixels from one part of a screen to another. If the destination location cannot fit the entirety of the copied rectangle, the copy will be truncated, but will not return an error. 
-//! @param	src_bm -- the source bitmap. It must have a valid address within the VRAM memory space.
-//! @param	dst_bm -- the destination bitmap. It must have a valid address within the VRAM memory space. It can be the same bitmap as the source.
+//! @param	src_bm -- the source bitmap. It must have a valid address within the SDRAM memory space.
+//! @param	dst_bm -- the destination bitmap. It must have a valid address within the SDRAM memory space. It can be the same bitmap as the source.
 //! @param	src_x -- the upper left coordinate within the source bitmap, for the tile you want to copy. Must be non-negative.
 //! @param	src_y -- the upper left coordinate within the source bitmap, for the tile you want to copy. Must be non-negative.
 //! @param	width -- the size of the tile to be derived from the source bitmap, in pixels.
@@ -818,8 +801,8 @@ bool Bitmap_Tile(Bitmap* src_bm, int16_t src_x, int16_t src_y, Bitmap* dst_bm, i
 
 //! Tile the source bitmap into the destination bitmap, filling it
 //! The source and destination bitmaps can be the same: you can use this to copy a chunk of pixels from one part of a screen to another. If the destination location cannot fit the entirety of the copied rectangle, the copy will be truncated, but will not return an error. 
-//! @param	src_bm -- the source bitmap. It must have a valid address within the VRAM memory space.
-//! @param	dst_bm -- the destination bitmap. It must have a valid address within the VRAM memory space. It can be the same bitmap as the source.
+//! @param	src_bm -- the source bitmap. It must have a valid address within the SDRAM memory space.
+//! @param	dst_bm -- the destination bitmap. It must have a valid address within the SDRAM memory space. It can be the same bitmap as the source.
 //! @param	src_x -- the upper left coordinate within the source bitmap, for the tile you want to copy. Must be non-negative.
 //! @param	src_y -- the upper left coordinate within the source bitmap, for the tile you want to copy. Must be non-negative.
 //! @param	width -- the size of the tile to be derived from the source bitmap, in pixels.
@@ -946,8 +929,8 @@ bool Bitmap_TileV2(Bitmap* src_bm, int16_t src_x, int16_t src_y, Bitmap* dst_bm,
 
 //! Tile the source bitmap into the destination bitmap, filling it
 //! The source and destination bitmaps can be the same: you can use this to copy a chunk of pixels from one part of a screen to another. If the destination location cannot fit the entirety of the copied rectangle, the copy will be truncated, but will not return an error. 
-//! @param	src_bm -- the source bitmap. It must have a valid address within the VRAM memory space.
-//! @param	dst_bm -- the destination bitmap. It must have a valid address within the VRAM memory space. It can be the same bitmap as the source.
+//! @param	src_bm -- the source bitmap. It must have a valid address within the SDRAM memory space.
+//! @param	dst_bm -- the destination bitmap. It must have a valid address within the SDRAM memory space. It can be the same bitmap as the source.
 //! @param	src_x -- the upper left coordinate within the source bitmap, for the tile you want to copy. Must be non-negative.
 //! @param	src_y -- the upper left coordinate within the source bitmap, for the tile you want to copy. Must be non-negative.
 //! @param	width -- the size of the tile to be derived from the source bitmap, in pixels.
@@ -1323,11 +1306,11 @@ Font* Bitmap_GetFont(Bitmap* the_bitmap)
 
 
 
-//! Calculate the VRAM location of the specified coordinate within the bitmap
+//! Calculate the SDRAM location of the specified coordinate within the bitmap
 //! @param	the_bitmap -- reference to a valid Bitmap object.
 //! @param	x -- the horizontal position, between 0 and bitmap width - 1
 //! @param	y -- the vertical position, between 0 and bitmap height - 1
-//! @return Returns a pointer to the VRAM location that corresponds to the passed X, Y, or NULL on any error condition
+//! @return Returns a pointer to the SDRAM location that corresponds to the passed X, Y, or NULL on any error condition
 unsigned char* Bitmap_GetMemLocForXY(Bitmap* the_bitmap, int16_t x, int16_t y)
 {
 	if (the_bitmap == NULL)
@@ -1355,11 +1338,11 @@ unsigned char* Bitmap_GetMemLocForXY(Bitmap* the_bitmap, int16_t x, int16_t y)
 }
 
 
-//! Calculate the VRAM location of the specified coordinate within the bitmap
+//! Calculate the SDRAM location of the specified coordinate within the bitmap
 //! @param	the_bitmap -- reference to a valid Bitmap object.
 //! @param	x -- the horizontal position, between 0 and bitmap width - 1
 //! @param	y -- the vertical position, between 0 and bitmap height - 1
-//! @return Returns an unsigned long that can be converted to the VRAM location that corresponds to the passed X, Y, or NULL on any error condition
+//! @return Returns an unsigned long that can be converted to the SDRAM location that corresponds to the passed X, Y, or NULL on any error condition
 uint32_t Bitmap_GetMemLocIntForXY(Bitmap* the_bitmap, int16_t x, int16_t y)
 {
 	if (the_bitmap == NULL)
@@ -1387,9 +1370,9 @@ uint32_t Bitmap_GetMemLocIntForXY(Bitmap* the_bitmap, int16_t x, int16_t y)
 }
 
 
-//! Calculate the VRAM location of the current coordinate within the bitmap
+//! Calculate the SDRAM location of the current coordinate within the bitmap
 //! @param	the_bitmap -- reference to a valid Bitmap object.
-//! @return Returns a pointer to the VRAM location that corresponds to the current "pen" X, Y, or NULL on any error condition
+//! @return Returns a pointer to the SDRAM location that corresponds to the current "pen" X, Y, or NULL on any error condition
 unsigned char* Bitmap_GetMemLoc(Bitmap* the_bitmap)
 {
 	uint32_t	as_int;
@@ -1399,9 +1382,9 @@ unsigned char* Bitmap_GetMemLoc(Bitmap* the_bitmap)
 }
 
 
-//! Calculate the VRAM location of the current coordinate within the bitmap
+//! Calculate the SDRAM location of the current coordinate within the bitmap
 //! @param	the_bitmap -- reference to a valid Bitmap object.
-//! @return Returns an unsigned long that can be converted to the VRAM location that corresponds to the current "pen" X, Y, or NULL on any error condition
+//! @return Returns an unsigned long that can be converted to the SDRAM location that corresponds to the current "pen" X, Y, or NULL on any error condition
 uint32_t Bitmap_GetMemLocInt(Bitmap* the_bitmap)
 {
 	return Bitmap_GetMemLocIntForXY(the_bitmap, the_bitmap->x_, the_bitmap->y_);

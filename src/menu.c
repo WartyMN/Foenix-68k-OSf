@@ -486,7 +486,7 @@ Menu* Menu_New(void)
 	LOG_ALLOC(("%s %d:	__ALLOC__	the_menu	%p	size	%i", __func__ , __LINE__, the_menu, sizeof(Menu)));
 	TRACK_ALLOC((sizeof(Menu)));
 
-	if ( (the_menu->bitmap_ = Bitmap_New(MENU_MAX_WIDTH, MENU_MAX_HEIGHT, Sys_GetAppFont(global_system), PARAM_NOT_IN_VRAM)) == NULL)
+	if ( (the_menu->bitmap_ = Bitmap_New(MENU_MAX_WIDTH, MENU_MAX_HEIGHT, Sys_GetAppFont(global_system))) == NULL)
 	{
 		LOG_ERR(("%s %d: Failed to create bitmap", __func__, __LINE__));
 printf("menu bitmap allocation error!... \n");

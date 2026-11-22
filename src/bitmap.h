@@ -79,9 +79,6 @@
 #define PARAM_DO_FILL		true	//!< for various graphic routines
 #define PARAM_DO_NOT_FILL	false	//!< for various graphic routines
 
-#define PARAM_IN_VRAM		true	//!< for Bitmap_New
-#define PARAM_NOT_IN_VRAM	false	//!< for Bitmap_New
-
 
 /*****************************************************************************/
 /*                               Enumerations                                */
@@ -102,9 +99,8 @@ struct Bitmap
 	uint8_t			color_;		//!< color value to use for next "pen" based operation in this bitmap
 	uint8_t			reserved_;	//!< future use
 	Font*			font_;		//!< the currently selected font. All text drawing activities will use this font face.
-	unsigned char*	addr_;		//!< address of the start of the bitmap, within the machine's global address space. This is not the VICKY's local address for this bitmap. This address MUST be within the VRAM, however, it cannot be in non-VRAM memory space.
+	unsigned char*	addr_;		//!< address of the start of the bitmap, within the machine's global address space. We are using only SDRAM for graphics to optimize blit operations and because there is way more space in SDRAM
 	uint32_t		addr_int_;	//!< address of the start of the bitmap, as an unsigned long int. For use with plotting locations on 65816/Calypsi, which imposed a max 64k data size (at the moment)
-	bool			in_vram_;	//!< a way to know if this bitmap is pointing to VRAM or standard RAM space.
 };
 
 
@@ -122,20 +118,17 @@ struct Bitmap
 
 // constructor
 
-//! Create a new bitmap object by allocating space for the bitmap struct in regular memory, and for the graphics, in VRAM
-//! NOTE: when creating a bitmap to represent something actually in VRAM, pass true to in_vram, and manually assign a known VRAM location afterwards.
+//! Create a new bitmap object by allocating space for the bitmap struct in system memory, and for the graphics, in SDRAM
 //! @param	width -- width, in pixels, of the bitmap to be created
 //! @param	height -- height, in pixels, of the bitmap to be created
 //! @param	the_font -- optional font object to associate with the Bitmap. 
-//! @param	in_vram -- if true, no space will be allocated for the bitmap graphics. If false, width * height area of memory will be allocated in standard memory.
-Bitmap* Bitmap_New(int16_t width, int16_t height, Font* the_font, bool in_vram);
+Bitmap* Bitmap_New(int16_t width, int16_t height, Font* the_font);
 
 // destructor
 // frees all allocated memory associated with the passed object, and the object itself
 bool Bitmap_Destroy(Bitmap** the_bitmap);
 
 //! Resize and existing bitmap by setting new width/height and allocating bigger storage if necessary
-//! NOTE: if the bitmap is held in VRAM, storage will not be reallocated
 //! NOTE: if the new size for the bitmap is smaller than the previous size, storage will not be reallocated - extra bytes will simply not be used
 //! @param	width -- the new width, in pixels, to resize the bitmap to
 //! @param	height -- the new height, in pixels, to resize the bitmap to
@@ -150,8 +143,8 @@ bool Bitmap_Resize(Bitmap* the_bitmap, int16_t width, int16_t height);
 //! Blit a rect from source bitmap to distination bitmap
 //! This is a wrapper around Bitmap_Blit()
 //! The source and destination bitmaps can be the same: you can use this to copy a chunk of pixels from one part of a screen to another. If the destination location cannot fit the entirety of the copied rectangle, the copy will be truncated, but will not return an error. 
-//! @param	src_bm -- the source bitmap. It must have a valid address within the VRAM memory space.
-//! @param	dst_bm -- the destination bitmap. It must have a valid address within the VRAM memory space. It can be the same bitmap as the source.
+//! @param	src_bm -- the source bitmap. It must have a valid address within the SDRAM memory space.
+//! @param	dst_bm -- the destination bitmap. It must have a valid address within the SDRAM memory space. It can be the same bitmap as the source.
 //! @param	src_rect -- the rectangle from the source bitmap to be blitted to the target bitmap
 //! @param	dst_x -- the location within the destination bitmap to copy pixels to. May be negative.
 //! @param	dst_y -- the location within the destination bitmap to copy pixels to. May be negative.
@@ -159,8 +152,8 @@ bool Bitmap_BlitRect(Bitmap* src_bm, Rectangle* src_rect, Bitmap* dst_bm, int16_
 
 //! Blit from source bitmap to distination bitmap. 
 //! The source and destination bitmaps can be the same: you can use this to copy a chunk of pixels from one part of a screen to another. If the destination location cannot fit the entirety of the copied rectangle, the copy will be truncated, but will not return an error. 
-//! @param	src_bm -- the source bitmap. It must have a valid address within the VRAM memory space.
-//! @param	dst_bm -- the destination bitmap. It must have a valid address within the VRAM memory space. It can be the same bitmap as the source.
+//! @param	src_bm -- the source bitmap. It must have a valid address within the SDRAM memory space.
+//! @param	dst_bm -- the destination bitmap. It must have a valid address within the SDRAM memory space. It can be the same bitmap as the source.
 //! @param	src_x -- the upper left coordinate within the source bitmap, for the rectangle you want to copy. May be negative.
 //! @param	src_y -- the upper left coordinate within the source bitmap, for the rectangle you want to copy. May be negative.
 //! @param	dst_x -- the location within the destination bitmap to copy pixels to. May be negative.
@@ -171,8 +164,8 @@ bool Bitmap_Blit(Bitmap* src_bm, int16_t src_x, int16_t src_y, Bitmap* dst_bm, i
 
 //! Tile the source bitmap into the destination bitmap, filling it
 //! The source and destination bitmaps can be the same: you can use this to copy a chunk of pixels from one part of a screen to another. If the destination location cannot fit the entirety of the copied rectangle, the copy will be truncated, but will not return an error. 
-//! @param	src_bm -- the source bitmap. It must have a valid address within the VRAM memory space.
-//! @param	dst_bm -- the destination bitmap. It must have a valid address within the VRAM memory space. It can be the same bitmap as the source.
+//! @param	src_bm -- the source bitmap. It must have a valid address within the SDRAM memory space.
+//! @param	dst_bm -- the destination bitmap. It must have a valid address within the SDRAM memory space. It can be the same bitmap as the source.
 //! @param	src_x -- the upper left coordinate within the source bitmap, for the tile you want to copy. Must be non-negative.
 //! @param	src_y -- the upper left coordinate within the source bitmap, for the tile you want to copy. Must be non-negative.
 //! @param	width -- the size of the tile to be derived from the source bitmap, in pixels.
@@ -181,8 +174,8 @@ bool Bitmap_Tile(Bitmap* src_bm, int16_t src_x, int16_t src_y, Bitmap* dst_bm, i
 
 //! Tile the source bitmap into the destination bitmap, filling it
 //! The source and destination bitmaps can be the same: you can use this to copy a chunk of pixels from one part of a screen to another. If the destination location cannot fit the entirety of the copied rectangle, the copy will be truncated, but will not return an error. 
-//! @param	src_bm -- the source bitmap. It must have a valid address within the VRAM memory space.
-//! @param	dst_bm -- the destination bitmap. It must have a valid address within the VRAM memory space. It can be the same bitmap as the source.
+//! @param	src_bm -- the source bitmap. It must have a valid address within the SDRAM memory space.
+//! @param	dst_bm -- the destination bitmap. It must have a valid address within the SDRAM memory space. It can be the same bitmap as the source.
 //! @param	src_x -- the upper left coordinate within the source bitmap, for the tile you want to copy. Must be non-negative.
 //! @param	src_y -- the upper left coordinate within the source bitmap, for the tile you want to copy. Must be non-negative.
 //! @param	width -- the size of the tile to be derived from the source bitmap, in pixels.
@@ -191,8 +184,8 @@ bool Bitmap_TileV1(Bitmap* src_bm, int16_t src_x, int16_t src_y, Bitmap* dst_bm,
 
 //! Tile the source bitmap into the destination bitmap, filling it
 //! The source and destination bitmaps can be the same: you can use this to copy a chunk of pixels from one part of a screen to another. If the destination location cannot fit the entirety of the copied rectangle, the copy will be truncated, but will not return an error. 
-//! @param	src_bm -- the source bitmap. It must have a valid address within the VRAM memory space.
-//! @param	dst_bm -- the destination bitmap. It must have a valid address within the VRAM memory space. It can be the same bitmap as the source.
+//! @param	src_bm -- the source bitmap. It must have a valid address within the SDRAM memory space.
+//! @param	dst_bm -- the destination bitmap. It must have a valid address within the SDRAM memory space. It can be the same bitmap as the source.
 //! @param	src_x -- the upper left coordinate within the source bitmap, for the tile you want to copy. Must be non-negative.
 //! @param	src_y -- the upper left coordinate within the source bitmap, for the tile you want to copy. Must be non-negative.
 //! @param	width -- the size of the tile to be derived from the source bitmap, in pixels.
@@ -201,8 +194,8 @@ bool Bitmap_TileV2(Bitmap* src_bm, int16_t src_x, int16_t src_y, Bitmap* dst_bm,
 
 //! Tile the source bitmap into the destination bitmap, filling it
 //! The source and destination bitmaps can be the same: you can use this to copy a chunk of pixels from one part of a screen to another. If the destination location cannot fit the entirety of the copied rectangle, the copy will be truncated, but will not return an error. 
-//! @param	src_bm -- the source bitmap. It must have a valid address within the VRAM memory space.
-//! @param	dst_bm -- the destination bitmap. It must have a valid address within the VRAM memory space. It can be the same bitmap as the source.
+//! @param	src_bm -- the source bitmap. It must have a valid address within the SDRAM memory space.
+//! @param	dst_bm -- the destination bitmap. It must have a valid address within the SDRAM memory space. It can be the same bitmap as the source.
 //! @param	src_x -- the upper left coordinate within the source bitmap, for the tile you want to copy. Must be non-negative.
 //! @param	src_y -- the upper left coordinate within the source bitmap, for the tile you want to copy. Must be non-negative.
 //! @param	width -- the size of the tile to be derived from the source bitmap, in pixels.
@@ -274,14 +267,14 @@ int16_t Bitmap_GetX(Bitmap* the_bitmap);
 //! @return Returns -1 on any error
 int16_t Bitmap_GetY(Bitmap* the_bitmap);
 
-//! Calculate the VRAM location of the current coordinate within the bitmap
+//! Calculate the SDRAM location of the current coordinate within the bitmap
 //! @param	the_bitmap -- reference to a valid Bitmap object.
-//! @return Returns a pointer to the VRAM location that corresponds to the current "pen" X, Y, or NULL on any error condition
+//! @return Returns a pointer to the SDRAM location that corresponds to the current "pen" X, Y, or NULL on any error condition
 unsigned char* Bitmap_GetMemLoc(Bitmap* the_bitmap);
 
-//! Calculate the VRAM location of the current coordinate within the bitmap
+//! Calculate the SDRAM location of the current coordinate within the bitmap
 //! @param	the_bitmap -- reference to a valid Bitmap object.
-//! @return Returns an unsigned long that can be converted to the VRAM location that corresponds to the current "pen" X, Y, or NULL on any error condition
+//! @return Returns an unsigned long that can be converted to the SDRAM location that corresponds to the current "pen" X, Y, or NULL on any error condition
 uint32_t Bitmap_GetMemLocInt(Bitmap* the_bitmap);
 
 //! Get the current font of the pen

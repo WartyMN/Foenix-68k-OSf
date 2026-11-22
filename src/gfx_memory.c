@@ -48,7 +48,7 @@
 	} while (0)
 	
 
-#define GFXMEM_POOL_START	(VRAM_START + VRAM_LEN + 8)	// ≡ 8 mod 16: block headers at +8, user pointers 16-aligned
+#define GFXMEM_POOL_START	(VRAM_START + 8)	// ≡ 8 mod 16: block headers at +8, user pointers 16-aligned
 #define GFXMEM_POOL_END		0x06000000					// end of SDRAM
 
 
@@ -168,11 +168,11 @@ void* GfxMem_Calloc(size_t num, size_t size)
 	
 	//start_ticks = sys_time_jiffies();
 	
-	//DEBUG_OUT(("%s %d: starting f_calloc... (#=%lu, sz=%lu, tot=%li, %p)", __func__, __LINE__, num, size, size * num, the_memory));
+	//DEBUG_OUT(("%s %d: starting f_calloc... (#=%u, sz=%u, tot=%li, %p)", __func__, __LINE__, num, size, size * num, the_memory));
 
 	if (num != 0 && size > (size_t)0x7FFFFFFF / num)
 	{
-		LOG_ERR(("%s %d: calloc size overflow (num=%lu, size=%lu)", __func__, __LINE__, (unsigned long)num, (unsigned long)size));
+		LOG_ERR(("%s %d: calloc size overflow (num=%u, size=%u)", __func__, __LINE__, (unsigned long)num, (unsigned long)size));
 		return NULL;
 	}
 	
@@ -184,10 +184,10 @@ void* GfxMem_Calloc(size_t num, size_t size)
 
 	if (the_ptr == NULL)
 	{
-		LOG_ERR(("%s %d: bgetz memory allocation failed. size=%lu", __func__, __LINE__, size * num));
+		LOG_ERR(("%s %d: bgetz memory allocation failed. size=%u", __func__, __LINE__, size * num));
 		return NULL;
 	}
-	LOG_ALLOC(("%s %d:	__ALLOC__	type-SDRAM	%p	size	%lu", __func__ , __LINE__, the_ptr, (unsigned long)(size * num)));
+	LOG_ALLOC(("%s %d:	__ALLOC__	type-SDRAM	%p	size	%u", __func__ , __LINE__, the_ptr, (unsigned long)(size * num)));
 	
 	//DEBUG_OUT(("%s %d: calloc completed in %li ticks", __func__ , __LINE__, end_ticks - start_ticks));
 
@@ -217,10 +217,10 @@ void* GfxMem_Malloc(size_t size)
 
 	if (the_ptr == NULL)
 	{
-		LOG_ERR(("%s %d: bget memory allocation failed. size=%lu", __func__, __LINE__, size));
+		LOG_ERR(("%s %d: bget memory allocation failed. size=%u", __func__, __LINE__, size));
 		return NULL;
 	}
-	LOG_ALLOC(("%s %d:	__ALLOC__	type-SDRAM	%p	size	%lu", __func__ , __LINE__, the_ptr, size));
+	LOG_ALLOC(("%s %d:	__ALLOC__	type-SDRAM	%p	size	%u", __func__ , __LINE__, the_ptr, size));
 	
 	// DEBUG / testing code
 	if (((uint32_t)the_ptr & 0xF) != 0)
@@ -866,7 +866,7 @@ void *bget(bufsize requested_size, MemoryPool* the_memory)
 
 void *bgetz(bufsize size, MemoryPool* the_memory)
 {
-	//DEBUG_OUT(("%s %d: about to bget %lu bytes...", __func__, __LINE__, size));
+	//DEBUG_OUT(("%s %d: about to bget %u bytes...", __func__, __LINE__, size));
     
     char *buf = (char *) bget(size, the_memory);
 
@@ -1046,10 +1046,10 @@ void bpool(void *buf, bufsize len, MemoryPool* the_memory)
        whose size we can store in bhead.bsize. */
 
 	DEBUG_OUT(("%s %d: asserting something about size of bhead...", __func__, __LINE__));
-	DEBUG_OUT(("%s %d: len=%lu, sz bhead=%li, ESent+1=%li", __func__, __LINE__, len, sizeof(struct bhead), ((bufsize)ESent + 1) ));
+	DEBUG_OUT(("%s %d: len=%u, sz bhead=%li, ESent+1=%li", __func__, __LINE__, len, sizeof(struct bhead), ((bufsize)ESent + 1) ));
 //#define ESent	((bufsize) (-(((1L << (sizeof(bufsize) * 8 - 2)) - 1) * 2) - 2))
-	DEBUG_OUT(("%s %d: sizeof(bufsize)*8=%lu", __func__, __LINE__, sizeof(bufsize) * 8 ));
-	DEBUG_OUT(("%s %d: (sizeof(bufsize) * 8 - 2)=%lu", __func__, __LINE__, (sizeof(bufsize) * 8 - 2) ));
+	DEBUG_OUT(("%s %d: sizeof(bufsize)*8=%u", __func__, __LINE__, sizeof(bufsize) * 8 ));
+	DEBUG_OUT(("%s %d: (sizeof(bufsize) * 8 - 2)=%u", __func__, __LINE__, (sizeof(bufsize) * 8 - 2) ));
 	DEBUG_OUT(("%s %d: 1L << (sizeof(bufsize) * 8 - 2)=%li", __func__, __LINE__, 1L << (sizeof(bufsize) * 8 - 2) ));
 	DEBUG_OUT(("%s %d: ((1L << (sizeof(bufsize) * 8 - 2)) - 1) * 2=%li", __func__, __LINE__, ((1L << (sizeof(bufsize) * 8 - 2)) - 1) * 2 ));
 

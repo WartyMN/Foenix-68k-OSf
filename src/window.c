@@ -876,7 +876,7 @@ Window* Window_New(NewWinTemplate* the_win_template, void (* event_handler)(Even
 	// assign the bitmap passed by win_setup, or allocate a new one
 	if ( the_win_template->bitmap_ == NULL)
 	{
-		if ( (the_window->bitmap_ = Bitmap_New(the_win_template->width_, the_win_template->height_, Sys_GetAppFont(global_system), PARAM_NOT_IN_VRAM)) == NULL)
+		if ( (the_window->bitmap_ = Bitmap_New(the_win_template->width_, the_win_template->height_, Sys_GetAppFont(global_system))) == NULL)
 		{
 			LOG_ERR(("%s %d: Failed to create bitmap", __func__, __LINE__));
 			goto error;

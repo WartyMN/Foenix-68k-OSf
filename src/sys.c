@@ -857,21 +857,13 @@ bool Sys_InitSystem(System* the_system)
 	
 	// allocate the foreground and background bitmaps, then assign them fixed locations in VRAM
 	
-	// LOGIC: 
-	//   The only bitmaps we want pointing to VRAM locations are the system's bitmaps for the screen
-	//   Only 1 screen has bitmapped graphics
-	//   We assign them fixed spaces in VRAM, 800*600 apart, so that the addresses are good even on a screen resolution change. 
-	
 	Bitmap*		the_bitmap;
 
-	if ( (the_bitmap = Bitmap_New(global_system->screen_[ID_CHANNEL_B]->width_, global_system->screen_[ID_CHANNEL_B]->height_, Sys_GetSystemFont(global_system), PARAM_IN_VRAM)) == NULL)
+	if ( (the_bitmap = Bitmap_New(global_system->screen_[ID_CHANNEL_B]->width_, global_system->screen_[ID_CHANNEL_B]->height_, Sys_GetSystemFont(global_system))) == NULL)
 	{
 		LOG_ERR(("%s %d: Failed to create bitmap", __func__, __LINE__));
 		goto error;
 	}
-
-	the_bitmap->addr_int_ = (uint32_t)VRAM_START;
-	the_bitmap->addr_ = (unsigned char*)the_bitmap->addr_int_;
 
 	//DEBUG_OUT(("%s %d: bitmap addr_int_=%lx, addr_=%p", __func__, __LINE__, the_bitmap->addr_int_, the_bitmap->addr_));
 	

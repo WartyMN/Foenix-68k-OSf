@@ -6994,7 +6994,7 @@ Bitmap* Startup_LoadSplashBitmap(void)
 {
 	Bitmap*		the_bitmap;
 	
-	if ( (the_bitmap = Bitmap_New(SPLASH_WIDTH, SPLASH_HEIGHT, NULL, PARAM_NOT_IN_VRAM) ) == NULL)
+	if ( (the_bitmap = Bitmap_New(SPLASH_WIDTH, SPLASH_HEIGHT, NULL) ) == NULL)
 	{
 		LOG_ERR(("%s %d: could not create new Bitmap", __func__ , __LINE__));
 		return NULL;
