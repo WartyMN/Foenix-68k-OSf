@@ -1318,12 +1318,40 @@ short mouse_init() {
 
     result = ps2_mouse_command(MOUSE_CMD_RESET);
 
-    if (result == -1) {
-        //log_num(LOG_INFO, "MOUSE_CMD_RESET: ", result);
-         DEBUG_OUT(("%s %d: MOUSE_CMD_RESET: %i", __func__, __LINE__, result));
+    if (result != PS2_RESP_ACK) {
+        DEBUG_OUT(("%s %d: MOUSE_CMD_RESET: %i", __func__, __LINE__, result));
         return result;
     }
 
+    // LOGIC: after ACKing reset, the mouse runs a self-test (can take 500ms+), then sends 0xAA, then its ID (0x00).
+    //   Any command sent before then gets 0xFE (resend). Wait for both bytes.
+    {
+        int32_t		start = sys_time_jiffies();
+        uint8_t		the_byte = 0;
+        
+        while ((sys_time_jiffies() - start) < 120)		// ~2 seconds at 60 Hz
+        {
+            if (*PS2_STATUS & PS2_STAT_OBF)
+            {
+                the_byte = *PS2_DATA_BUF;
+                if (the_byte == 0xAA) break;
+            }
+        }
+
+        if (the_byte != 0xAA)
+        {
+            DEBUG_OUT(("%s %d: mouse never reported self-test pass (last byte %u)", __func__, __LINE__, (unsigned int)the_byte));
+            return -1;
+        }
+
+        // read the device ID byte that follows 0xAA
+        if (ps2_wait_out() == 0)
+        {
+            the_byte = *PS2_DATA_BUF;
+            DEBUG_OUT(("%s %d: mouse ID %u", __func__, __LINE__, (unsigned int)the_byte));
+        }
+    }
+    
     /* Disable streaming for the moment */
 
     result = ps2_mouse_command_repeatable(MOUSE_CMD_DISABLE);
