@@ -390,22 +390,22 @@ MU_TEST(test_fill_box)
 	DEBUG_OUT(("%s %d: test_fill_box starting", __func__, __LINE__));
 
 	// bad values
-	mu_check( Text_FillBoxSlow(global_system->screen_[ID_CHANNEL_A], 0, 6, 15, 8, CH_DIAG_R1, COLOR_BLACK, BG_COLOR_BRIGHT_WHITE, CHAR_AND_ATTR) == true );
-	mu_check( Text_FillBoxSlow(global_system->screen_[ID_CHANNEL_A], 21, 5, 39, 7, CH_HFILLC_UP_8, COLOR_RED, COLOR_BRIGHT_RED, CHAR_AND_ATTR) == true );
-	mu_check( Text_FillBox(global_system->screen_[ID_CHANNEL_A], 3, 6, 67, 50, CH_HDITH_8, COLOR_BRIGHT_GREEN, COLOR_GREEN) == true );
-	mu_check( Text_FillBox(global_system->screen_[ID_CHANNEL_B], 21, 21, 40, 40, CH_HDITH_8, COLOR_BRIGHT_YELLOW, COLOR_YELLOW) == true );
+	mu_check( Text_FillBoxSlow(global_system->screen_[ID_CHANNEL_A], 0, 6, 15, 8, CH_RECT_2, COLOR_BLACK, BG_COLOR_BRIGHT_WHITE, CHAR_AND_ATTR) == true );
+	mu_check( Text_FillBoxSlow(global_system->screen_[ID_CHANNEL_A], 21, 5, 39, 7, SC_CHECKERED, COLOR_RED, COLOR_BRIGHT_RED, CHAR_AND_ATTR) == true );
+	mu_check( Text_FillBox(global_system->screen_[ID_CHANNEL_A], 3, 6, 67, 50, CH_CIRCLE_4, COLOR_BRIGHT_GREEN, COLOR_GREEN) == true );
+	mu_check( Text_FillBox(global_system->screen_[ID_CHANNEL_B], 21, 21, 40, 40, CH_CIRCLE_4, COLOR_BRIGHT_YELLOW, COLOR_YELLOW) == true );
 
 	// bad values
 	// Text_FillBoxSlow accepts an illegal screen ID?
-	mu_check( Text_FillBoxSlow(NULL, 0, 6, 15, 8, CH_DIAG_R1, COLOR_BRIGHT_MAGENTA, COLOR_CYAN, CHAR_AND_ATTR) == false );
+	mu_check( Text_FillBoxSlow(NULL, 0, 6, 15, 8, CH_RECT_2, COLOR_BRIGHT_MAGENTA, COLOR_CYAN, CHAR_AND_ATTR) == false );
 	// Text_FillBoxSlow accepts an illegal x coord?
-	mu_check( Text_FillBox(global_system->screen_[ID_CHANNEL_B], -67, 6, 72, 30, CH_HDITH_8, COLOR_BRIGHT_BLUE, COLOR_BLUE) == false );
+	mu_check( Text_FillBox(global_system->screen_[ID_CHANNEL_B], -67, 6, 72, 30, CH_CIRCLE_4, COLOR_BRIGHT_BLUE, COLOR_BLUE) == false );
 	// Text_FillBoxSlow accepts an illegal x coord?
-	mu_check( Text_FillBox(global_system->screen_[ID_CHANNEL_B], 32767, 6, 72, 30, CH_HDITH_8, COLOR_BRIGHT_BLUE, COLOR_BLUE) == false );
+	mu_check( Text_FillBox(global_system->screen_[ID_CHANNEL_B], 32767, 6, 72, 30, CH_CIRCLE_4, COLOR_BRIGHT_BLUE, COLOR_BLUE) == false );
 	// Text_FillBoxSlow accepts an illegal y coord?
-	mu_check( Text_FillBox(global_system->screen_[ID_CHANNEL_B], 5, -6, 72, 30, CH_HDITH_8, COLOR_BRIGHT_BLUE, COLOR_BLUE) == false );
+	mu_check( Text_FillBox(global_system->screen_[ID_CHANNEL_B], 5, -6, 72, 30, CH_CIRCLE_4, COLOR_BRIGHT_BLUE, COLOR_BLUE) == false );
 	// Text_FillBoxSlow accepts an illegal y coord?
-	mu_check( Text_FillBox(global_system->screen_[ID_CHANNEL_B], 5, 6000, 72, 30, CH_HDITH_8, COLOR_BRIGHT_BLUE, COLOR_BLUE) == false );
+	mu_check( Text_FillBox(global_system->screen_[ID_CHANNEL_B], 5, 6000, 72, 30, CH_CIRCLE_4, COLOR_BRIGHT_BLUE, COLOR_BLUE) == false );
 }
 
 
@@ -629,8 +629,8 @@ MU_TEST(test_char_and_attr_reading)
 	Text_SetColorAtXY(global_system->screen_[ID_CHANNEL_A], x+1, y, FG_COLOR_BRIGHT_MAGENTA, BG_COLOR_GRAY);
 	Text_SetColorAtXY(global_system->screen_[ID_CHANNEL_A], x+2, y, FG_COLOR_MAGENTA, BG_COLOR_BRIGHT_WHITE);
 	Text_SetCharAtXY(global_system->screen_[ID_CHANNEL_A], x, y, CH_MISC_DIA);
-	Text_SetCharAtXY(global_system->screen_[ID_CHANNEL_A], x+1, y, CH_MISC_CLUB);
-	Text_SetCharAtXY(global_system->screen_[ID_CHANNEL_A], x+2, y, CH_MISC_SPADE);
+	Text_SetCharAtXY(global_system->screen_[ID_CHANNEL_A], x+1, y, CH_MISC_FOENIX);
+	Text_SetCharAtXY(global_system->screen_[ID_CHANNEL_A], x+2, y, CH_MISC_CHECKMARK);
 	
 	// Failure: Text_GetForeColorAtXY failed
 	mu_check( (the_color = Text_GetForeColorAtXY(global_system->screen_[ID_CHANNEL_A], x, y)) == FG_COLOR_BRIGHT_WHITE );
@@ -652,10 +652,10 @@ MU_TEST(test_char_and_attr_reading)
 	mu_check( (the_char = Text_GetCharAtXY(global_system->screen_[ID_CHANNEL_A], x, y)) == CH_MISC_DIA );
 	x++;
 	// Failure: Text_GetCharAtXY failed
-	mu_check( (the_char = Text_GetCharAtXY(global_system->screen_[ID_CHANNEL_A], x, y)) == CH_MISC_CLUB );
+	mu_check( (the_char = Text_GetCharAtXY(global_system->screen_[ID_CHANNEL_A], x, y)) == CH_MISC_FOENIX );
 	x++;
 	// Failure: Text_GetCharAtXY failed
-	mu_check( (the_char = Text_GetCharAtXY(global_system->screen_[ID_CHANNEL_A], x, y)) == CH_MISC_SPADE );
+	mu_check( (the_char = Text_GetCharAtXY(global_system->screen_[ID_CHANNEL_A], x, y)) == CH_MISC_CHECKMARK );
 }
 
 
@@ -718,7 +718,7 @@ MU_TEST(test_basic_box_coords)
 	y = 4;
 	h_line_len = 6;
 	v_line_len = 6;
-	the_char = CH_DIAG_R1;
+	the_char = CH_RECT_2;
 
 	// good values	
  	// Failure: Text_DrawBoxCoords failed
@@ -744,7 +744,7 @@ MU_TEST(test_basic_box_hw)
 	y = 6;
 	h_line_len = 6;
 	v_line_len = 6;
-	the_char = CH_HDITH_8;
+	the_char = CH_CIRCLE_4;
 
 	// good values	
  	// Failure: Text_DrawBox failed
@@ -791,7 +791,7 @@ MU_TEST(test_fancy_box)
 	x2 = 95;
 	y2 = 70;
 	// Failure: Text_FillBox failed
-	mu_check( Text_FillBox(global_system->screen_[ID_CHANNEL_A], x1+1, y1+1, x2-1, y2-1, CH_DIAG_R1, BG_COLOR_BRIGHT_CYAN, BG_COLOR_BLUE) == true );
+	mu_check( Text_FillBox(global_system->screen_[ID_CHANNEL_A], x1+1, y1+1, x2-1, y2-1, CH_RECT_2, BG_COLOR_BRIGHT_CYAN, BG_COLOR_BLUE) == true );
  	// Failure: Text_DrawBoxCoordsFancy failed
 	mu_check( Text_DrawBoxCoordsFancy(global_system->screen_[ID_CHANNEL_A], x1, y1, x2, y2, FG_COLOR_WHITE, BG_COLOR_BLACK) == true );
 
@@ -810,7 +810,7 @@ MU_TEST(test_fancy_box)
 	y2 = 51;
 
 	// Failure: Text_FillBox failed
-	mu_check( Text_FillBox(global_system->screen_[ID_CHANNEL_B], x1+1, y1+1, x2-1, y2-1, CH_HDITH_8, FG_COLOR_WHITE, BG_COLOR_BRIGHT_WHITE) == true );
+	mu_check( Text_FillBox(global_system->screen_[ID_CHANNEL_B], x1+1, y1+1, x2-1, y2-1, CH_CIRCLE_4, FG_COLOR_WHITE, BG_COLOR_BRIGHT_WHITE) == true );
  	// Failure: Text_DrawBoxCoordsFancy failed
 	mu_check( Text_DrawBoxCoordsFancy(global_system->screen_[ID_CHANNEL_B], x1, y1, x2, y2, FG_COLOR_WHITE, BG_COLOR_GRAY) == true );
 
@@ -829,7 +829,7 @@ MU_TEST(test_fancy_box)
 	y2 = 41;
 
 	// Failure: Text_FillBox failed
-	mu_check( Text_FillBox(global_system->screen_[ID_CHANNEL_B], x1+1, y1+1, x2-1, y2-1, CH_DIAG_R1, BG_COLOR_BRIGHT_CYAN, BG_COLOR_BLUE) == true );
+	mu_check( Text_FillBox(global_system->screen_[ID_CHANNEL_B], x1+1, y1+1, x2-1, y2-1, CH_RECT_2, BG_COLOR_BRIGHT_CYAN, BG_COLOR_BLUE) == true );
  	// Failure: Text_DrawBoxCoordsFancy failed
 	mu_check( Text_DrawBoxCoordsFancy(global_system->screen_[ID_CHANNEL_B], x1, y1, x2, y2, FG_COLOR_WHITE, BG_COLOR_BLACK) == true );
 	

@@ -576,13 +576,13 @@ void Sys_ChangeCursor(uint8_t the_char)
 
 	the_old_value1 = R32(VICKYA_CURSOR_CTRL_A2560K);
 	the_old_masked_value1 = the_old_value1 & VICKY_AB_CCR_CHAR_MASK;
-	the_new_value1 = the_old_masked_value1 | (CH_HFILL_UP_8 << 16);
+	the_new_value1 = the_old_masked_value1 | (SC_SOLID << 16);
 	//printf("A: old=%x, old masked=%x, new val=%x \n", the_old_value1, the_old_masked_value1, the_new_value1);
 	R32(VICKYA_CURSOR_CTRL_A2560K) = the_new_value1;
 	
 	the_old_value2 = R32(VICKYB_CURSOR_CTRL_A2560K);
 	the_old_masked_value2 = the_old_value2 & VICKY_AB_CCR_CHAR_MASK;
-	the_new_value2 = the_old_masked_value2 | (CH_HFILL_UP_8 << 16);
+	the_new_value2 = the_old_masked_value2 | (SC_SOLID << 16);
 	//printf("B: old=%x, old masked=%x, new val=%x \n", the_old_value2, the_old_masked_value2, the_new_value2);
 	R32(VICKYB_CURSOR_CTRL_A2560K) = the_new_value2;
 }
@@ -903,7 +903,7 @@ bool Sys_InitSystem(System* the_system)
 	Text_UpdateFontData(global_system->screen_[ID_CHANNEL_B], (const uint8_t*)a2560k_text_font_std_8x16_bin, 16);
 	
 	// switch cursor to a full block. 
-	Sys_ChangeCursor(CH_HFILL_UP_8);
+	Sys_ChangeCursor(SC_SOLID);
 
 // 	// load the splash screen and progress bar
 // 	if (Startup_ShowSplash() == false)

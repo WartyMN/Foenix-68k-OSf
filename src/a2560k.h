@@ -799,7 +799,7 @@ typedef uint8_t	ColorIdx;
 
 
 /*****************************************************************************/
-/*                      Standard Foenix Character Points                     */
+/*                 Standard Foenix MacRoman Character Points                 */
 /*****************************************************************************/
 
 // Standard alpha-numeric characters
@@ -900,328 +900,78 @@ typedef uint8_t	ColorIdx;
 #define CH_TILDE			126
 
 
-// FOENSCII graphic characters
-#define CH_VFILL_UP_1		95	// underscore
-#define CH_VFILL_UP_2		1
-#define CH_VFILL_UP_3		2
-#define CH_VFILL_UP_4		3
-#define CH_VFILL_UP_5		4
-#define CH_VFILL_UP_6		5
-#define CH_VFILL_UP_7		6
-#define CH_VFILL_UP_8		7	// solid inverse space
-#define CH_VFILL_DN_8		7	// solid inverse space
-#define CH_VFILL_DN_7		8
-#define CH_VFILL_DN_6		9
-#define CH_VFILL_DN_5		10
-#define CH_VFILL_DN_4		11
-#define CH_VFILL_DN_3		12
-#define CH_VFILL_DN_2		13
-#define CH_VFILL_DN_1		14
+// Foenix MacRoman graphic characters
 
-#define CH_VFILLC_UP_1		192	// same as solid fill up/down, but checkered
-#define CH_VFILLC_UP_2		193
-#define CH_VFILLC_UP_3		194
-#define CH_VFILLC_UP_4		195
-#define CH_VFILLC_UP_5		196
-#define CH_VFILLC_UP_6		197
-#define CH_VFILLC_UP_7		198
-#define CH_VFILLC_UP_8		199	// full checkered block
-#define CH_VFILLC_DN_8		199	// full checkered block
-#define CH_VFILLC_DN_7		200
-#define CH_VFILLC_DN_6		201
-#define CH_VFILLC_DN_5		202
-#define CH_VFILLC_DN_4		203
-#define CH_VFILLC_DN_3		204
-#define CH_VFILLC_DN_2		205
-#define CH_VFILLC_DN_1		206
+#define CH_LINE_WE			10	// box-drawing lines. read clockwise from west. N=up-facing line, E=right-facing line, etc.
+#define CH_LINE_NS			9
+#define CH_LINE_NES			0
+#define CH_LINE_WES			1
+#define CH_LINE_WNES		2
+#define CH_LINE_WNE			3
+#define CH_LINE_WNS			4
+#define CH_LINE_ES			5	// square edge corners
+#define CH_LINE_WS			6
+#define CH_LINE_NE			7
+#define CH_LINE_WN			8
+#define CH_LINE_RND_ES		11	// rounded edge corners
+#define CH_LINE_RND_WS		12
+#define CH_LINE_RND_NE		13
+#define CH_LINE_RND_WN		14
 
-#define CH_HFILL_UP_1		134
-#define CH_HFILL_UP_2		135
-#define CH_HFILL_UP_3		136
-#define CH_HFILL_UP_4		137
-#define CH_HFILL_UP_5		138
-#define CH_HFILL_UP_6		139
-#define CH_HFILL_UP_7		140
-#define CH_HFILL_UP_8		7	// solid inverse space
-#define CH_HFILL_DN_8		7	// solid inverse space
-#define CH_HFILL_DN_7		141
-#define CH_HFILL_DN_6		142
-#define CH_HFILL_DN_5		143
-#define CH_HFILL_DN_4		144
-#define CH_HFILL_DN_3		145
-#define CH_HFILL_DN_2		146
-#define CH_HFILL_DN_1		147
+// menu icons
+#define CH_MISC_FOENIX_KEY	17
+#define CH_MISC_CHECKMARK	18
+#define CH_MISC_DIA			19
+#define CH_MISC_FOENIX		20
 
-#define CH_HFILLC_UP_1		207
-#define CH_HFILLC_UP_2		208
-#define CH_HFILLC_UP_3		209
-#define CH_HFILLC_UP_4		210
-#define CH_HFILLC_UP_5		211
-#define CH_HFILLC_UP_6		212
-#define CH_HFILLC_UP_7		213
-#define CH_HFILLC_UP_8		199	// full checkered block
-#define CH_HFILLC_DN_8		199	// full checkered block
-#define CH_HFILLC_DN_7		214
-#define CH_HFILLC_DN_6		216
-#define CH_HFILLC_DN_5		217
-#define CH_HFILLC_DN_4		218
-#define CH_HFILLC_DN_3		219
-#define CH_HFILLC_DN_2		220
-#define CH_HFILLC_DN_1		221
+#define CH_MISC_GBP			163
+#define CH_MISC_TRADE		168
+#define CH_MISC_COPY		169
 
-#define CH_HDITH_1			15	// horizontal dither patterns...
-#define CH_HDITH_2			16
-#define CH_HDITH_3			17
-#define CH_HDITH_4			18
-#define CH_HDITH_5			19
-#define CH_HDITH_6			20
-#define CH_HDITH_7			21
-#define CH_HDITH_8			22
-#define CH_HDITH_9			23
-#define CH_HDITH_10			24
+#define CH_ARROW_DN			0x0f
+#define CH_ARROW_UP			0x10
+#define CH_ARROW_LEFT		0x16
+#define CH_ARROW_RIGHT		0x17
 
-#define CH_DITH_L1			16	// full-block dither patterns
-#define CH_DITH_L2			18
-#define CH_DITH_L3			199
-#define CH_DITH_L4			21
-#define CH_DITH_L5			23
-
-#define CH_VDITH_1			25	// vertical dither patterns...
-#define CH_VDITH_2			26
-#define CH_VDITH_3			27
-#define CH_VDITH_4			28
-#define CH_VDITH_5			29
-
-#define CH_DIAG_R1			186	// diagonal patterns and lines...
-#define CH_DIAG_R2			30
-
-#define CH_DIAG_R3			184
-#define CH_DIAG_R4			230
-#define CH_DIAG_R5			234
-#define CH_DIAG_R6			238
-
-#define CH_DIAG_R7			229
-#define CH_DIAG_R8			233
-#define CH_DIAG_R9			237
-#define CH_DIAG_R10			241
-
-#define CH_DIAG_L1			187
-#define CH_DIAG_L2			31
-
-#define CH_DIAG_L3			228
-#define CH_DIAG_L4			232
-#define CH_DIAG_L5			236
-#define CH_DIAG_L6			240
-
-#define CH_DIAG_L7			185
-#define CH_DIAG_L8			231
-#define CH_DIAG_L9			235
-#define CH_DIAG_L10			239
-
-#define CH_DIAG_X			159
-
-#define CH_HLINE_UP_1		95	// underscore
-#define CH_HLINE_UP_2		148
-#define CH_HLINE_UP_3		149
-#define CH_HLINE_UP_4		150
-#define CH_HLINE_UP_5		151
-#define CH_HLINE_UP_6		152
-#define CH_HLINE_UP_7		153
-#define CH_HLINE_UP_8		14
-#define CH_HLINE_DN_8		CH_HLINE_UP_8
-#define CH_HLINE_DN_7		CH_HLINE_UP_7
-#define CH_HLINE_DN_6		CH_HLINE_UP_6
-#define CH_HLINE_DN_5		CH_HLINE_UP_5
-#define CH_HLINE_DN_4		CH_HLINE_UP_4
-#define CH_HLINE_DN_3		CH_HLINE_UP_3
-#define CH_HLINE_DN_2		CH_HLINE_UP_2
-#define CH_HLINE_DN_1		CH_HLINE_UP_1
-
-#define CH_VLINE_UP_1		134
-#define CH_VLINE_UP_2		133
-#define CH_VLINE_UP_3		132
-#define CH_VLINE_UP_4		131
-#define CH_VLINE_UP_5		130
-#define CH_VLINE_UP_6		129
-#define CH_VLINE_UP_7		128
-#define CH_VLINE_UP_8		147
-#define CH_VLINE_DN_8		CH_VLINE_UP_8
-#define CH_VLINE_DN_7		CH_VLINE_UP_7
-#define CH_VLINE_DN_6		CH_VLINE_UP_6
-#define CH_VLINE_DN_5		CH_VLINE_UP_5
-#define CH_VLINE_DN_4		CH_VLINE_UP_4
-#define CH_VLINE_DN_3		CH_VLINE_UP_3
-#define CH_VLINE_DN_2		CH_VLINE_UP_2
-#define CH_VLINE_DN_1		CH_VLINE_UP_1
-
-#define CH_LINE_WE			150	// box-drawing lines. read clockwise from west. N=up-facing line, E=right-facing line, etc.
-#define CH_LINE_NS			130
-#define CH_LINE_NES			154
-#define CH_LINE_WES			155
-#define CH_LINE_WNES		156
-#define CH_LINE_WNE			157
-#define CH_LINE_WNS			158
-#define CH_LINE_ES			160	// square edge corners
-#define CH_LINE_WS			161
-#define CH_LINE_NE			162
-#define CH_LINE_WN			163
-#define CH_LINE_RND_ES		188	// rounded edge corners
-#define CH_LINE_RND_WS		189
-#define CH_LINE_RND_NE		190
-#define CH_LINE_RND_WN		191
-
-#define CH_LINE_BLD_WE		173	// thick box-drawing lines. read clockwise from west. N=up-facing line, E=right-facing line, etc.
-#define CH_LINE_BLD_NS		174
-#define CH_LINE_BLD_NES		164
-#define CH_LINE_BLD_WES		165
-#define CH_LINE_BLD_WNES	166
-#define CH_LINE_BLD_WNE		167
-#define CH_LINE_BLD_WNS		168
-#define CH_LINE_BLD_ES		169	// square edge corners
-#define CH_LINE_BLD_WS		170
-#define CH_LINE_BLD_NE		171
-#define CH_LINE_BLD_WN		172
-#define CH_LINE_BLD_RND_ES	175	// rounded edge corners
-#define CH_LINE_BLD_RND_WS	176
-#define CH_LINE_BLD_RND_NE	177
-#define CH_LINE_BLD_RND_WN	178
-
-#define CH_BLOCK_N			11	// half-width/height block characters. read clockwise from west. N=upper, E=right-side, etc.
-#define CH_BLOCK_S			3
-#define CH_BLOCK_W			137
-#define CH_BLOCK_E			144
-#define CH_BLOCK_SE			242
-#define CH_BLOCK_SW			243
-#define CH_BLOCK_NE			244
-#define CH_BLOCK_NW			245
-#define CH_BLOCK_NWSE		246
-#define CH_BLOCK_SWNE		247
-
-#define CH_MISC_GBP			0
-#define CH_MISC_VTILDE		127
-#define CH_MISC_COPY		215
-#define CH_MISC_FOENIX		223
-#define CH_MISC_CHECKMARK	222
-#define CH_MISC_HEART		252
-#define CH_MISC_DIA			253
-#define CH_MISC_SPADE		254
-#define CH_MISC_CLUB		255
-
-#define CH_ARROW_DN			248
-#define CH_ARROW_LEFT		249
-#define CH_ARROW_RIGHT		250
-#define CH_ARROW_UP			251
 // circular shapes, from larger to smaller
-#define CH_CIRCLE_1			180	// full-size filled circle
-#define CH_CIRCLE_2			225	// full-size selected radio button circle
-#define CH_CIRCLE_3			179	// full-size empty circle
-#define CH_CIRCLE_4			226 // medium-size filled circle
-#define CH_CIRCLE_5			182 // small circle (square tho)
-#define CH_CIRCLE_6			183 // tiny circle (1 pixel)
+#define CH_CIRCLE_1			0x1a	// full-size filled circle
+#define CH_CIRCLE_2			0x19	// full-size selected radio button circle
+#define CH_CIRCLE_3			0x18	// full-size empty circle
+#define CH_CIRCLE_4			0x1b	// medium-size filled circle
+#define CH_CIRCLE_5			0x1f	// small circle (square tho)
+#define CH_CIRCLE_6			0xe1	// tiny circle (1 pixel)
 // square shapes, from larger to smaller
-#define CH_RECT_1			7	// full-size filled square
-#define CH_RECT_2			227	// full-size empty square
-#define CH_RECT_3			181 // almost-full size filled square
-#define CH_RECT_4			224 // medium-size filled square
-#define CH_RECT_5			182 // small square
-#define CH_RECT_6			183 // tiny square (1 pixel)
+#define CH_RECT_1			0x1d	// full-size filled square
+#define CH_RECT_2			0x1c	// full-size empty square
+#define CH_RECT_3			0x1e	// almost-full size filled square
+#define CH_RECT_4			0x1e	// medium-size filled square
+#define CH_RECT_5			0x1f	// small square
+#define CH_RECT_6			0xe1	// tiny square (1 pixel)
 
-
-// Japanese JIS characters plus 6 custom from PC-8001
-#define CH_JA_HOUR			24
-#define CH_JA_MIN			25
-#define CH_JA_SEC			26
-#define CH_JA_YEAR			28
-#define CH_JA_MONTH			29
-#define CH_JA_DAY			192
-
-#define CH_JIS_FIRST		193
-#define CH_JIS_KUTEN		193
-#define CH_JIS_OPEN			194
-#define CH_JIS_CLOSE		195
-#define CH_JIS_DOKUTEN		196
-#define CH_JIS_MID			197
-#define CH_JIS_WO			198
-#define CH_JIS_L_A			199
-#define CH_JIS_L_I			200
-#define CH_JIS_L_U			201
-#define CH_JIS_L_E			202
-#define CH_JIS_L_O			203
-#define CH_JIS_L_YA			204
-#define CH_JIS_L_YU			205
-#define CH_JIS_L_YO			206
-#define CH_JIS_L_TU			207
-#define CH_JIS_BOU			208
-#define CH_JIS_A			209
-#define CH_JIS_I			210
-#define CH_JIS_U			211
-#define CH_JIS_E			212
-#define CH_JIS_O			213
-#define CH_JIS_KA			214
-#define CH_JIS_KI			215
-#define CH_JIS_KU			216
-#define CH_JIS_KE			217
-#define CH_JIS_KO			218
-#define CH_JIS_SA			219
-#define CH_JIS_SHI			220
-#define CH_JIS_SU			221
-#define CH_JIS_SE			222
-#define CH_JIS_SO			223
-#define CH_JIS_TA			224
-#define CH_JIS_TI			225
-#define CH_JIS_TSU			226
-#define CH_JIS_TE			227
-#define CH_JIS_TO			228
-#define CH_JIS_NA			229
-#define CH_JIS_NI			230
-#define CH_JIS_NU			231
-#define CH_JIS_NE			232
-#define CH_JIS_NO			233
-#define CH_JIS_HA			234
-#define CH_JIS_HI			235
-#define CH_JIS_HU			236
-#define CH_JIS_HE			237
-#define CH_JIS_HO			238
-#define CH_JIS_MA			239
-#define CH_JIS_MI			240
-#define CH_JIS_MU			241
-#define CH_JIS_ME			242
-#define CH_JIS_MO			243
-#define CH_JIS_YA			244
-#define CH_JIS_YU			245
-#define CH_JIS_YO			246
-#define CH_JIS_RA			247
-#define CH_JIS_RI			248
-#define CH_JIS_RU			249
-#define CH_JIS_RE			250
-#define CH_JIS_RO			251
-#define CH_JIS_WA			252
-#define CH_JIS_N			253
-#define CH_JIS_B			254
-#define CH_JIS_P			255
-#define CH_JIS_LAST			255
+#define CH_CHECKERED		0x15	// full size checkered block
 
 
 /*****************************************************************************/
 /*                      Named Characters for Box Drawing                     */
 /*****************************************************************************/
 
-#define SC_HLINE        150
-#define SC_VLINE        130
-#define SC_ULCORNER     160
-#define SC_URCORNER     161
-#define SC_LLCORNER     162
-#define SC_LRCORNER     163
-#define SC_ULCORNER_RND 188
-#define SC_URCORNER_RND 189
-#define SC_LLCORNER_RND 190
-#define SC_LRCORNER_RND 191
-#define SC_CHECKERED	199
-#define SC_T_DOWN		155 // T-shape pointing down
-#define SC_T_UP			157 // T-shape pointing up
-#define SC_T_LEFT		158 // T-shape pointing left
-#define SC_T_RIGHT		154 // T-shape pointing right
-#define SC_T_JUNCTION	156 // + shape meeting of 4 lines
+#define SC_HLINE        CH_LINE_WE
+#define SC_VLINE        CH_LINE_NS
+#define SC_ULCORNER     CH_LINE_ES
+#define SC_URCORNER     CH_LINE_WS
+#define SC_LLCORNER     CH_LINE_NE
+#define SC_LRCORNER     CH_LINE_WN
+#define SC_ULCORNER_RND CH_LINE_ES
+#define SC_URCORNER_RND CH_LINE_WS
+#define SC_LLCORNER_RND CH_LINE_NE
+#define SC_LRCORNER_RND CH_LINE_WN
+#define SC_SOLID		CH_RECT_1
+#define SC_CHECKERED	CH_CHECKERED
+#define SC_T_DOWN		CH_LINE_WES // T-shape pointing down
+#define SC_T_UP			CH_LINE_WNE // T-shape pointing up
+#define SC_T_LEFT		CH_LINE_WNS // T-shape pointing left
+#define SC_T_RIGHT		CH_LINE_NES // T-shape pointing right
+#define SC_T_JUNCTION	CH_LINE_WNES // + shape meeting of 4 lines
 
 /*****************************************************************************/
 /*                               Enumerations                                */
