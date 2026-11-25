@@ -395,12 +395,17 @@
 #define VICKY_RES_FON_OVLY			0x10	// 0b00010000 -- if clear(0), only the text foreground color will be displayed when text overlays graphics (all background colors will be completely transparent). If set (1), both foreground and background colors will be displayed, except that background color 0 will be transparent.
 #define VICKY_RES_FON_SET			0x20	// 0b00100000 -- if set (1), the text font displayed will be font set 1. If clear (0), the text font displayed will be font set 0.
 
-// Common offsets from Vicky A/B base to desired reg.
-#define VICKY_AB_OFFSET_BORDER_CTRL_REG		4			// Border Control Register
-#define VICKY_AB_OFFSET_BORDER_COLOR_REG	8			// Border Color Register
-#define VICKY_AB_OFFSET_BACK_COLOR_REG		12			// Background Color Register
-#define VICKY_AB_OFFSET_CURSOR_CTRL_REG		16			// Cursor Control Register
-#define VICKY_AB_OFFSET_CURSOR_POS_REG		20			// Cursor Position Register
+// mouse pointer, same offsets from every VICKY (K channel A, K channel B, ME)
+#define MOUSE_GRAPHIC_OFFSET_L		0x100		// +$0400: 16x16 image, 256 longs, 32-bit writes
+#define MOUSE_REGS_OFFSET_B			0x0C00		// +$0C00: pointer registers, 16-bit writes only
+
+// word offsets from the pointer-register base
+#define MOUSE_CTRL_OFFSET_W			0x00		// +$00 PTR_CTRL: bit 0 = enable
+#define MOUSE_POS_OFFSET_W			0x02		// +$04 PTR_POS (read only; read it as one 32-bit long: Y high, X low)
+#define MOUSE_PS2_BYTE0_OFFSET_W	0x05		// +$0A packet byte 0
+#define MOUSE_PS2_BYTE1_OFFSET_W	0x06		// +$0C packet byte 1
+#define MOUSE_PS2_BYTE2_OFFSET_W	0x07		// +$0E packet byte 2
+
 
 // VICKY RESOLUTION FLAGS Per A2560K_UM_Rev0.0.1.pdf and A2560U_UM_Rev0.0.2.pdf
 // VICKY II / VICKY III Chan B
@@ -480,13 +485,7 @@
 #define VICKYA_CURSOR_CTRL_A2560K	(0xfec40010)	// vicky III channel A cursor control register
 	#define VICKY_AB_CCR_CHAR_MASK	0xFF00FFFF	//!> the mask for the cursor control register that controls the character used as cursor
 #define VICKYA_CURSOR_POS_A2560K	(VICKY_A_BASE_ADDRESS + 0x14)	// vicky III channel A cursor position register (x pos is lower word, y pos is upper word)
-#define VICKYA_MOUSE_GRAPHIC_A2560K	0xfec40400		// vicky III channel A mouse pointer graphic stored here (16x16 ARGB) - 4byte, WO
-#define VICKYA_MOUSE_CTRL_A2560K	0xfec40c00		// vicky III channel A mouse pointer control register. set to 1 to enable mouse. +2 to do whatever "pointer choice" does. W16, R32
-#define VICKYA_MOUSE_PTR_POS		0xfec40c04		// vicky III channel B mouse pointer position (Y pos in upper 16 bits, x in lower)
 
-#define VICKYA_PS2_MOUSE_BYTE_0		0xfec40c0a		// PS/2 mouse movement byte 0 for VICKY to interpret. W16.
-#define VICKYA_PS2_MOUSE_BYTE_1		0xfec40c0c		// PS/2 mouse movement byte 1 for VICKY to interpret. W16.
-#define VICKYA_PS2_MOUSE_BYTE_2		0xfec40c0e		// PS/2 mouse movement byte 2 for VICKY to interpret. W16.
 
 // VICKY III - Channel B - Text and Graphics
 #define VICKY_BITMAP_MAX_H_RES		1280		// VICKY in A2560K supports a max resolution of 1280x1024 for graphics
@@ -550,12 +549,6 @@
 #define VICKYB_GUI_BASE				0xfec80104				//! Bitmap VRAM Address Pointer. Absolute SDRAM address.
 #define VICKYB_GUI_STRIDE			0xfec80108				//! 
 
-#define VICKYB_MOUSE_GRAPHIC_A2560K	0xfec80400				// vicky III channel B mouse pointer graphic stored here (16x16 ARGB) - 4byte, WO
-#define VICKYB_MOUSE_CTRL_A2560K	0xfec80c00				// vicky III channel B mouse pointer control register. set to 1 to enable mouse. +2 to do whatever "pointer choice" does. W16, R32
-#define VICKYB_MOUSE_PTR_POS		0xfec80c04				// vicky III channel B mouse pointer position (Y pos in upper 16 bits, x in lower)
-#define VICKYB_PS2_MOUSE_BYTE_0		0xfec80c0a				// PS/2 mouse movement byte 0 for VICKY to interpret. W16.
-#define VICKYB_PS2_MOUSE_BYTE_1		0xfec80c0c				// PS/2 mouse movement byte 1 for VICKY to interpret. W16.
-#define VICKYB_PS2_MOUSE_BYTE_2		0xfec80c0e				// PS/2 mouse movement byte 2 for VICKY to interpret. W16.
 #define TEXTA_RAM_A2560K			(char*)0xfec60000		// channel A text
 #define TEXTA_ATTR_A2560K			(char*)0xfec68000		// channel A attr
 #define TEXTA_FORE_LUT_A2560K		(char*)0xfec6c400		// FG_CHAR_LUT_PTR	Text Foreground Look-Up Table
@@ -643,27 +636,11 @@
 //C256F_MODEL_MINOR - $AF:070C
 
 // machine model numbers - for decoding s_sys_info.model - value read from MACHINE_ID_REGISTER (see above)
-#define MACHINE_C256FMX			0x00	///< for s_sys_info.model
-#define MACHINE_C256U			0x01	///< for s_sys_info.model
-#define MACHINE_F256JR			0x02	///< for s_sys_info.model
-#define MACHINE_F256JRE			0x03	///< for s_sys_info.model
-#define MACHINE_GENX			0x04	///< for s_sys_info.model
-#define MACHINE_C256_UPLUS		0x05	///< for s_sys_info.model
-#define MACHINE_UNDEFINED_1		0x06	///< for s_sys_info.model
-#define MACHINE_UNDEFINED_2		0x07	///< for s_sys_info.model
-#define MACHINE_A2560X			0x08	///< for s_sys_info.model. (GenX 32Bits Side)
-#define MACHINE_A2560U_PLUS		0x09	///< for s_sys_info.model. there is no A2560U only in the field
-#define MACHINE_A2560M			0x0a	///< for s_sys_info.model. 
-#define MACHINE_A2560K			0x0b	///< for s_sys_info.model. "classic" A2560K
-#define MACHINE_A2560K40		0x0c	///< for s_sys_info.model
-#define MACHINE_A2560K60		0x0d	///< for s_sys_info.model
-#define MACHINE_UNDEFINED_3		0x0e	///< for s_sys_info.model
-#define MACHINE_UNDEFINED_4		0x0f	///< for s_sys_info.model
-#define MACHINE_F256P			0x10	///< for s_sys_info.model
-#define MACHINE_F256K2			0x11	///< for s_sys_info.model
-#define MACHINE_F256K			0x12	///< for s_sys_info.model
-#define MACHINE_F256KE			0x13	///< for s_sys_info.model
-#define MACHINE_F256K2E			0x14	///< for s_sys_info.model
+#define MACHINE_A2560X			0x08	//  - (GenX - 32bits Side)
+#define MACHINE_A2560U			0x09	//  - (Single Board 68K)
+#define MACHINE_A2560K			0x0b	// - (Keyboard MC68040/MC68LC060) That includes KC, K40, K60
+#define MACHINE_A2560M			0x0c	// - (A2560M: ITX MC68LC060 / A2560M PRO: DTX MC68LC060)
+#define MACHINE_F256K2			0x0d	// - (F256K2 Core - Simili 68020 @ 50Mhz)
 
 #define MACHINE_MODEL_MASK		0x1F		
 
@@ -1261,6 +1238,13 @@ typedef enum
 	RES_1280X1024,
 } screen_resolution;
 
+typedef enum
+{
+	VICKY_TYPE_K_TEXT = 0,		// A2560K channel A: text only, 800x600 / 1024x768
+	VICKY_TYPE_K_MAIN,			// A2560K channel B: 1280x960/1024, GUI bitmap in SDRAM
+	VICKY_TYPE_SINGLE,			// one-screen machines (U, U+, M/ME)
+} vicky_type;
+
 /*****************************************************************************/
 /*                                 Structs                                   */
 /*****************************************************************************/
@@ -1306,7 +1290,9 @@ typedef struct Rectangle
 typedef struct Screen
 {
 	int16_t			id_;				// 0 for channel A, 1 for channel B. not all foenix's have 2 channels.
-	volatile uint32_t*	vicky_;		// VICKY primary register RAM loc. See VICKY_A_BASE_ADDRESS, VICKY_B_BASE_ADDRESS, VICKY_A2560U, etc.
+	vicky_type		vicky_type_;		// 1 screen or 2. 
+	volatile uint32_t*	vicky_;			// VICKY primary register RAM loc. See VICKY_A_BASE_ADDRESS, VICKY_B_BASE_ADDRESS, VICKY_A2560U, etc.
+	volatile uint16_t*	mouse_regs_;	// pointer registers: 16-bit access only
 	Rectangle		rect_;				// the x1, y1, > x2, y2 coordinates of the screen, taking into account any borders. 
 	int16_t			width_;				// for the current resolution, the max horizontal pixel count 
 	int16_t			height_;			// for the current resolution, the max vertical pixel count 
@@ -1321,11 +1307,8 @@ typedef struct Screen
 	uint32_t*		text_color_back_ram_;	// 64b of memory holding background color LUTs for text mode, in BGRA order
 	int16_t			text_font_height_;	// in text mode, the height in pixels for the fixed width font. Should be either 8 or 16, depending on which Foenix. used for calculating text fit.
 	int16_t			text_font_width_;	// in text mode, the width in pixels for the fixed width font. Unlikely to be other than '8' with Foenix machines. used for calculating text fit.
-// 	char			text_temp_buffer_1_[TEXT_COL_COUNT_FOR_PLOTTING_A2560K * TEXT_ROW_COUNT_FOR_PLOTTING_A2560K + 1];	// todo: replace with pointer, and allocate space on resolution switch. general use temp buffer - do NOT use for real storage - any utility function clobber it
-// 	char			text_temp_buffer_2_[TEXT_COL_COUNT_FOR_PLOTTING_A2560K * TEXT_ROW_COUNT_FOR_PLOTTING_A2560K + 1];	// todo: replace with pointer, and allocate space on resolution switch. general use temp buffer - do NOT use for real storage - any utility function clobber it
 	Bitmap*			bitmap_;			//! The bitmap associated with this screen, if any. (Text only screens do not have bitmaps available)
 } Screen;
-
 
 
 /*****************************************************************************/

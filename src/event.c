@@ -436,7 +436,7 @@ void EventManager_AddMouseEvent(event_kind the_what)
 	the_event = the_event_manager->queue_[the_event_manager->write_idx_++];
 	the_event_manager->write_idx_ %= EVENT_QUEUE_SIZE;
 	
-	vicky_mouse_pos = NR32(VICKYB_MOUSE_PTR_POS);
+	vicky_mouse_pos = *(volatile uint32_t*)&global_system->screen_[ID_CHANNEL_B]->mouse_regs_[MOUSE_POS_OFFSET_W];
 	the_event->mouseinfo_.x_ = (int16_t)(vicky_mouse_pos & 0xffff);
 	the_event->mouseinfo_.y_ = (int16_t)(vicky_mouse_pos >> 16);
 	//DEBUG_OUT(("%s %d: vicky_mouse_pos=%u, %x", __func__, __LINE__, vicky_mouse_pos, vicky_mouse_pos));

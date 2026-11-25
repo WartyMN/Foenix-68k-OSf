@@ -17,6 +17,7 @@
 #include <mcp/interrupt.h>
 
 #include "../event.h"
+#include "../sys.h"
 #include "../debug.h"
 
 static uint32_t mouse_pointer_data[256] =
@@ -303,8 +304,32 @@ typedef struct {
 	bool	r_button_down_;
 } mouse_button_states;
 
-volatile uint16_t*	ps2_vicky_a_mouse_byte_base = NP16(VICKYA_PS2_MOUSE_BYTE_0);
-volatile uint16_t*	ps2_vicky_b_mouse_byte_base = NP16(VICKYB_PS2_MOUSE_BYTE_0);
+extern System*		global_system;
+
+// LOGIC: the VICKYs that draw a mouse pointer: one per screen (K: channel A + B; ME: one).
+//   Set by ps2_find_vickys() from the screens Sys_AutoConfigure set up, so no machine's addresses are hard-coded here.
+//   [1] stays NULL on one-screen machines. The ISR uses these, so they must be set before the mouse interrupt is enabled.
+static volatile uint16_t*	ps2_mouse_regs[2];	// pointer registers (16-bit access only); see MOUSE_*_OFFSET_W
+static volatile uint32_t*	ps2_vicky[2];		// VICKY base, for the pointer image (MOUSE_GRAPHIC_OFFSET_L)
+
+static void ps2_find_vickys(void)
+{
+	int16_t	i;
+
+	ps2_mouse_regs[0] = ps2_mouse_regs[1] = NULL;
+	ps2_vicky[0] = ps2_vicky[1] = NULL;
+
+	if (global_system == NULL)
+	{
+		return;
+	}
+
+	for (i = 0; i < global_system->num_screens_ && i < 2; i++)
+	{
+		ps2_mouse_regs[i] = global_system->screen_[i]->mouse_regs_;
+		ps2_vicky[i] = global_system->screen_[i]->vicky_;
+	}
+}
 
 /*
  * Mapping of "codepoints" 0x80 - 0x95 (function keys, etc)
@@ -1171,8 +1196,12 @@ void mouse_handle_irq()
 	ps2_mouse_code.bytes_[g_mouse_state] = (uint8_t)mouse_byte;
 
 	// Send the byte to Vicky so it can handle mouse movement.
-	*(ps2_vicky_a_mouse_byte_base + g_mouse_state) = (uint16_t)mouse_byte;
-	*(ps2_vicky_b_mouse_byte_base + g_mouse_state) = (uint16_t)mouse_byte;
+	ps2_mouse_regs[0][MOUSE_PS2_BYTE0_OFFSET_W + g_mouse_state] = (uint16_t)mouse_byte;
+
+	if (ps2_mouse_regs[1] != NULL)
+	{
+		ps2_mouse_regs[1][MOUSE_PS2_BYTE0_OFFSET_W + g_mouse_state] = (uint16_t)mouse_byte;
+	}
 
 	g_mouse_state++;
 
@@ -1278,18 +1307,16 @@ short ps2_mouse_get_packet() {
  */
 void mouse_set_visible(short is_visible)
 {
-	if (is_visible == false)
+	int16_t		s;
+	
+	// MB: MCP code here was clearing out the bitmap graphic for the mouse when hiding it.
+	//     test in real world later to see if that is necessary.
+	for (s = 0; s < 2; s++)
 	{
-		NR16(VICKYB_MOUSE_CTRL_A2560K) = 0;
-		NR16(VICKYA_MOUSE_CTRL_A2560K) = 0;
-		
-		// MB: MCP code here was clearing out the bitmap graphic for the mouse. 
-		//     test in real world later to see if that is necessary.
-	}
-	else 
-	{
-		NR16(VICKYB_MOUSE_CTRL_A2560K) = 0x0001;
-		NR16(VICKYA_MOUSE_CTRL_A2560K) = 0x0001;
+		if (ps2_mouse_regs[s] != NULL)
+		{
+			ps2_mouse_regs[s][MOUSE_CTRL_OFFSET_W] = (is_visible == false) ? 0x0000 : 0x0001;	// 16-bit write: 32-bit writes are ignored
+		}
 	}
 }
 
@@ -1304,8 +1331,6 @@ short mouse_init() {
     unsigned short low_components;
     unsigned short hi_components;
     short result;
-	volatile uint32_t*	vicky_a_mouse_graphic;
-	volatile uint32_t*	vicky_b_mouse_graphic;
 
     //TRACE("mouse_init");
 	DEBUG_OUT(("%s %d: PS2 initiatialization called", __func__, __LINE__));
@@ -1401,16 +1426,17 @@ short mouse_init() {
 
     /* Set up the mouse pointer */
 
-	vicky_a_mouse_graphic = NP32(VICKYA_MOUSE_GRAPHIC_A2560K);
-	vicky_b_mouse_graphic = NP32(VICKYB_MOUSE_GRAPHIC_A2560K);
-	
 	for (i = 0; i < 256; i++)
 	{
-		vicky_a_mouse_graphic[i] = mouse_pointer_data[i];
-		vicky_b_mouse_graphic[i] = mouse_pointer_data[i];
+		ps2_vicky[0][MOUSE_GRAPHIC_OFFSET_L + i] = mouse_pointer_data[i];
+
+		if (ps2_vicky[1] != NULL)
+		{
+			ps2_vicky[1][MOUSE_GRAPHIC_OFFSET_L + i] = mouse_pointer_data[i];
+		}
 	}
 
-    /* Enable the mouse pointer on channel A */
+    /* Show the mouse pointer on every screen */
     mouse_set_visible(1);
 	
     return 0;
@@ -1505,6 +1531,15 @@ short ps2_init() {
     short res;
 
 	DEBUG_OUT(("%s %d: PS2 initiatialization called", __func__, __LINE__));
+
+	// find each screen's VICKY before anything (mouse_init, the mouse ISR) touches the pointer registers
+	ps2_find_vickys();
+
+	if (ps2_mouse_regs[0] == NULL)
+	{
+		LOG_ERR(("%s %d: no screens set up yet; call ps2_init after Sys_AutoConfigure", __func__, __LINE__));
+		return -1;
+	}
 
     // Initialize the keyboard controller variables
 

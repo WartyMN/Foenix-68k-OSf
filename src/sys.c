@@ -303,19 +303,19 @@ bool Sys_AutoDetectMachine(System* the_system)
 	the_system->model_number_ = the_sys_info->model;
 	DEBUG_OUT(("%s %d: the_system->model_number_=%u", __func__, __LINE__, the_system->model_number_));
 	
-	// temp until Calypsi fix for switch on 65816
-	if (the_system->model_number_ == MACHINE_A2560M || the_system->model_number_ == MACHINE_A2560U_PLUS)
+	if (the_system->model_number_ == MACHINE_A2560M || the_system->model_number_ == MACHINE_A2560U)
 	{
-			DEBUG_OUT(("%s %d: I think this is a A2560U or A2560U+...", __func__, __LINE__));
+			DEBUG_OUT(("%s %d: I think this is a A2560U or A2560M...", __func__, __LINE__));
 			the_system->num_screens_ = 1;
 	}
-	else if (the_system->model_number_ == MACHINE_A2560X || 
-			the_system->model_number_ == MACHINE_A2560K ||
-			the_system->model_number_ == MACHINE_A2560K40 ||
-			the_system->model_number_ == MACHINE_A2560K60 ||
-			the_system->model_number_ == MACHINE_GENX)
+	else if (the_system->model_number_ == MACHINE_A2560X)
 	{
-			DEBUG_OUT(("%s %d: I think this is a A2560K or A2560X or GenX...", __func__, __LINE__));
+			DEBUG_OUT(("%s %d: I think this is a first-gen machine, the A2560X", __func__, __LINE__));
+			the_system->num_screens_ = 2;
+	}
+	else if (the_system->model_number_ == MACHINE_A2560K)
+	{
+			DEBUG_OUT(("%s %d: I think this is a first-gen machine, A2560K40 or A2560K60", __func__, __LINE__));
 			the_system->num_screens_ = 2;
 	}
 	else
@@ -338,9 +338,10 @@ bool Sys_AutoConfigure(System* the_system)
 	int16_t				i;
 
 	// TEMP until bug fix for calypsi on switch below
-	if (the_system->model_number_ == MACHINE_A2560U_PLUS || the_system->model_number_ == MACHINE_A2560M)
+	if (the_system->model_number_ == MACHINE_A2560U || the_system->model_number_ == MACHINE_A2560M)
 	{
 		the_system->screen_[ID_CHANNEL_A]->vicky_ = P32(VICKY_A2560U);
+		the_system->screen_[ID_CHANNEL_A]->mouse_regs_ = (volatile uint16_t*)((volatile uint8_t*)the_system->screen_[ID_CHANNEL_A]->vicky_ + MOUSE_REGS_OFFSET_B);
 		the_system->screen_[ID_CHANNEL_A]->text_ram_ = TEXT_RAM_A2560U;
 		the_system->screen_[ID_CHANNEL_A]->text_attr_ram_ = TEXT_ATTR_A2560U;
 		the_system->screen_[ID_CHANNEL_A]->text_font_ram_ = FONT_MEMORY_BANK_A2560U;
@@ -348,6 +349,7 @@ bool Sys_AutoConfigure(System* the_system)
 		the_system->screen_[ID_CHANNEL_A]->text_color_back_ram_ = (uint32_t*)TEXT_BACK_LUT_A2560U;
 
 		the_system->screen_[ID_CHANNEL_B]->vicky_ = P32(VICKY_A2560U);
+		the_system->screen_[ID_CHANNEL_B]->mouse_regs_ = (volatile uint16_t*)((volatile uint8_t*)the_system->screen_[ID_CHANNEL_B]->vicky_ + MOUSE_REGS_OFFSET_B);
 		the_system->screen_[ID_CHANNEL_B]->text_ram_ = TEXT_RAM_A2560U;
 		the_system->screen_[ID_CHANNEL_B]->text_attr_ram_ = TEXT_ATTR_A2560U;
 		the_system->screen_[ID_CHANNEL_B]->text_font_ram_ = FONT_MEMORY_BANK_A2560U;
@@ -355,13 +357,11 @@ bool Sys_AutoConfigure(System* the_system)
 		the_system->screen_[ID_CHANNEL_B]->text_color_back_ram_ = (uint32_t*)TEXT_BACK_LUT_A2560U;
 	}
 	else if (the_system->model_number_ == MACHINE_A2560X || 
-			the_system->model_number_ == MACHINE_A2560K ||
-			the_system->model_number_ == MACHINE_A2560K40 ||
-			the_system->model_number_ == MACHINE_A2560K60 ||
-			the_system->model_number_ == MACHINE_GENX
+			the_system->model_number_ == MACHINE_A2560K
 			)
 	{
 		the_system->screen_[ID_CHANNEL_A]->vicky_ = P32(VICKY_A_BASE_ADDRESS);
+		the_system->screen_[ID_CHANNEL_A]->mouse_regs_ = (volatile uint16_t*)((volatile uint8_t*)the_system->screen_[ID_CHANNEL_A]->vicky_ + MOUSE_REGS_OFFSET_B);
 		the_system->screen_[ID_CHANNEL_A]->text_ram_ = TEXTA_RAM_A2560K;
 		the_system->screen_[ID_CHANNEL_A]->text_attr_ram_ = TEXTA_ATTR_A2560K;
 		the_system->screen_[ID_CHANNEL_A]->text_font_ram_ = FONT_MEMORY_BANKA_A2560K;
@@ -369,6 +369,7 @@ bool Sys_AutoConfigure(System* the_system)
 		the_system->screen_[ID_CHANNEL_A]->text_color_back_ram_ = (uint32_t*)TEXTA_BACK_LUT_A2560K;
 
 		the_system->screen_[ID_CHANNEL_B]->vicky_ = P32(VICKY_B_BASE_ADDRESS);
+		the_system->screen_[ID_CHANNEL_B]->mouse_regs_ = (volatile uint16_t*)((volatile uint8_t*)the_system->screen_[ID_CHANNEL_B]->vicky_ + MOUSE_REGS_OFFSET_B);
 		the_system->screen_[ID_CHANNEL_B]->text_ram_ = TEXTB_RAM_A2560K;
 		the_system->screen_[ID_CHANNEL_B]->text_attr_ram_ = TEXTB_ATTR_A2560K;
 		the_system->screen_[ID_CHANNEL_B]->text_font_ram_ = FONT_MEMORY_BANKB_A2560K;
@@ -817,13 +818,22 @@ bool Sys_InitSystem(System* the_system)
 	}
 
 	DEBUG_OUT(("%s %d: Screen(s) created ok.", __func__ , __LINE__, i));
-	
-	// for systems with only one screen, we will point the 2nd screen to the first, so that any call to 2nd screen works as if it was a call to the first. 
-	if (the_system->num_screens_ == 1)
-	{
-		the_system->screen_[1] = the_system->screen_[0];
-	}
 
+	// teach the screens more about themselves
+	if (the_system->model_number_ == MACHINE_A2560M || the_system->model_number_ == MACHINE_A2560U)
+	{
+		// for systems with only one screen, we will point the 2nd screen to the first, 
+		//   so that any call to 2nd screen works as if it was a call to the first. 
+		the_system->screen_[1] = the_system->screen_[0];
+		the_system->screen_[0]->vicky_type_ = VICKY_TYPE_SINGLE;
+		the_system->screen_[1]->vicky_type_ = VICKY_TYPE_SINGLE;
+	}
+	else if (the_system->model_number_ == MACHINE_A2560X || the_system->model_number_ == MACHINE_A2560K)
+	{
+		the_system->screen_[0]->vicky_type_ = VICKY_TYPE_K_TEXT;
+		the_system->screen_[1]->vicky_type_ = VICKY_TYPE_K_MAIN;
+	}
+	
 	DEBUG_OUT(("%s %d: returning to SysInit()...", __func__ , __LINE__, i));
 	
 	// LOGIC: we don't have font info yet; just want to make it clear these are not set and not rely on compiler behavior
@@ -914,9 +924,6 @@ bool Sys_InitSystem(System* the_system)
 		LOG_ERR(("%s %d: Failed to create a backdrop window. Fatal error.", __func__, __LINE__));
 		goto error;
 	}
-	
-	// Enable mouse pointer -- no idea if this works, f68 emulator doesn't support mouse yet. 
-	//R32(VICKYB_MOUSE_CTRL_A2560K) = 1;
 	
 	// set interrupt handlers
 	ps2_init();
