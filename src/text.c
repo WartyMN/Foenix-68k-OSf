@@ -28,6 +28,7 @@
 // A2560 includes
 #include <mcp/syscalls.h>
 #include "a2560k.h"
+#include "sys.h"
 
 
 /*****************************************************************************/
@@ -1181,58 +1182,92 @@ bool Text_InvertBox(Screen* the_screen, int16_t x1, int16_t y1, int16_t x2, int1
 
 // **** FONT RELATED *****
 
-//! replace the current font data with the data at the passed memory buffer
+
+//! Load a text-mode font into one channel's font memory.
 //! @param	the_screen - valid pointer to the target screen to operate on
-//! @param	new_font_data - Pointer to 2K (256 characters x 8 lines/bytes each) of font data. Each byte represents one line of an 8x8 font glyph.
-//! @return	Returns false on any error/invalid input.
-bool Text_UpdateFontData(Screen* the_screen, char* new_font_data)
+//! @param	new_font_data -- 256 characters x font_height bytes, 1 byte per row, MSB = leftmost pixel
+//! @param	font_height -- 8 or 16. Channel B shows 8x16 only: 8-line data is doubled. Channel A is switched to match.
+bool Text_UpdateFontData(Screen* the_screen, const uint8_t* new_font_data, uint8_t font_height)
 {
-	if (the_screen == NULL)
+	volatile uint8_t*	dst;
+	uint16_t			i;
+	
+	if (the_screen == NULL || new_font_data == NULL || (font_height != 8 && font_height != 16))
 	{
-		LOG_ERR(("%s %d: passed screen was NULL", __func__, __LINE__));
+		LOG_ERR(("%s %d: bad screen, data, or font height (%u)", __func__, __LINE__, (unsigned int)font_height));
 		return false;
 	}
 
-	if (new_font_data == NULL)
-	{
-		LOG_ERR(("%s %d: passed font data was NULL", __func__, __LINE__));
-		return false;
-	}
-
-	//TODO: nov 2026: update to new way text fonts work. 8x16 for B, maybe 8x8 for A.
-	// make an 8x16 font with my charset. (f256 charset)
-	// have separate handling for channel A (8x8) vs B (8x16)
+	dst = (volatile uint8_t*)the_screen->text_font_ram_;
 	
-	volatile uint8_t*	dst = (volatile uint8_t*)the_screen->text_font_ram_;
-	const uint8_t*		src = (const uint8_t*)new_font_data;
-	uint16_t			c;
-	uint8_t				row;
-	
-	if (the_screen->id_ == ID_CHANNEL_B)
+	if (the_screen->id_ == ID_CHANNEL_B && font_height == 8)
 	{
-		// channel B: 8x16 cells. Double each row of the 8x8 font.
-		for (c = 0; c < 256; c++)
+		// channel B is fixed 8x16: double each row of an 8x8 font
+		for (i = 0; i < TEXT_FONT_8X8_SIZE; i++)
 		{
-			for (row = 0; row < 8; row++)
-			{
-				uint8_t		bits = *src++;
-	
-				*dst++ = bits;
-				*dst++ = bits;
-			}
+			*dst++ = new_font_data[i];
+			*dst++ = new_font_data[i];
 		}
+		return true;
+	}
+	
+	for (i = 0; i < (uint16_t)font_height * 256; i++)
+	{
+		*dst++ = new_font_data[i];		// font RAM: byte writes only
+	}
+
+	if (the_screen->id_ == ID_CHANNEL_A && the_screen->text_font_height_ != font_height)
+	{
+		// LOGIC: Sys_SetVideoMode rewrites channel A's FONT_SIZE and FONT_COUNT from text_font_height_
+		the_screen->text_font_height_ = font_height;
+		Sys_SetVideoMode(the_screen, (the_screen->width_ == 1024) ? RES_1024X768 : RES_800X600);
+	}
+	
+	return true;
+}
+
+//! Load a text-mode font from a file (2048 bytes = 8x8, 4096 bytes = 8x16) into one channel
+bool Text_LoadFontFile(Screen* the_screen, const char* the_path)
+{
+	FILE*		the_file;
+	uint8_t*	buffer;
+	size_t		len;
+	bool		result = false;
+	
+	if ((buffer = (uint8_t*)malloc(TEXT_FONT_8X16_SIZE + 1)) == NULL)
+	{
+		LOG_ERR(("%s %d: no memory for font buffer", __func__, __LINE__));
+		return false;
+	}
+	
+	if ((the_file = fopen(the_path, "rb")) == NULL)
+	{
+		LOG_ERR(("%s %d: could not open '%s'", __func__, __LINE__, the_path));
+		goto done;
+	}
+
+	len = fread(buffer, 1, TEXT_FONT_8X16_SIZE + 1, the_file);		// +1: catches files that are too big
+	fclose(the_file);
+	
+	if (len == TEXT_FONT_8X8_SIZE)
+	{
+		result = Text_UpdateFontData(the_screen, buffer, 8);
+	}
+	else if (len == TEXT_FONT_8X16_SIZE)
+	{
+		result = Text_UpdateFontData(the_screen, buffer, 16);
 	}
 	else
 	{
-		// channel A: 8x8 cells, same layout as the source font. Byte writes only.
-		for (c = 0; c < 2048; c++)
-		{
-			*dst++ = *src++;
-		}
+		LOG_ERR(("%s %d: '%s' is %u bytes; expected 2048 or 4096", __func__, __LINE__, the_path, (unsigned int)len));
 	}
 
-	return true;
+done:
+	free(buffer);
+	return result;
 }
+
+
 
 
 //! Test function to display all 256 font characters.

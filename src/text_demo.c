@@ -928,7 +928,9 @@ void Demo_Text_UpdateFontData(void)
 	ShowDescription("Text_UpdateFontData -> Change the font characters with 2K of data from the specified buffer. See screen A as comparison.");	
 	Text_ShowFontChars(global_system->screen_[ID_CHANNEL_A], 10);
 	Text_ShowFontChars(global_system->screen_[ID_CHANNEL_B], 10);
-	Text_UpdateFontData(global_system->screen_[ID_CHANNEL_B], (char*)the_new_font_data);
+
+	Text_LoadFontFile(global_system->screen_[ID_CHANNEL_A], "/sd/system/fonts-text/a2560k_text-font_tech_8x8.bin");
+	Text_LoadFontFile(global_system->screen_[ID_CHANNEL_B], "/sd/system/fonts-text/a2560k_text-font_tech_8x16.bin");
 	WaitForUser();
 }
 

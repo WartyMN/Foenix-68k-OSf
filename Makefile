@@ -35,10 +35,24 @@ WARN_PACKAGE=
 #WARN_PACKAGE=-Weverything 
 #WARN_PACKAGE=-Wall 
 
+# 'make' with no target builds 'all', even though rules appear above it
+.DEFAULT_GOAL := all
+
+# text-mode fonts: the .bin files are the source; the C arrays are generated from them
+FONT_DIR = resources/font/text-mode
+FONT_GEN_SRCS = src/font_std_8x16.c src/font_std_8x8.c
+FONT_GEN_OBJS = obj/font_std_8x16.o obj/font_std_8x8.o
+
+src/font_std_8x16.c: $(FONT_DIR)/a2560k_text-font_std_8x16.bin
+	cd $(FONT_DIR) && xxd -i a2560k_text-font_std_8x16.bin > $(CURDIR)/$@
+
+src/font_std_8x8.c: $(FONT_DIR)/a2560k_text-font_std_8x8.bin
+	cd $(FONT_DIR) && xxd -i a2560k_text-font_std_8x8.bin > $(CURDIR)/$@
+
 # source files
 ASM_SRCS =
-C_SRCS = sys_test.c general_test.c font_test.c window_test.c bitmap_test.c text_test.c main.c startup.c sys_demo.c font_demo.c window_demo.c bitmap_demo.c text_demo.c bitmap.c control_template.c control.c debug.c event.c font.c general.c list.c menu.c mouse.c sys.c text.c theme.c window.c  ps2.c hello.c heapcheck.c gfx_memory.c
-LIB_SRCS = bitmap.c control_template.c control.c debug.c event.c font.c general.c list.c menu.c mouse.c sys.c text.c theme.c window.c  startup.c ps2.c heapcheck.c gfx_memory.c
+C_SRCS = sys_test.c general_test.c font_test.c window_test.c bitmap_test.c text_test.c main.c startup.c sys_demo.c font_demo.c window_demo.c bitmap_demo.c text_demo.c bitmap.c control_template.c control.c debug.c event.c font.c general.c list.c menu.c mouse.c sys.c text.c theme.c window.c  ps2.c hello.c heapcheck.c gfx_memory.c font_std_8x16.c font_std_8x8.c
+LIB_SRCS = bitmap.c control_template.c control.c debug.c event.c font.c general.c list.c menu.c mouse.c sys.c text.c theme.c window.c  startup.c ps2.c heapcheck.c gfx_memory.c font_std_8x16.c font_std_8x8.c
 # Test source files (also requires core)
 TEST_SRCS = sys_test.c general_test.c font_test.c window_test.c bitmap_test.c text_test.c
 DEMO_SRCS = sys_demo.c font_demo.c window_demo.c bitmap_demo.c text_demo.c
@@ -61,6 +75,11 @@ obj/%.o: %.s
 
 obj/%.o: %.c $(DEPDIR)/%.d | $(DEPDIR)
 #	@mkdir -p $(dir $@)
+	@cc68k $(WARN_PACKAGE) -D_A2560K_ -D$(DEBUG_DEF_1) -D$(DEBUG_DEF_2) -D$(DEBUG_DEF_3) -D$(DEBUG_DEF_4) -D$(DEBUG_DEF_5) -D$(DEBUG_VIA_SERIAL) --core=$(CPU_TYPE) $(MODEL)  -I$(CALYPSI_INSTALL)/contrib/Foenix-SDK/include --dependencies -MQ$@ >$(DEPDIR)/$*.d $<
+	cc68k $(WARN_PACKAGE) -D_A2560K_ -D$(DEBUG_DEF_1) -D$(DEBUG_DEF_2) -D$(DEBUG_DEF_3) -D$(DEBUG_DEF_4) -D$(DEBUG_DEF_5) -D$(DEBUG_VIA_SERIAL) --core=$(CPU_TYPE) $(MODEL)  -I$(CALYPSI_INSTALL)/contrib/Foenix-SDK/include --list-file=$(@:%.o=%.lst) -o $@ $<
+
+# generated font sources: own rule, because VPATH does not find files that make creates during the same run
+$(FONT_GEN_OBJS): obj/%.o: src/%.c $(DEPDIR)/%.d | $(DEPDIR)
 	@cc68k $(WARN_PACKAGE) -D_A2560K_ -D$(DEBUG_DEF_1) -D$(DEBUG_DEF_2) -D$(DEBUG_DEF_3) -D$(DEBUG_DEF_4) -D$(DEBUG_DEF_5) -D$(DEBUG_VIA_SERIAL) --core=$(CPU_TYPE) $(MODEL)  -I$(CALYPSI_INSTALL)/contrib/Foenix-SDK/include --dependencies -MQ$@ >$(DEPDIR)/$*.d $<
 	cc68k $(WARN_PACKAGE) -D_A2560K_ -D$(DEBUG_DEF_1) -D$(DEBUG_DEF_2) -D$(DEBUG_DEF_3) -D$(DEBUG_DEF_4) -D$(DEBUG_DEF_5) -D$(DEBUG_VIA_SERIAL) --core=$(CPU_TYPE) $(MODEL)  -I$(CALYPSI_INSTALL)/contrib/Foenix-SDK/include --list-file=$(@:%.o=%.lst) -o $@ $<
 
@@ -99,6 +118,7 @@ hello:  $(HELLO_OBJS)
 
 clean:
 	-rm $(DEPFILES)
+	-rm $(FONT_GEN_SRCS)
 	-rm $(TARGET_LIB)/*.a
 	-rm $(DEMO_OBJS) obj/*.lst obj/*.o
 	-rm $(TEST_OBJS) obj/*.lst obj/*.o

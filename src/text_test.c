@@ -442,15 +442,17 @@ MU_TEST(test_font_overwrite)
 	DEBUG_OUT(("%s %d: test_font_overwrite starting", __func__, __LINE__));
 
 	// Failure: Could not replace font data for channel A
-	mu_check( Text_UpdateFontData(global_system->screen_[ID_CHANNEL_A], (char*)0x000000) );
+	mu_check( Text_UpdateFontData(global_system->screen_[ID_CHANNEL_A], (const uint8_t*)0x000000, 8) );
 	// Failure: Could not replace font data for channel B
-	mu_check( Text_UpdateFontData(global_system->screen_[ID_CHANNEL_B], (char*)0x000000) );
+	mu_check( Text_UpdateFontData(global_system->screen_[ID_CHANNEL_B], (const uint8_t*)0x000000, 16) );
 
 	DEBUG_OUT(("%s %d: test_font_overwrite bad values...", __func__, __LINE__));
 
 	// bad values
 	// Failure: Text_UpdateFontData accepted an illegal screen ID
-	mu_check( Text_UpdateFontData(NULL, (char*)0x000000) == false );
+	mu_check( Text_UpdateFontData(NULL, (const uint8_t*)0x000000, 8) == false );
+	// Failure: Text_UpdateFontData accepted an illegal font height
+	mu_check( Text_UpdateFontData(global_system->screen_[ID_CHANNEL_A], (const uint8_t*)0x000000, 1) == false );
 }
 
 
@@ -895,7 +897,7 @@ MU_TEST(font_replace_test)
 
 //   	mu_assert(Text_UpdateFontData(global_system->screen_[ID_CHANNEL_A], (char*)the_new_font_data) == true, "Failed to update font data for Channel A" );
   	// Failure: Failed to update font data for Channel B
-	mu_check( Text_UpdateFontData(global_system->screen_[ID_CHANNEL_B], (char*)the_new_font_data) == true );
+	mu_check( Text_UpdateFontData(global_system->screen_[ID_CHANNEL_B], (const uint8_t*)the_new_font_data, 16) == true );
 }
 
 

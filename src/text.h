@@ -122,6 +122,9 @@
 // update: the numbers shown in vicky2 file in morfe don't match up to what's shown on screen, at least with a2560 config. eg, 20/00/00 is not a super dark blue, it's some totally bright thing. need to spend some time mapping these out better. But since user configurable, will wait until real machine comes and I can make sure of what's in flash rom. 
 
 
+#define TEXT_FONT_8X8_SIZE		2048
+#define TEXT_FONT_8X16_SIZE		4096
+
 
 /*****************************************************************************/
 /*                               Enumerations                                */
@@ -310,11 +313,15 @@ bool Text_InvertBox(Screen* the_screen, int16_t x1, int16_t y1, int16_t x2, int1
 // **** FONT RELATED *****
 
 
-//! replace the current font data with the data at the passed memory buffer
+//! Load a text-mode font into one channel's font memory.
 //! @param	the_screen - valid pointer to the target screen to operate on
-//! @param	new_font_data - Pointer to 2K (256 characters x 8 lines/bytes each) of font data. Each byte represents one line of an 8x8 font glyph.
-//! @return	Returns false on any error/invalid input.
-bool Text_UpdateFontData(Screen* the_screen, char* new_font_data);
+//! @param	new_font_data -- 256 characters x font_height bytes, 1 byte per row, MSB = leftmost pixel
+//! @param	font_height -- 8 or 16. Channel B shows 8x16 only: 8-line data is doubled. Channel A is switched to match.
+bool Text_UpdateFontData(Screen* the_screen, const uint8_t* new_font_data, uint8_t font_height);
+
+//! Load a text-mode font from a file (2048 bytes = 8x8, 4096 bytes = 8x16) into one channel
+//! @param	the_screen - valid pointer to the target screen to operate on
+bool Text_LoadFontFile(Screen* the_screen, const char* the_path);
 
 //! Test function to display all 256 font characters.
 //! Characters are rendered in 8 rows of 32 characters.
