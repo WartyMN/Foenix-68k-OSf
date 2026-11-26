@@ -631,9 +631,13 @@ short ps2_controller_cmd(unsigned char cmd)
     	return -1;
     }
  	
-	DEBUG_OUT(("%s %d: ps2_wait_out() returned normally; databuff=%x (%p)", __func__, __LINE__, (short)*PS2_DATA_BUF, PS2_DATA_BUF));    
-    
-    return (short)*PS2_DATA_BUF;
+	{
+		// LOGIC: read the data register exactly once: each read takes a byte off the controller's queue
+		short	result = (short)*PS2_DATA_BUF;
+		
+		DEBUG_OUT(("%s %d: ps2_wait_out() returned normally; databuff=%x (%p)", __func__, __LINE__, result, PS2_DATA_BUF));    
+		return result;
+	}
 }
 
 /*
@@ -698,9 +702,21 @@ short ps2_kbd_cmd(unsigned char cmd, short delay) {
  * Read from the PS/2 data port until there are no more bytes ready.
  */
 void ps2_flush_out() {
-    while (*PS2_STATUS & PS2_STAT_OBF) {
-        unsigned char x = *PS2_DATA_BUF;
-    }
+	uint16_t	quiet;
+	
+	// LOGIC: the controller hands over queued bytes one at a time, with a short gap after each read
+	//   (the emulator: 100 us; a real device mid-packet: similar). Stopping at the first empty status read leaves
+	//   the rest queued, and later command replies then come back shifted by those bytes.
+	//   So keep reading until the output buffer has stayed empty for a while (~0.5-2 ms on these CPUs).
+	for (quiet = 0; quiet < 5000; quiet++)
+	{
+		if (*PS2_STATUS & PS2_STAT_OBF)
+		{
+			unsigned char x = *PS2_DATA_BUF;
+			(void)x;
+			quiet = 0;
+		}
+	}
 }
 
 /*
