@@ -116,6 +116,21 @@ demos:	$(DEMO_OBJS)
 hello:  $(HELLO_OBJS)
 	ln68k -o $(BUILD_PGZ)/hello.pgz obj/hello.o a2560k_osf.scm $(TARGET_LIB)/a2560_sys.a a2560-68020-lc-sd.a --no-tree-shaking --output-format=pgz --list-file=$(BUILD_LST)/hello.lst --cross-reference --rtattr cstartup=Foenix_user --heap-size=$(HEAP_SIZE) --stack-size=$(STACK_SIZE) 
 
+# ---- copying the built programs to an SD card folder (not part of 'make' / 'make all')
+#   make deploy                          build, then copy to the emulator's SD card folder (below)
+#   make deploy DEPLOY_DIR=/Volumes/X    the same, to another folder, e.g. a real SD card
+#   Copy while the emulator is NOT running: it reads the folder at start and writes it back when it closes.
+DEPLOY_DIR ?= /Users/micahbly/dev/bbedit-workspace-foenix-68k-gcc/A2560x_Emulator/sd/gen1_sd
+
+.PHONY: deploy
+deploy: all
+	@test -d "$(DEPLOY_DIR)" || { echo "deploy: folder not found: $(DEPLOY_DIR)"; exit 1; }
+	cp $(BUILD_PGZ)/*.pgz "$(DEPLOY_DIR)/"
+	mkdir -p "$(DEPLOY_DIR)/system/font-text"
+	for f in std_8x8 std_8x16 tech_8x8 tech_8x16; do \
+		cp "$(FONT_DIR)/a2560k_text-font_$$f.bin" "$(DEPLOY_DIR)/system/font-text/$$f.fnt" || exit 1; \
+	done
+
 clean:
 	-rm $(DEPFILES)
 	-rm $(FONT_GEN_SRCS)

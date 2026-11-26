@@ -929,8 +929,8 @@ void Demo_Text_UpdateFontData(void)
 	Text_ShowFontChars(global_system->screen_[ID_CHANNEL_A], 10);
 	Text_ShowFontChars(global_system->screen_[ID_CHANNEL_B], 10);
 
-	Text_LoadFontFile(global_system->screen_[ID_CHANNEL_A], "/sd/system/font-text/font_tech_8x8.bin");
-	Text_LoadFontFile(global_system->screen_[ID_CHANNEL_B], "/sd/system/font-text/font_tech_8x16.bin");
+	Text_LoadFontFile(global_system->screen_[ID_CHANNEL_A], "/sd/system/font-text/tech_8x8.fnt");
+	Text_LoadFontFile(global_system->screen_[ID_CHANNEL_B], "/sd/system/font-text/tech_8x16.fnt");
 	WaitForUser();
 }
 
