@@ -1231,8 +1231,10 @@ bool Text_LoadFontFile(Screen* the_screen, const char* the_path)
 {
 	FILE*		the_file;
 	uint8_t*	buffer;
-	size_t		len;
+// 	size_t		len;
 	bool		result = false;
+	short		chan;
+	short		len;
 	
 	if ((buffer = (uint8_t*)malloc(TEXT_FONT_8X16_SIZE + 1)) == NULL)
 	{
@@ -1240,14 +1242,31 @@ bool Text_LoadFontFile(Screen* the_screen, const char* the_path)
 		return false;
 	}
 	
-	if ((the_file = fopen(the_path, "rb")) == NULL)
+// 	if ((the_file = fopen(the_path, "rb")) == NULL)
+// 	{
+// 		LOG_ERR(("%s %d: could not open '%s'", __func__, __LINE__, the_path));
+// 		goto done;
+// 	}
+
+	chan = sys_fsys_open(the_path, 0x01);		// 0x01 = read (FatFs FA_READ)
+	
+	if (chan < 0)
 	{
-		LOG_ERR(("%s %d: could not open '%s'", __func__, __LINE__, the_path));
+		LOG_ERR(("%s %d: could not open '%s': MCP error %i", __func__, __LINE__, the_path, (int)chan));
 		goto done;
 	}
 
-	len = fread(buffer, 1, TEXT_FONT_8X16_SIZE + 1, the_file);		// +1: catches files that are too big
-	fclose(the_file);
+	len = sys_chan_read(chan, buffer, TEXT_FONT_8X16_SIZE + 1);		// +1: catches files that are too big
+	sys_fsys_close(chan);
+
+	if (len < 0)
+	{
+		LOG_ERR(("%s %d: read error on '%s': MCP error %i", __func__, __LINE__, the_path, (int)len));
+		goto done;
+	}
+
+// 	len = fread(buffer, 1, TEXT_FONT_8X16_SIZE + 1, the_file);		// +1: catches files that are too big
+// 	fclose(the_file);
 	
 	if (len == TEXT_FONT_8X8_SIZE)
 	{
