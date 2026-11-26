@@ -107,9 +107,11 @@ void GfxMem_Free(void* the_ptr);
 
 
 
-// **** xxx functions *****
+// **** Debug functions *****
 
-
+//! Walk every block in the graphics pool and check the headers are consistent.
+//! @return false (and logs) at the first damaged block
+bool GfxMem_Check(const char* where);
 
 
 // **** xxx functions *****

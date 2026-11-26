@@ -18,6 +18,7 @@
 #include "debug.h"
 #include "font.h"
 #include "general.h"
+#include "gfx_memory.h"
 #include "text.h"
 #include "sys.h"
 
@@ -580,30 +581,43 @@ void RunDemo(void)
 
 	
 	Demo_Bitmap_FillBox1();
+	GfxMem_Check("Demo_Bitmap_FillBox1");
 	Demo_Bitmap_FillBox2();
+	GfxMem_Check("Demo_Bitmap_FillBox2");
 	Demo_Bitmap_FillBox3();
+	GfxMem_Check("Demo_Bitmap_FillBox3");
 
 	Demo_Bitmap_SetPixelAtXY();
+	GfxMem_Check("Demo_Bitmap_SetPixelAtXY");
 
 // 
 //  	Demo_Bitmap_GetPixelAtXY();
 // 
 
 	Demo_Bitmap_DrawHLine1();
+	GfxMem_Check("Demo_Bitmap_DrawHLine1");
 	
 	Demo_Bitmap_DrawLine();
+	GfxMem_Check("Demo_Bitmap_DrawLine");
 	
 	Demo_Bitmap_DrawBox();
+	GfxMem_Check("Demo_Bitmap_DrawBox");
 	Demo_Bitmap_DrawBoxCoords();
+	GfxMem_Check("Demo_Bitmap_DrawBoxCoords");
 
 	Demo_Bitmap_FillMemory1();
+	GfxMem_Check("Demo_Bitmap_FillMemory1");
 
 	Demo_Bitmap_DrawRoundBox();
+	GfxMem_Check("Demo_Bitmap_DrawRoundBox");
 	
 	Demo_Bitmap_DrawCircle();
+	GfxMem_Check("Demo_Bitmap_DrawCircle");
 	
 	Demo_Bitmap_Blit1();
+	GfxMem_Check("Demo_Bitmap_Blit1");
 	Demo_Bitmap_BlitRect();
+	GfxMem_Check("Demo_Bitmap_BlitRect");
 // 	
 // 	Demo_Bitmap_ScreenResolution1();
 // 	Demo_Bitmap_ScreenResolution2();

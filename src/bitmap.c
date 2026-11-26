@@ -1121,10 +1121,8 @@ bool Bitmap_FillBoxRect(Bitmap* the_bitmap, Rectangle* the_coords, uint8_t the_c
 bool Bitmap_FillBox(Bitmap* the_bitmap, int16_t x, int16_t y, int16_t width, int16_t height, uint8_t the_color)
 {
 	uint32_t	the_write_loc_int;
-	uint8_t*	the_write_loc;
-	uint32_t	fat_bmap_width;
-	uint16_t	short_color = (uint16_t)the_color;
-	int16_t		max_row;
+	uint32_t	bmap_width;
+	int16_t		row;
 
 	if (the_bitmap == NULL)
 	{
@@ -1134,38 +1132,29 @@ bool Bitmap_FillBox(Bitmap* the_bitmap, int16_t x, int16_t y, int16_t width, int
 
 // 	DEBUG_OUT(("%s %d: x=%i, y=%i, width=%i, height=%i, the_color=%i, addr=%p, addr_int_=%lx", __func__, __LINE__, x, y, width, height, the_color, the_bitmap->addr_, the_bitmap->addr_int_));
 	
-	// set up initial loc
-	the_write_loc_int = Bitmap_GetMemLocIntForXY(the_bitmap, x, y);
+	// clip to the bitmap
+	if (x < 0) { width += x; x = 0; }
+	if (y < 0) { height += y; y = 0; }
+	if (x + width > the_bitmap->width_) { width = the_bitmap->width_ - x; }
+	if (y + height > the_bitmap->height_) { height = the_bitmap->height_ - y; }
 	
-// 	DEBUG_OUT(("%s %d: the_write_loc_int=%lx, (char*)the_write_loc_int=%p", __func__, __LINE__, the_write_loc_int, (char*)the_write_loc_int));
-	
-	fat_bmap_width = (uint32_t)the_bitmap->width_;
-// 	DEBUG_OUT(("%s %d: fat_bmap_width=%lu, the_bitmap->width_=%i", __func__, __LINE__, fat_bmap_width, the_bitmap->width_));
-// 	DEBUG_OUT(("%s %d: width=%i, write_len=%lu (unsigned), write_len=%li", __func__, __LINE__, width, write_len, write_len));
-
-	max_row = y + height;
-	
-	for (; y <= max_row; y++)
+	if (width <= 0 || height <= 0)
 	{
-		the_write_loc = (uint8_t*)the_write_loc_int;
-		
-		#ifdef _DO_NOT_TRUST_MEMCPY_
-			uint16_t i;
-			for (i=0; i < width; i++)
-			{
-				*(the_write_loc + i) = the_color;
-			}
-		#else
-			memset(the_write_loc, short_color, (size_t)width);
-		#endif
-		
-		the_write_loc_int += fat_bmap_width;
-		//DEBUG_OUT(("%s %d: after write: the_write_loc_int=%lx, before: the_write_loc=%p, len=%lu", __func__, __LINE__, the_write_loc_int, the_write_loc, write_len));
+		return true;		// nothing on the bitmap to fill
+	}
+
+	bmap_width = (uint32_t)the_bitmap->width_;
+	the_write_loc_int = Bitmap_GetMemLocIntForXY(the_bitmap, x, y);
+
+	for (row = 0; row < height; row++)		// exactly 'height' rows
+	{
+		memset((uint8_t*)the_write_loc_int, the_color, (size_t)width);
+		the_write_loc_int += bmap_width;
 	}
 	
 	return true;
 }
-
+// 
 
 
 
@@ -1549,7 +1538,7 @@ bool Bitmap_DrawHLine(Bitmap* the_bitmap, int16_t x, int16_t y, int16_t the_line
 		return false;
 	}
 
-	result = Bitmap_FillBox(the_bitmap, x, y, the_line_len, 0, the_color);
+	result = Bitmap_FillBox(the_bitmap, x, y, the_line_len, 1, the_color);
 
 	return result;
 }
@@ -1695,7 +1684,7 @@ bool Bitmap_DrawBox(Bitmap* the_bitmap, int16_t x, int16_t y, int16_t width, int
 	
 	if (do_fill)
 	{
-		if (!Bitmap_FillBox(the_bitmap, x, y, width, height - 1, the_color))
+		if (!Bitmap_FillBox(the_bitmap, x, y, width, height, the_color))
 		{
 			LOG_ERR(("%s %d: draw filled box failed", __func__, __LINE__));
 			return false;

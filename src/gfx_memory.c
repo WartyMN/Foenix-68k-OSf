@@ -1310,3 +1310,49 @@ int32_t bpoolv(void *buf)
 }
 #endif /* BufValid */
 
+
+
+
+
+// *** DEBUG CODE ****
+
+//! Walk every block in the graphics pool and check the headers are consistent.
+//! @return false (and logs) at the first damaged block
+bool GfxMem_Check(const char* where)
+{
+	struct bfhead*	b = BFH((void*)GFXMEM_POOL_START);
+	bufsize			prev_size = 0;
+	
+	while (1)
+	{
+		bufsize		size = b->bh.bsize;
+		bufsize		len;
+		
+		if (size == ESent)
+		{
+			return true;		// reached the end sentinel cleanly
+		}
+
+		len = (size < 0) ? -size : size;
+
+		if (size == 0 || (len & (SizeQuant - 1)) != 0 || (uint32_t)b + len > GFXMEM_POOL_END)
+		{
+			LOG_ERR(("%s: GFXMEM bad block at %p: prevfree=%x, bsize=%x (block before it was %x bytes)", where, b, (unsigned int)b->bh.prevfree, (unsigned int)size, (unsigned int)prev_size));
+			return false;
+		}
+
+		// the next header's prevfree must be this block's size if this block is free, else 0
+		{
+			struct bhead*	bn = BH((char*)b + len);
+			
+			if (bn->prevfree != ((size > 0) ? size : 0))
+			{
+				LOG_ERR(("%s: GFXMEM bad link after %p: next prevfree=%x, expected %x", where, b, (unsigned int)bn->prevfree, (unsigned int)((size > 0) ? size : 0)));
+				return false;
+			}
+		}
+
+		prev_size = len;
+		b = BFH((char*)b + len);
+	}
+}
