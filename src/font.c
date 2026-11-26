@@ -835,6 +835,11 @@ int16_t Font_DrawChar(Bitmap* the_bitmap, uint8_t the_char, Font* the_font)
 	start_read_addr = the_font->image_table_ + image_offset_index;
 	
 	start_write_addr_int = Bitmap_GetMemLocInt(the_bitmap);
+	
+	if (start_write_addr_int == 0)
+	{
+		return 0;		// pen is off the bitmap: nothing to draw
+	}
 	//DEBUG_OUT(("%s %d: start_write_addr_int=%p, start_read=%p", __func__, __LINE__, start_write_addr_int, start_read_addr));
 
 	for (row = 0; row < the_font->fRectHeight; row++)

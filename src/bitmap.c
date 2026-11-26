@@ -54,8 +54,13 @@
 
 //! \cond PRIVATE
 
-// validate the coordinates are within the bounds of the specified screen
+//! Checks for NULL bitmap or bitmap addr and validates the coordinates are within the bounds of the specified bitmap. 
+//! @return	Returns false if bitmap or bitmap ptr is null, or if coords are off screen
 bool Bitmap_ValidateXY(Bitmap* the_bitmap, int16_t x, int16_t y);
+
+// Clip a rectangle to the screen, preventing writing to memory before/after the bitmap
+//! @return Returns false if nothing is left to work on after clipping.
+bool Bitmap_ClipRect(Bitmap* the_bitmap, int16_t* x, int16_t* y, int16_t* width, int16_t* height);
 
 //! Calculate the SDRAM location of the specified coordinate within the bitmap
 //! @param	the_bitmap -- reference to a valid Bitmap object.
@@ -96,20 +101,49 @@ void Bitmap_Print(Bitmap* the_bitmap);
 
 //! \cond PRIVATE
 
-//! Validate the coordinates are within the bounds of the specified bitmap. 
+//! Checks for NULL bitmap or bitmap addr and validates the coordinates are within the bounds of the specified bitmap. 
+//! @return	Returns false if bitmap or bitmap ptr is null, or if coords are off screen
 bool Bitmap_ValidateXY(Bitmap* the_bitmap, int16_t x, int16_t y)
 {
-	int16_t			max_row;
-	int16_t			max_col;
-	
-	max_col = the_bitmap->width_ - 1;
-	max_row = the_bitmap->height_ - 1;
-	
-	if (x < 0 || x > max_col || y < 0 || y > max_row)
+	if (the_bitmap == NULL || the_bitmap->addr_ == NULL)
 	{
 		return false;
 	}
 
+	return (x >= 0 && x < the_bitmap->width_ && y >= 0 && y < the_bitmap->height_);
+}
+
+// Clip a rectangle to the screen, preventing writing to memory before/after the bitmap
+//! @return Returns false if nothing is left to work on after clipping.
+bool Bitmap_ClipRect(Bitmap* the_bitmap, int16_t* x, int16_t* y, int16_t* width, int16_t* height)
+{
+	if (*x < 0)
+	{
+		*width += *x;
+		*x = 0;
+	}
+	
+	if (*y < 0)
+	{
+		*height += *y;
+		*y = 0;
+	}
+	
+	if (*x + *width > the_bitmap->width_)
+	{
+		*width = the_bitmap->width_ - *x;
+	}
+		
+	if (*y + *height > the_bitmap->height_)
+	{
+		*height = the_bitmap->height_ - *y;
+	}
+	
+	if (*width <= 0 || *height <= 0)
+	{
+		return false;		// nothing on the bitmap to fill
+	}
+	
 	return true;
 }
 
@@ -463,41 +497,67 @@ bool Bitmap_Blit(Bitmap* src_bm, int16_t src_x, int16_t src_y, Bitmap* dst_bm, i
 	// LOGIC:
 	//   check if any part of the desired rectangle is within visible space in the source.
 	//   We want to allow negative starting locations as long as height/width means some part of the rectange is actually in the bitmap. 
-	
-	if (src_x + width < 0 || src_y + height < 0)
-	{
-		LOG_INFO(("%s %d: No part of the copy-from rectangle was on screen. No copy performed. src_x=%i, src_y=%i, width=%i, height=%i.", __func__, __LINE__, src_x, src_y, width, height));
-		return false;
-	}
-	
-	// LOGIC:
-	//   check if any part of the desired rectangle is within visible space in the target.
-	//   We want to allow near-right-edge/bottom-edge starting locations as long as some part of the rectange is actually in the bitmap. 
-	
-	if (dst_x >= dst_bm->width_ || dst_y >= dst_bm->height_)
-	{
-		LOG_INFO(("%s %d: No part of the copy-to rectangle was on screen. No copy performed. dst_x=%i, dst_y=%i, width=%i, height=%i.", __func__, __LINE__, dst_x, dst_y, width, height));
-		return false;
-	}
 
-	// adjust copy width/height if the whole image wouldn't fit on target bitmap anyway
-	width = (dst_x + width >= dst_bm->width_) ? dst_bm->width_ - dst_x : width;
-	height = (dst_y + height >= dst_bm->height_) ? dst_bm->height_ - dst_y : height;
-	
-	// adjust copy width/height if the starting x,y are offscreen
+	//DEBUG_OUT(("%s %d: parameters before src clip: src_x=%i, src_y=%i, dst_x=%i, dst_y=%i, width=%i, height=%i.", __func__, __LINE__, src_x, src_y, dst_x, dst_y, width, height));
+
+	// clip to the source bitmap; moving a source edge in moves the matching destination edge too
 	if (src_x < 0)
 	{
-		width -= src_x;
+		width += src_x;
+		dst_x -= src_x; 
 		src_x = 0;
 	}
 
 	if (src_y < 0)
 	{
-		height -= src_y;
+		height += src_y;
+		dst_y -= src_y;
 		src_y = 0;
 	}
 
-	//DEBUG_OUT(("%s %d: final parameters: src_x=%i, src_y=%i, dst_x=%i, dst_y=%i, width=%i, height=%i.", __func__, __LINE__, src_x, src_y, dst_x, dst_y, width, height));
+	if (src_x + width > src_bm->width_)
+	{
+		width = src_bm->width_ - src_x;
+	}
+
+	if (src_y + height > src_bm->height_)
+	{
+		height = src_bm->height_ - src_y;
+	}
+
+	//DEBUG_OUT(("%s %d: parameters after src clip: src_x=%i, src_y=%i, dst_x=%i, dst_y=%i, width=%i, height=%i.", __func__, __LINE__, src_x, src_y, dst_x, dst_y, width, height));
+
+	// clip to the destination bitmap; moving a destination edge in moves the matching source edge too
+	if (dst_x < 0)
+	{
+		width += dst_x;
+		src_x -= dst_x;
+		dst_x = 0;
+	}
+	
+	if (dst_y < 0)
+	{
+		height += dst_y;
+		src_y -= dst_y;
+		dst_y = 0;
+	}
+	
+	if (dst_x + width > dst_bm->width_)
+	{
+		width = dst_bm->width_ - dst_x;
+	}
+	
+	if (dst_y + height > dst_bm->height_)
+	{
+		height = dst_bm->height_ - dst_y;
+	}
+
+	//DEBUG_OUT(("%s %d: parameters after dst clip: src_x=%i, src_y=%i, dst_x=%i, dst_y=%i, width=%i, height=%i.", __func__, __LINE__, src_x, src_y, dst_x, dst_y, width, height));
+
+	if (width <= 0 || height <= 0)
+	{
+		return true;		// nothing left to copy
+	}
 
 	// checks complete. ready to copy.
 	copy_size = (uint32_t)width;
@@ -1133,12 +1193,7 @@ bool Bitmap_FillBox(Bitmap* the_bitmap, int16_t x, int16_t y, int16_t width, int
 // 	DEBUG_OUT(("%s %d: x=%i, y=%i, width=%i, height=%i, the_color=%i, addr=%p, addr_int_=%lx", __func__, __LINE__, x, y, width, height, the_color, the_bitmap->addr_, the_bitmap->addr_int_));
 	
 	// clip to the bitmap
-	if (x < 0) { width += x; x = 0; }
-	if (y < 0) { height += y; y = 0; }
-	if (x + width > the_bitmap->width_) { width = the_bitmap->width_ - x; }
-	if (y + height > the_bitmap->height_) { height = the_bitmap->height_ - y; }
-	
-	if (width <= 0 || height <= 0)
+	if (Bitmap_ClipRect(the_bitmap, &x, &y, &width, &height) == false)
 	{
 		return true;		// nothing on the bitmap to fill
 	}
@@ -1302,22 +1357,7 @@ Font* Bitmap_GetFont(Bitmap* the_bitmap)
 //! @return Returns a pointer to the SDRAM location that corresponds to the passed X, Y, or NULL on any error condition
 unsigned char* Bitmap_GetMemLocForXY(Bitmap* the_bitmap, int16_t x, int16_t y)
 {
-	if (the_bitmap == NULL)
-	{
-		LOG_ERR(("%s %d: passed bitmap was NULL", __func__, __LINE__));
-		return NULL;
-	}
-	
-	if (the_bitmap->addr_ == NULL)
-	{
-		LOG_ERR(("%s %d: passed bitmap had a NULL address", __func__, __LINE__));
-		return NULL;
-	}
-	
-	// LOGIC:
-	//   check that x and y are within the bitmap's coordinate box. if not, we can't calculate a memory loc for them.
-	
-	if (0 > x >= the_bitmap->width_ || 0 > y >= the_bitmap->height_)
+	if (!Bitmap_ValidateXY(the_bitmap, x, y))
 	{
 		LOG_ERR(("%s %d: invalid coordinates passed (%i, %i)", __func__, __LINE__, x, y));
 		return NULL;
@@ -1334,22 +1374,7 @@ unsigned char* Bitmap_GetMemLocForXY(Bitmap* the_bitmap, int16_t x, int16_t y)
 //! @return Returns an unsigned long that can be converted to the SDRAM location that corresponds to the passed X, Y, or NULL on any error condition
 uint32_t Bitmap_GetMemLocIntForXY(Bitmap* the_bitmap, int16_t x, int16_t y)
 {
-	if (the_bitmap == NULL)
-	{
-		LOG_ERR(("%s %d: passed bitmap was NULL", __func__, __LINE__));
-		return 0;
-	}
-	
-	if (the_bitmap->addr_ == NULL)
-	{
-		LOG_ERR(("%s %d: passed bitmap had a NULL address", __func__, __LINE__));
-		return 0;
-	}
-	
-	// LOGIC:
-	//   check that x and y are within the bitmap's coordinate box. if not, we can't calculate a memory loc for them.
-	
-	if (0 > x >= the_bitmap->width_ || 0 > y >= the_bitmap->height_)
+	if (!Bitmap_ValidateXY(the_bitmap, x, y))
 	{
 		LOG_ERR(("%s %d: invalid coordinates passed (%i, %i)", __func__, __LINE__, x, y));
 		return 0;
@@ -1395,12 +1420,6 @@ bool Bitmap_SetPixelAtXY(Bitmap* the_bitmap, int16_t x, int16_t y, uint8_t the_c
 	uint32_t	the_write_loc_int;
 	char*		the_write_loc;
 	
-	if (the_bitmap == NULL)
-	{
-		LOG_ERR(("%s %d: passed bitmap was NULL", __func__, __LINE__));
-		return false;
-	}
-
 	if (!Bitmap_ValidateXY(the_bitmap, x, y))
 	{
 		LOG_INFO(("%s %d: illegal coordinate %i, %i", __func__, __LINE__, x, y));
@@ -1430,12 +1449,6 @@ uint8_t Bitmap_GetPixelAtXY(Bitmap* the_bitmap, int16_t x, int16_t y)
 	uint8_t*	the_read_loc;
 	uint8_t		the_color;
 	
-	if (the_bitmap == NULL)
-	{
-		LOG_ERR(("%s %d: passed bitmap was NULL", __func__, __LINE__));
-		return false;
-	}
-
 	if (!Bitmap_ValidateXY(the_bitmap, x, y))
 	{
 		LOG_ERR(("%s %d: illegal coordinate", __func__, __LINE__));
@@ -1466,12 +1479,6 @@ bool Bitmap_DrawLine(Bitmap* the_bitmap, int16_t x1, int16_t y1, int16_t x2, int
 	int16_t dy;
 	int16_t sy;
 	int16_t err;
-
-	if (the_bitmap == NULL)
-	{
-		LOG_ERR(("%s %d: passed bitmap was NULL", __func__, __LINE__));
-		return false;
-	}
 
 	if (!Bitmap_ValidateXY(the_bitmap, x1, y1))
 	{
@@ -1526,12 +1533,6 @@ bool Bitmap_DrawHLine(Bitmap* the_bitmap, int16_t x, int16_t y, int16_t the_line
 
 	//DEBUG_OUT(("%s %d: x=%i, y=%i, the_line_len=%i, the_color=%i", __func__, __LINE__, x, y, the_line_len, the_color));
 	
-	if (the_bitmap == NULL)
-	{
-		LOG_ERR(("%s %d: passed bitmap was NULL", __func__, __LINE__));
-		return false;
-	}
-
 	if (!Bitmap_ValidateXY(the_bitmap, x, y))
 	{
 		LOG_ERR(("%s %d: illegal coordinate", __func__, __LINE__));
@@ -1553,12 +1554,6 @@ bool Bitmap_DrawVLine(Bitmap* the_bitmap, int16_t x, int16_t y, int16_t the_line
 
 	//DEBUG_OUT(("%s %d: x=%i, y=%i, the_line_len=%i, the_color=%i", __func__, __LINE__, x, y, the_line_len, the_color));
 	
-	if (the_bitmap == NULL)
-	{
-		LOG_ERR(("%s %d: passed bitmap was NULL", __func__, __LINE__));
-		return false;
-	}
-
 	if (!Bitmap_ValidateXY(the_bitmap, x, y))
 	{
 		LOG_ERR(("%s %d: illegal coordinate", __func__, __LINE__));
@@ -1593,12 +1588,6 @@ bool Bitmap_DrawBoxCoords(Bitmap* the_bitmap, int16_t x1, int16_t y1, int16_t x2
 
 	//DEBUG_OUT(("%s %d: x1=%i, y1=%i, x2=%i, y2=%i, the_color=%i", __func__, __LINE__, x1, y1, x2, y2, the_color));
 	
-	if (the_bitmap == NULL)
-	{
-		LOG_ERR(("%s %d: passed bitmap was NULL", __func__, __LINE__));
-		return false;
-	}
-
 	if (!Bitmap_ValidateXY(the_bitmap, x1, y1))
 	{
 		LOG_ERR(("%s %d: illegal coordinate", __func__, __LINE__));
@@ -1659,12 +1648,6 @@ bool Bitmap_DrawBox(Bitmap* the_bitmap, int16_t x, int16_t y, int16_t width, int
 {	
 
 	//DEBUG_OUT(("%s %d: x=%i, y=%i, width=%i, height=%i, the_color=%i", __func__, __LINE__, x, y, width, height, the_color));
-
-	if (the_bitmap == NULL)
-	{
-		LOG_ERR(("%s %d: passed bitmap was NULL", __func__, __LINE__));
-		return false;
-	}
 
 	if (!Bitmap_ValidateXY(the_bitmap, x, y))
 	{
@@ -1732,12 +1715,6 @@ bool Bitmap_DrawRoundBox(Bitmap* the_bitmap, int16_t x, int16_t y, int16_t width
 {	
 
 	//DEBUG_OUT(("%s %d: x=%i, y=%i, width=%i, height=%i, the_color=%i", __func__, __LINE__, x, y, width, height, the_color));
-
-	if (the_bitmap == NULL)
-	{
-		LOG_ERR(("%s %d: passed bitmap was NULL", __func__, __LINE__));
-		return false;
-	}
 
 	if (!Bitmap_ValidateXY(the_bitmap, x, y))
 	{
@@ -1812,12 +1789,6 @@ bool Bitmap_DrawRoundBox(Bitmap* the_bitmap, int16_t x, int16_t y, int16_t width
 //! Based on http://rosettacode.org/wiki/Bitmap/Midpoint_circle_algorithm#C
 bool Bitmap_DrawCircle(Bitmap* the_bitmap, int16_t x1, int16_t y1, int16_t radius, uint8_t the_color)
 {
-	if (the_bitmap == NULL)
-	{
-		LOG_ERR(("%s %d: passed bitmap was NULL", __func__, __LINE__));
-		return false;
-	}
-
 	if (!Bitmap_ValidateXY(the_bitmap, x1, y1))
 	{
 		LOG_ERR(("%s %d: illegal coordinate", __func__, __LINE__));
